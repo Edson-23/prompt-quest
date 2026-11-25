@@ -1,8 +1,184 @@
 <!doctype html>
 <html lang="es">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prompt Quest</title>
-<h1>Prompt Quest</h1>
-<p>Aprende a escribir prompts. Juego en construcción.</p>
+<meta name="description" content="Aprende prompting con encargos, pistas y retroalimentación. Un juego en español que funciona sin internet.">
+<title>Prompt Quest | Tu primera misión</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1117;--border:#30363d;--text:#c9d1d9;--success:#7ee787;--error:#f85149;--hint:#e3b341;--title:#79c0ff;--muted:#9da7b3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:1rem/1.65 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+button,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--text);padding:.65rem 1rem;min-height:44px}button:hover{border-color:var(--title);background:#161e29}button:disabled{cursor:default;opacity:.65}:focus-visible{outline:2px solid var(--title);outline-offset:4px}a{color:var(--title)}
+.skip{position:absolute;left:1rem;top:-5rem;background:var(--bg);padding:.5rem;z-index:1}.skip:focus{top:1rem}.shell{width:min(1180px,100% - 3rem);margin:auto}header{border-bottom:1px solid var(--border);padding:1.65rem 0}.header-row,.panel-bar,.editor-bottom,.progress-label{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.brand{margin:0;font-size:1.3rem;letter-spacing:-.04em;color:var(--success)}.brand span{color:var(--text)}.subtitle,.muted{color:var(--muted)}.subtitle{margin:.25rem 0 0;font-size:.875rem}.progress-box{min-width:225px;font-size:.875rem}progress{display:block;width:100%;height:6px;margin-top:.65rem;accent-color:var(--success);border:0;background:var(--border)}progress::-webkit-progress-bar{background:var(--border);border-radius:4px}progress::-webkit-progress-value{background:var(--success);border-radius:4px}progress::-moz-progress-bar{background:var(--success)}
+main{padding:2.3rem 0 3rem}.intro{margin-bottom:1.8rem}.eyebrow{color:var(--title);font-size:.875rem;margin:0 0 .45rem}h1{font-size:clamp(1.5rem,3.5vw,2.1rem);line-height:1.3;letter-spacing:-.05em;margin:0 0 .6rem;color:#f0f6fc}.intro p:last-child{margin:0}.workspace{display:grid;grid-template-columns:minmax(0,1.14fr) minmax(0,1fr);gap:1.25rem;align-items:start}.left{display:grid;gap:1.25rem}.panel{min-width:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#10161e}.panel-bar{padding:.8rem 1.2rem;background:#161b22;border-bottom:1px solid var(--border)}h2{margin:0;font-size:.875rem;font-weight:500;color:var(--title)}.tag{font-size:.8125rem;color:var(--muted)}.panel-body{padding:1.25rem}h3{margin:0 0 .8rem;font-size:1.1rem;color:#f0f6fc}p{margin:.7rem 0}.brief{border-left:2px solid var(--title);padding-left:1rem;margin:1rem 0 1.3rem}.brief p{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;list-style:none;margin:.6rem 0 1.2rem}.chips li{padding:.2rem .55rem;font-size:.875rem;border:1px solid var(--border);border-radius:4px}.hint-button{color:var(--hint);border-color:#65582e}.hint{color:var(--hint);background:#211f16;border:1px solid #65582e;border-radius:4px;padding:.85rem;margin-top:1rem}.hint p{margin:.4rem 0}label{display:block;margin-bottom:.65rem;font-size:.875rem}textarea{display:block;width:100%;min-height:210px;resize:vertical;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:1rem;line-height:1.7}textarea::placeholder{color:#8b949e}.editor-bottom{margin-top:.9rem}.primary{background:var(--success);border-color:var(--success);color:var(--bg);font-weight:700}.primary:hover{background:#a0efaa;color:var(--bg);border-color:#a0efaa}.small{font-size:.875rem}.error{color:var(--error)}.notice{font-size:.875rem;color:var(--muted);margin:1rem 0 0}
+.result-summary{padding-bottom:1.1rem;margin:0;border-bottom:1px solid var(--border)}.criteria{list-style:none;margin:0;padding:0}.criterion{display:grid;grid-template-columns:1.1rem 1fr;gap:.65rem;padding:.95rem 0;border-bottom:1px solid var(--border)}.criterion:last-child{border-bottom:0}.criterion p{margin:.2rem 0 0;font-size:.875rem;color:var(--muted)}.criterion strong{font-weight:500}.requirement{color:var(--muted);font-size:.8125rem;margin-left:.5rem}.pass .symbol{color:var(--success)}.fail .symbol{color:var(--error)}.pending .symbol{color:var(--muted)}.response{margin-top:1rem;border-top:1px solid var(--border);padding-top:1.25rem}.response h3{color:var(--title);font-size:1rem}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:.875rem;margin:.8rem 0 0}.completion{padding:1rem;border:1px solid #375d3e;border-radius:5px;background:#13231a;color:var(--success);margin-top:1rem}.completion p{margin:0}footer{border-top:1px solid var(--border);padding:1.2rem 0;font-size:.875rem;color:var(--muted)}[hidden]{display:none!important}
+@media(max-width:800px){.workspace{grid-template-columns:1fr}.shell{width:calc(100% - 2rem)}main{padding-top:1.5rem}.progress-box{width:100%}}@media(prefers-reduced-motion:no-preference){button{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<a class="skip" href="#prompt" data-copy="skip"></a>
+<header><div class="shell header-row"><div><p class="brand">&gt;_ <span>Prompt Quest</span></p><p class="subtitle" data-copy="tagline"></p></div><div class="progress-box"><div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div><progress id="progress" value="0" max="1" aria-label="Progreso de la misión"></progress></div></div></header>
+<main class="shell">
+<div class="intro"><p class="eyebrow" data-copy="missionNumber"></p><h1 data-copy="missionTitle"></h1><p class="muted" data-copy="intro"></p></div>
+<div class="workspace"><div class="left">
+<section class="panel" aria-labelledby="brief-title"><div class="panel-bar"><h2 id="brief-title" data-copy="briefTitle"></h2><span class="tag" data-copy="clientTag"></span></div><div class="panel-body"><h3 id="client-name"></h3><div class="brief"><p id="brief"></p></div><p class="small" data-copy="requiredIntro"></p><ul class="chips" id="required-chips"></ul><button type="button" class="hint-button" id="hint-button" aria-controls="hint" aria-expanded="false"></button><div id="hint" class="hint" role="status" hidden></div></div></section>
+<section class="panel" aria-labelledby="editor-title"><div class="panel-bar"><h2 id="editor-title" data-copy="editorTitle"></h2><span class="tag" id="criteria-count" aria-live="polite"></span></div><form id="prompt-form" class="panel-body" novalidate><label for="prompt" data-copy="promptLabel"></label><textarea id="prompt" name="prompt" rows="7" maxlength="1500" aria-describedby="editor-help input-error" spellcheck="true"></textarea><p id="input-error" class="error small" role="alert" hidden></p><div class="editor-bottom"><span class="small muted" id="character-count"></span><button class="primary" type="submit" data-copy="execute"></button></div><p id="editor-help" class="notice" data-copy="editorHelp"></p></form></section>
+</div>
+<section class="panel" aria-labelledby="results-title"><div class="panel-bar"><h2 id="results-title" data-copy="resultsTitle"></h2><span class="tag" data-copy="simulationTag"></span></div><div class="panel-body"><p id="result-summary" class="result-summary small" role="status"></p><ul id="criteria" class="criteria"></ul><div class="response" id="response" hidden><h3 id="response-title"></h3><p class="small muted" id="response-note"></p><pre id="response-text"></pre></div><div class="completion" id="completion" role="status" hidden><p data-copy="completion"></p></div><p class="notice" data-copy="limitations"></p></div></section>
+</div></main>
+<footer><div class="shell" data-copy="footer"></div></footer>
+<noscript>Activa JavaScript en tu navegador para jugar. No necesitas conexión a internet.</noscript>
+<script>
+'use strict';
+// Textos y patrones agrupados por idioma, separados de la lógica de evaluación.
+const CONTENT = {
+  es: {
+    ui: {
+      skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
+      level:'Nivel 1 · Claridad', missionNumber:'Misión 01 / Tu primer encargo', missionTitle:'Un buen menú empieza con un buen prompt.',
+      intro:'Lee el encargo. Da instrucciones claras. Prueba y mejora.', briefTitle:'El encargo', clientTag:'Cliente conectado',
+      requiredIntro:'Para superar esta misión debes incluir:', editorTitle:'Tu prompt', promptLabel:'¿Qué le pedirías a la IA?',
+      placeholder:'Escribe aquí las instrucciones para resolver el encargo…', execute:'Ejecutar',
+      editorHelp:'Puedes editar y volver a ejecutar las veces que quieras. Máximo 1500 caracteres.', resultsTitle:'Resultado de la evaluación', simulationTag:'Simulación por reglas',
+      waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
+      pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
+      hint:'Ver pista', nextHint:'Ver siguiente pista', hintsDone:'Las tres pistas están visibles', hintNumber:'Pista {current} de 3',
+      characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'{count} / 1 completada',
+      empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
+      success:'✓ Prompt aprobado. Cumples los 3 criterios obligatorios y {count} de los 6 criterios en total.',
+      retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
+      referenceTitle:'Respuesta de referencia desbloqueada', weakTitle:'Respuesta simulada de un prompt incompleto',
+      referenceNote:'Este es un ejemplo fijo del encargo, no una respuesta generada a partir de tus instrucciones. Compara también los criterios opcionales.', weakNote:'Esta respuesta fija ilustra lo poco útil que puede ser una petición incompleta.',
+      completion:'✓ Misión 1 completada. Ya sabes indicar un rol, un objetivo y un formato. Puedes seguir practicando; este MVP termina aquí.',
+      limitations:'Este evaluador reconoce palabras y patrones, no comprende el significado. Puede no reconocer otras expresiones correctas y no juzga la calidad creativa. Los criterios opcionales ayudan a resolver mejor el encargo.',
+      footer:'Modo práctica · Sin IA ni conexión · El progreso se pierde al recargar o cerrar esta página.'
+    },
+    criteria: [
+      { id:'rol', label:'Rol', patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/, /\bcomo (?:chef|cocinero|cocinera|nutricionista)\b/], yes:'Has indicado qué papel debe asumir la IA.', no:'Dale una especialidad: «Actúa como chef». Un rol orienta el tipo de respuesta.' },
+      { id:'contexto', label:'Contexto', patterns:[/\bla esquina\b/, /\brestaurante\b/, /\bnegocio de comida\b/, /\bcomedor\b/], yes:'Has mencionado al cliente o su tipo de negocio.', no:'Explica para quién trabajas: el restaurante La Esquina necesita un menú para sus clientes.' },
+      { id:'objetivo', label:'Objetivo', patterns:[/\b(?:crea|crear|elabora|elaborar|disena|disenar|prepara|preparar|genera|generar|propon|proponer|dame|haz|hacer|necesito|quiero)\b[\s\S]{0,100}\bmenu\b/, /\bmenu\b[\s\S]{0,50}\b(?:semanal|7 dias|siete dias)\b/], yes:'Has pedido producir un menú concreto.', no:'Indica qué debe crear: «Crea un menú de 7 días». Un objetivo concreto evita respuestas vagas.' },
+      { id:'formato', label:'Formato', patterns:[/\btabla\b/, /\blista\b/, /\bpasos\b/, /\bcolumnas\b/, /\b(?:organiza|organizado|organizada|divide|dividido|dividida)\b[\s\S]{0,40}\b(?:dias|dia)\b/], yes:'Has especificado cómo organizar la respuesta.', no:'Pide una presentación concreta: «Preséntalo en una tabla con columnas Día y Plato».' },
+      { id:'restricciones', label:'Restricciones', patterns:[/\bsin gluten\b/, /\blibre de gluten\b/, /\bno (?:incluyas|uses|incluir|usar) gluten\b/, /\bevitar? (?:el )?gluten\b/, /\beconomic[oa]s?\b/, /\bbarat[oa]s?\b/, /\bbajo (?:costo|coste|presupuesto)\b/, /\bno (?:incluyas|uses)\b/, /\bmaximo\b/], yes:'Has indicado al menos un límite. Para atender todo el encargo, incluye tanto «sin gluten» como «económico».', no:'Añade los límites del cliente: platos sin gluten y económicos. Las restricciones evitan propuestas que no le sirven.' },
+      { id:'ejemplo', label:'Ejemplo', patterns:[/\bpor ejemplo\s*[:,]?\s*\S+/, /\bejemplo\s*:\s*\S+/, /\bcomo muestra\s*[:,]?\s*\S+/], yes:'Has añadido una muestra para orientar la respuesta.', no:'Puedes dar una muestra: «Por ejemplo: Lunes | Arroz con frijoles». En esta misión es opcional.' }
+    ],
+    mission: {
+      client:'Restaurante «La Esquina»', brief:'Somos un restaurante pequeño. Necesitamos un menú de 7 días con platos económicos y sin gluten. Queremos una propuesta clara que podamos consultar cada día. ¿Nos ayudas a darle las instrucciones a la IA?',
+      required:['rol','objetivo','formato'],
+      hints:[
+        'Piensa en tres decisiones: quién debe ser la IA, qué debe crear y cómo debe presentar la respuesta.',
+        'Dale el rol de chef, pide un menú de 7 días y solicita una tabla. Añade el nombre del restaurante y sus límites para mejorar el encargo.',
+        'Prueba esta estructura: «Actúa como chef del restaurante La Esquina. Crea un menú de 7 días con platos económicos y sin gluten. Preséntalo en una tabla con columnas Día y Plato». Puedes añadir un ejemplo.'
+      ],
+      weakResponse:'Aquí tienes algunas ideas de comida: pasta, pizza y ensalada. Puedes elegir lo que más te guste.',
+      reference:'Menú semanal · La Esquina\n\nLunes     | Arroz con frijoles y ensalada\nMartes    | Tortilla de patatas con tomate\nMiércoles | Lentejas guisadas con verduras\nJueves    | Pollo con arroz y zanahoria\nViernes   | Ensalada de garbanzos y huevo\nSábado    | Sopa de verduras con patatas\nDomingo   | Tortillas de maíz con frijoles\n\nIngredientes sencillos y económicos. Usa tortillas de maíz y condimentos etiquetados sin gluten; evita la contaminación cruzada durante la preparación.'
+    }
+  }
+};
+const language = 'es';
+const { ui, criteria, mission } = CONTENT[language];
+const state = { hints:0, completed:false };
+const $ = id => document.getElementById(id);
+const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
+const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+
+function evaluatePrompt(prompt) {
+  const normalized = normalize(prompt);
+  const results = criteria.map(criterion => ({ ...criterion, passed:criterion.patterns.some(pattern => pattern.test(normalized)) }));
+  return { results, passed:mission.required.every(id => results.find(result => result.id === id).passed) };
+}
+
+function renderCriteria(results = null) {
+  $('criteria').replaceChildren(...criteria.map((criterion, index) => {
+    const result = results && results[index];
+    const item = document.createElement('li');
+    item.className = 'criterion ' + (result ? (result.passed ? 'pass' : 'fail') : 'pending');
+    const symbol = document.createElement('span');
+    symbol.className = 'symbol';
+    symbol.textContent = result ? (result.passed ? '✓' : '✗') : '·';
+    symbol.setAttribute('aria-label', result ? (result.passed ? ui.fulfilled : ui.undetected) : ui.pendingLabel);
+    const body = document.createElement('div');
+    const label = document.createElement('strong');
+    label.textContent = criterion.label;
+    const requirement = document.createElement('span');
+    requirement.className = 'requirement';
+    requirement.textContent = mission.required.includes(criterion.id) ? ui.required : ui.optional;
+    const feedback = document.createElement('p');
+    feedback.textContent = result ? (result.passed ? criterion.yes : criterion.no) : ui.pending;
+    body.append(label, requirement, feedback);
+    item.append(symbol, body);
+    return item;
+  }));
+}
+
+function updateEditor() {
+  const count = evaluatePrompt($('prompt').value).results.filter(result => result.passed).length;
+  $('criteria-count').textContent = format(ui.counter, { count });
+  $('character-count').textContent = format(ui.characters, { count:$('prompt').value.length });
+}
+
+document.querySelectorAll('[data-copy]').forEach(element => { element.textContent = ui[element.dataset.copy]; });
+$('prompt').placeholder = ui.placeholder;
+$('client-name').textContent = mission.client;
+$('brief').textContent = mission.brief;
+$('hint-button').textContent = ui.hint;
+$('result-summary').textContent = ui.waiting;
+$('progress-text').textContent = format(ui.progress, { count:0 });
+mission.required.forEach(id => {
+  const chip = document.createElement('li');
+  chip.textContent = criteria.find(criterion => criterion.id === id).label;
+  $('required-chips').append(chip);
+});
+renderCriteria();
+updateEditor();
+
+$('hint-button').addEventListener('click', () => {
+  if (state.hints >= mission.hints.length) return;
+  const paragraph = document.createElement('p');
+  paragraph.textContent = format(ui.hintNumber, { current:state.hints + 1 }) + ': ' + mission.hints[state.hints];
+  $('hint').append(paragraph);
+  state.hints += 1;
+  $('hint').hidden = false;
+  $('hint-button').setAttribute('aria-expanded','true');
+  $('hint-button').textContent = state.hints === mission.hints.length ? ui.hintsDone : ui.nextHint;
+  $('hint-button').disabled = state.hints === mission.hints.length;
+});
+
+$('prompt').addEventListener('input', () => {
+  updateEditor();
+  $('input-error').hidden = true;
+  $('prompt').removeAttribute('aria-invalid');
+  $('response').hidden = true;
+  $('completion').hidden = true;
+  $('result-summary').textContent = ui.edited;
+  renderCriteria();
+});
+
+$('prompt-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const prompt = $('prompt').value;
+  if (!prompt.trim() || prompt.length > 1500) {
+    $('input-error').textContent = prompt.length > 1500 ? ui.tooLong : ui.empty;
+    $('input-error').hidden = false;
+    $('prompt').setAttribute('aria-invalid','true');
+    $('prompt').focus();
+    return;
+  }
+  const evaluation = evaluatePrompt(prompt);
+  renderCriteria(evaluation.results);
+  const count = evaluation.results.filter(result => result.passed).length;
+  const missing = evaluation.results.filter(result => mission.required.includes(result.id) && !result.passed).map(result => result.label).join(', ');
+  $('result-summary').textContent = format(evaluation.passed ? ui.success : ui.retry, { count, missing });
+  $('response').hidden = false;
+  $('response-title').textContent = evaluation.passed ? ui.referenceTitle : ui.weakTitle;
+  $('response-note').textContent = evaluation.passed ? ui.referenceNote : ui.weakNote;
+  $('response-text').textContent = evaluation.passed ? mission.reference : mission.weakResponse;
+  $('completion').hidden = !evaluation.passed;
+  state.completed = state.completed || evaluation.passed;
+  $('progress').value = Number(state.completed);
+  $('progress-text').textContent = format(ui.progress, { count:Number(state.completed) });
+});
+</script>
+</body>
 </html>
