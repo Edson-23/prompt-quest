@@ -2,3 +2,5 @@
 .env*
 node_modules/
 .wrangler/
+# Consulta auxiliar local; las tres skills solicitadas sí se versionan.
+.agents/skills/modern-web-guidance/
