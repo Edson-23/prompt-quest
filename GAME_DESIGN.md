@@ -60,7 +60,7 @@ Paleta sugerida (modo oscuro):
 La evaluación no usa IA. Funciona con reglas sencillas:
 
 - **Detección por palabras clave y patrones.** Por ejemplo, el criterio "Rol" se cumple si el texto contiene frases como "actúa como", "eres un" o "eres una".
-- **Cada misión define sus criterios obligatorios.** Por ejemplo, la misión del restaurante exige "contexto" y "restricciones" porque el cliente pidió un menú sin gluten.
+- **Cada misión define sus criterios obligatorios.** La misión del restaurante exige rol, objetivo y formato; contexto, restricciones y ejemplo también se evalúan como mejoras opcionales.
 - **Respuesta simulada.** Si el prompt cumple los criterios, se muestra una respuesta de ejemplo predefinida para esa misión. Si no, se muestra una respuesta genérica y mala, para que el jugador vea el efecto de un prompt débil.
 - **Retroalimentación educativa.** Cada criterio fallido tiene un texto fijo que explica el motivo y sugiere cómo corregirlo.
 
@@ -72,7 +72,7 @@ Limitaciones que debemos aceptar y comunicar al jugador:
 
 Una misión es un encargo de un cliente que el jugador resuelve escribiendo un prompt. Cada misión practica una habilidad concreta. Por ejemplo, la misión de claridad pide dar un rol y un objetivo, y la de contexto pide explicar quién es el cliente. Al completar una misión se desbloquea la respuesta de referencia y se avanza a la siguiente. Un nivel es un grupo de misiones que enseñan la misma habilidad.
 
-Ejemplo de la primera misión: el restaurante "La Esquina" pide un menú de 7 días sin gluten con platos baratos. Un prompt como "Dame un menú de comida" no pasa, porque no define el rol ni las restricciones. Un prompt como "Actúa como chef de un restaurante pequeño. Crea un menú de 7 días con platos económicos y sin gluten" sí pasa.
+Ejemplo de la primera misión: el restaurante "La Esquina" pide un menú de 7 días sin gluten con platos baratos. Un prompt como "Dame un menú de comida" no pasa, porque no define rol ni formato. Un prompt como "Actúa como chef de un restaurante pequeño. Crea un menú de 7 días con platos económicos y sin gluten. Preséntalo en una tabla" sí pasa.
 
 El MVP incluye tres misiones, en orden de dificultad:
 
@@ -117,9 +117,9 @@ Al completar una misión aparece un mensaje de avance y el botón "siguiente mis
 ## 11. Tecnología
 
 - **Frontend:** un solo archivo `index.html` con HTML, CSS y JavaScript. Sin frameworks ni pasos de compilación.
-- **Backend:** una función del servidor que llama a Gemini. Vive en la carpeta `functions/`.
-- **Hosting:** Cloudflare Pages, conectado al repositorio de GitHub. Cada cambio subido a GitHub se publica automáticamente.
-- **Proveedor de IA:** Google Gemini (Google AI Studio, plan gratuito). El nombre exacto del modelo debe copiarse desde AI Studio, porque cambia con el tiempo.
+- **Backend:** un Worker de módulo ES en `src/index.js`. Su manejador `fetch(request, env)` atiende `POST /api/evaluar` y delega las demás rutas a `env.ASSETS.fetch(request)`.
+- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar solo `index.html`. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npx wrangler@4 deploy`, sin compilación.
+- **Proveedor de IA:** Google Gemini (Google AI Studio). El nombre exacto de un modelo compatible con `generateContent` y salida JSON debe copiarse desde AI Studio a la variable `GEMINI_MODEL`, porque cambia con el tiempo. Revisar su disponibilidad y cuota gratuita en la cuenta.
 - **Respaldo:** la evaluación simulada por reglas, que corre en el navegador cuando Gemini falla o se agota la cuota.
 - **Secretos:** la clave de Gemini se guarda como variable de entorno en el panel de Cloudflare, con el nombre `GEMINI_API_KEY`. Nunca se escribe en el código ni se sube a GitHub.
 - Progreso guardado solo en memoria durante la sesión. No usar `localStorage` ni `sessionStorage`.
@@ -129,13 +129,19 @@ Estructura de archivos del proyecto:
 ```
 prompt-quest/
 ├── index.html              (juego completo: pantalla, misiones, evaluación simulada)
-├── functions/
-│   └── api/
-│       └── evaluar.js      (función que llama a Gemini y devuelve la evaluación)
+├── src/
+│   └── index.js            (Worker: API de evaluación y acceso a ASSETS)
+├── wrangler.jsonc          (entrada del Worker, assets y límite de solicitudes)
+├── .assetsignore           (solo index.html se publica como asset)
+├── .gitignore
+├── tests/                  (pruebas sin claves ni llamadas reales a Gemini)
+├── README.md
 └── GAME_DESIGN.md          (este documento)
 ```
 
 ## 12. Alcance del MVP
+
+Estado de la implementación en el paso 2: solo la misión 1 está disponible. Las misiones 2 y 3 y su progresión siguen pendientes de una instrucción posterior.
 
 Incluye:
 - Una pantalla con tres misiones.
@@ -157,20 +163,21 @@ La evaluación tiene dos caminos. El camino principal usa Gemini y el respaldo u
 Flujo cuando el jugador pulsa "ejecutar":
 
 1. El navegador envía a `/api/evaluar` el prompt del jugador y los datos de la misión (encargo y criterios obligatorios). Nunca envía la clave.
-2. La función `functions/api/evaluar.js` valida el prompt (no vacío y máximo 1500 caracteres), arma las instrucciones para Gemini y llama a la API con la clave guardada en `GEMINI_API_KEY`.
-3. Gemini responde con un JSON: `{"criterios": {"rol": true, "contexto": false, ...}, "retroalimentacion": "texto corto en español"}`.
+2. El Worker `src/index.js` valida el prompt (no vacío y máximo 1500 caracteres), reconoce la misión por su identificador y usa su propio encargo y criterios de confianza. Arma las instrucciones para Gemini y llama a la API con `env.GEMINI_API_KEY` y el modelo de `env.GEMINI_MODEL`.
+3. Gemini responde con un JSON: `{"criterios": {"rol": true, "contexto": false, ...}, "retroalimentacion": "texto corto en español", "comentarios": {"rol": "explicación por criterio", ...}}`. El Worker valida los seis booleanos y los textos antes de devolverlos.
 4. La función devuelve ese JSON al navegador, que muestra los criterios con ✓ o ✗ y la retroalimentación.
 5. Si la función responde con error, si se agota la cuota de Gemini o si pasan más de unos segundos sin respuesta, el navegador ejecuta la evaluación simulada por reglas y muestra un aviso discreto como "evaluación sin IA por hoy".
 
 Detalles para el proveedor y el hosting:
 - Llamada a Gemini: `POST https://generativelanguage.googleapis.com/v1beta/models/{MODELO}:generateContent`, con la clave en el encabezado `x-goog-api-key`. Para pedir JSON se usa `generationConfig: { responseMimeType: "application/json" }`.
 - Los límites por minuto y por día cambian. Se revisan en la página de límites de AI Studio, no en este documento.
-- Cloudflare Pages debe configurarse en modo "fail open" para que, si se agota el límite de funciones, el juego siga funcionando con la evaluación simulada.
+- Los assets se sirven primero salvo en `/api/*`; el navegador vuelve a las reglas si el endpoint falla o no responde. No se utiliza la configuración de Pages ni su función `onRequestPost`.
 - Antes de publicar, revisar las condiciones de privacidad del plan gratuito de Gemini, porque puede usar los datos enviados para mejorar productos.
 
 Límites de uso para proteger la cuota:
-- Máximo de solicitudes por jugador y por minuto (por ejemplo, 5 por minuto).
-- Caché simple: si el mismo prompt ya fue evaluado para la misma misión, se reutiliza el resultado.
+- Máximo de 5 intentos de IA por minuto en la página. En el servidor, binding `EVALUATION_LIMITER` con límite aproximado de 5 solicitudes por IP y ubicación de Cloudflare cada 60 segundos. No es un límite global estricto; una red compartida comparte el límite.
+- Caché de hasta 50 evaluaciones exitosas por prompt exacto y misión, solo en memoria del navegador. No se guarda en almacenamiento persistente y se pierde al recargar.
+- Tiempo máximo de espera: 7 segundos en el Worker y 9 en el navegador. Los errores de proveedor, cuota, configuración o respuesta inválida activan el respaldo.
 
 ## 14. Instrucciones para Claude o Codex
 
@@ -183,7 +190,7 @@ Al empezar a construir:
 5. Mantén los textos del juego en español, con oraciones en mayúscula inicial y sin signos de admiración.
 6. No uses `localStorage` ni `sessionStorage`.
 7. Construye primero la evaluación simulada completa en `index.html`. Debe funcionar sin internet ni clave.
-8. Después crea `functions/api/evaluar.js` con `onRequestPost({ request, env })`, que llama a Gemini usando `env.GEMINI_API_KEY`.
+8. Después crea `src/index.js` como Worker con `export default { fetch(request, env) }`, que llama a Gemini usando `env.GEMINI_API_KEY` para `POST /api/evaluar`. Mantén `index.html` en la raíz y configura el binding `ASSETS` en `wrangler.jsonc`.
 9. Nunca pongas la clave de Gemini en `index.html` ni en ningún archivo del repositorio.
 10. En el navegador, llama a `/api/evaluar`. Si falla, usa la evaluación simulada sin mostrar errores técnicos al jugador.
 11. Valida el prompt en la función: no vacío y máximo 1500 caracteres.
