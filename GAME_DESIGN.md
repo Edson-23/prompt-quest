@@ -141,7 +141,7 @@ prompt-quest/
 
 ## 12. Alcance del MVP
 
-Estado de la implementación en el paso 2: solo la misión 1 está disponible. Las misiones 2 y 3 y su progresión siguen pendientes de una instrucción posterior.
+Estado de la implementación: las tres misiones están disponibles con progresión secuencial en memoria, pistas, evaluación con Gemini y respaldo por reglas. Cada misión se desbloquea al completar la anterior.
 
 Incluye:
 - Una pantalla con tres misiones.

@@ -283,7 +283,7 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
     <div><p class="brand">&gt;_ <span>Prompt Quest</span></p><p class="subtitle" data-copy="tagline"></p></div>
     <div class="progress-box">
       <div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div>
-      <progress id="progress" value="0" max="1" aria-label="Progreso de la misión"></progress>
+      <progress id="progress" value="0" max="3" aria-label="Misiones completadas"></progress>
     </div>
   </div>
 </header>
@@ -329,7 +329,7 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
         <div id="hint" class="hint" role="status" hidden></div>
         <ul id="criteria" class="criteria" role="list"></ul>
         <div class="response" id="response" hidden><h3 id="response-title"></h3><p class="small muted" id="response-note"></p><pre id="response-text"></pre></div>
-        <div class="completion" id="completion" role="status" hidden><p data-copy="completion"></p></div>
+        <div class="completion" id="completion" hidden><p id="completion-text" role="status"></p><button type="button" id="next-mission" hidden data-copy="nextMission"></button></div>
         <p class="notice" id="evaluation-notice" data-copy="limitations"></p>
         <details class="help"><summary data-copy="helpTitle"></summary><p id="editor-help" class="notice" data-copy="editorHelp"></p><footer data-copy="footer"></footer></details>
       </div>
@@ -351,7 +351,7 @@ const CONTENT = {
   es: {
     ui: {
       skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
-      level:'Nivel 1 · Claridad', missionNumber:'Misión 01 / Tu primer encargo', missionTitle:'Misión 1 · Menú semanal',
+      level:'Nivel {level} · Misión {number} de 3', missionNumber:'Nivel {level} · {skill}', missionTitle:'Misión {number} · {title}',
       intro:'Lee el encargo. Da instrucciones claras. Prueba y mejora.', briefTitle:'El encargo', clientTag:'Restaurante',
       requiredIntro:'Obligatorios:', editorTitle:'Tu prompt', promptLabel:'¿Qué le pedirías a la IA?',
       placeholder:'Escribe aquí las instrucciones para resolver el encargo…', execute:'Ejecutar',
@@ -359,13 +359,14 @@ const CONTENT = {
       waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
       pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
       hint:'Ver pista', nextHint:'Otra pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
-      characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'{count} / 1 completada',
+      characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'{count} / 3 completadas',
       empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
-      success:'✓ Prompt aprobado. Cumples los 3 criterios obligatorios y {count} de los 6 criterios en total.',
+      success:'✓ Prompt aprobado. Cumples los {requiredCount} criterios obligatorios y {count} de los 6 criterios en total.',
       retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
       referenceTitle:'Respuesta de referencia desbloqueada', weakTitle:'Respuesta simulada de un prompt incompleto',
       referenceNote:'Este es un ejemplo fijo del encargo, no una respuesta generada a partir de tus instrucciones. Compara también los criterios opcionales.', weakNote:'Esta respuesta fija ilustra lo poco útil que puede ser una petición incompleta.',
-      completion:'✓ Misión 1 completada. Ya sabes indicar un rol, un objetivo y un formato. Puedes seguir practicando; este MVP termina aquí.',
+      nextMission:'Siguiente misión',
+      allCompleted:'✓ Completaste las 3 misiones. Has practicado claridad, contexto y formato: asignar un rol, explicar la situación, definir el objetivo, poner límites y guiar la respuesta con un formato y un ejemplo.',
       limitations:'Este evaluador reconoce palabras y patrones, no comprende el significado. Puede no reconocer otras expresiones correctas y no juzga la calidad creativa. Los criterios opcionales ayudan a resolver mejor el encargo.',
       footer:'El progreso se guarda solo en memoria y se pierde al recargar o cerrar esta página.',
       pendingMode:'IA con respaldo por reglas', aiMode:'Evaluación con Gemini', cachedMode:'Evaluación con Gemini · Reutilizada',
@@ -388,7 +389,9 @@ const CONTENT = {
       { id:'restricciones', label:'Restricciones', patterns:[/\bsin gluten\b/, /\blibre de gluten\b/, /\bno (?:incluyas|uses|incluir|usar) gluten\b/, /\bevitar? (?:el )?gluten\b/, /\beconomic[oa]s?\b/, /\bbarat[oa]s?\b/, /\bbajo (?:costo|coste|presupuesto)\b/, /\bno (?:incluyas|uses)\b/, /\bmaximo\b/], yes:'Has indicado al menos un límite. Para atender todo el encargo, incluye tanto «sin gluten» como «económico».', no:'Añade los límites del cliente: platos sin gluten y económicos. Las restricciones evitan propuestas que no le sirven.' },
       { id:'ejemplo', label:'Ejemplo', patterns:[/\bpor ejemplo\s*[:,]?\s*\S+/, /\bejemplo\s*:\s*\S+/, /\bcomo muestra\s*[:,]?\s*\S+/], yes:'Has añadido una muestra para orientar la respuesta.', no:'Puedes dar una muestra: «Por ejemplo: Lunes | Arroz con frijoles». En esta misión es opcional.' }
     ],
-    mission: {
+    missions: [{
+      level:1, skill:'Claridad', title:'Menú semanal', clientTag:'Restaurante',
+      completion:'✓ Misión 1 completada. Ya sabes indicar un rol, un objetivo y un formato. Has desbloqueado la misión 2.',
       id:'menu-semanal', client:'Restaurante «La Esquina»', brief:'Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día.',
       required:['rol','objetivo','formato'],
       hints:[
@@ -398,12 +401,53 @@ const CONTENT = {
       ],
       weakResponse:'Aquí tienes algunas ideas de comida: pasta, pizza y ensalada. Puedes elegir lo que más te guste.',
       reference:'Menú semanal · La Esquina\n\nLunes     | Arroz con frijoles y ensalada\nMartes    | Tortilla de patatas con tomate\nMiércoles | Lentejas guisadas con verduras\nJueves    | Pollo con arroz y zanahoria\nViernes   | Ensalada de garbanzos y huevo\nSábado    | Sopa de verduras con patatas\nDomingo   | Tortillas de maíz con frijoles\n\nIngredientes sencillos y económicos. Usa tortillas de maíz y condimentos etiquetados sin gluten; evita la contaminación cruzada durante la preparación.'
-    }
+    }, {
+      id:'correos-tienda', level:2, skill:'Contexto', title:'Correos de una tienda de ropa', clientTag:'Tienda en línea', client:'Tienda de ropa en línea',
+      brief:'Somos una tienda de ropa en línea. Llegan muchos correos preguntando por envíos y devoluciones. Necesitamos una respuesta amable, corta y que no prometa nada que no podamos cumplir.',
+      required:['rol','contexto','restricciones'],
+      completion:'✓ Misión 2 completada. Has explicado el contexto y puesto límites a una respuesta al cliente. Has desbloqueado la misión 3.',
+      hints:[
+        '¿Quién debe escribir la respuesta y para quién? Dale un papel a la IA y explica quién recibirá el correo.',
+        'Menciona que es una tienda de ropa en línea y que sus clientes preguntan por envíos y devoluciones. Añade solo políticas que conozcas.',
+        'Pon límites concretos: una respuesta amable de máximo 80 palabras, sin inventar plazos ni prometer devoluciones no confirmadas. Si falta información, pide el número de pedido para revisarla.'
+      ],
+      weakResponse:'Tu paquete llegará mañana y te devolveremos el dinero de inmediato. Gracias por comprar.',
+      reference:'Asunto: Consulta sobre envíos y devoluciones\n\nHola:\nGracias por escribirnos. Para revisar tu envío o una posible devolución, compártenos tu número de pedido. Comprobaremos su estado y las condiciones aplicables antes de confirmar los siguientes pasos.\nNo podemos confirmar plazos ni autorizar una devolución sin revisar tu caso.\nQuedamos atentos para ayudarte.\nEquipo de atención al cliente',
+      rules:{
+        rol:{ patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/], no:'Asigna un papel: «Actúa como agente de atención al cliente». Así orientas la voz de la respuesta.' },
+        contexto:{ patterns:[/\btienda de ropa\b/, /\bcomercio (?:de ropa |textil )?(?:en linea|electronico)\b/, /\bvendemos ropa\b/, /\bclientes\b[\s\S]{0,100}\b(?:envios|devoluciones)\b/], yes:'Has explicado la tienda o la situación de sus clientes.', no:'Explica que vendes ropa en línea y recibes consultas sobre envíos y devoluciones.' },
+        objetivo:{ patterns:[/\b(?:redacta|escribe|crea|prepara|elabora)\b[\s\S]{0,100}\b(?:correo|respuesta|mensaje)\b/, /\b(?:responde|contesta)\b[\s\S]{0,100}\b(?:clientes|consultas|envios|devoluciones)\b/, /\bnecesito\b[\s\S]{0,50}\b(?:correo|respuesta)\b/], yes:'Has pedido redactar una respuesta a las consultas de los clientes.', no:'Pide una tarea concreta: «Redacta una respuesta a consultas sobre envíos y devoluciones».' },
+        formato:{ patterns:[/\b(?:correo|email|e-mail)\b/, /\b(?:asunto|saludo|despedida)\b/, /\b(?:parrafos?|lista|tabla|vinetas)\b/], no:'Indica cómo presentar el mensaje, por ejemplo un correo con saludo, un párrafo y despedida.' },
+        restricciones:{ patterns:[/\b(?:maximo|hasta|menos de|no mas de)\b[\s\S]{0,25}\bpalabras\b/, /\b(?:no|sin)\s+(?:inventar|inventes|prometer|prometas)\b/, /\bevitar?\b[\s\S]{0,30}\b(?:promesas|plazos|inventar)\b/, /\b(?:breve|cort[oa]|amable)\b/], yes:'Has puesto límites de tono, longitud o promesas. Incluye también que no invente plazos ni condiciones.', no:'Pon límites: «Máximo 80 palabras, tono amable y sin prometer plazos ni devoluciones no confirmados».' },
+        ejemplo:{ no:'Puedes orientar el tono con una muestra: «Por ejemplo: Gracias por escribirnos; revisaremos tu pedido».' }
+      }
+    }, {
+      id:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
+      brief:'Eres estudiante y mañana tienes un examen de historia. Tienes tus apuntes de la Revolución Industrial, muy largos. Necesitas un resumen que te ayude a estudiar.',
+      required:['contexto','objetivo','formato','ejemplo'],
+      hints:[
+        '¿Qué tipo de resumen necesitas y para qué? Explica tu situación y qué vas a estudiar.',
+        'Indica la extensión del resumen o cuánto tiempo tienes para repasarlo. Pide las ideas principales, causas, cambios y consecuencias de la Revolución Industrial.',
+        'Pide viñetas o una tabla y muestra cómo debe verse una parte. Por ejemplo: «Causas: mejoras agrícolas y nuevas máquinas». Añade tus apuntes si quieres que el resumen se base en ellos.'
+      ],
+      weakResponse:'La Revolución Industrial fue una época de muchos cambios. Hubo máquinas, fábricas y ciudades. Estudia todo lo que puedas.',
+      reference:'Revolución Industrial · Repaso para el examen\n\n• Inicio: comenzó en Gran Bretaña en el siglo XVIII y se extendió a otros países.\n• Causas: mejoras agrícolas, disponibilidad de carbón y capital para invertir.\n• Tecnología: la máquina de vapor y la mecanización textil aumentaron la producción.\n• Trabajo: la producción pasó de talleres y hogares a fábricas con trabajo asalariado.\n• Sociedad: crecieron las ciudades y la clase obrera; las condiciones de trabajo impulsaron demandas de derechos.\n• Consecuencias: aumentó la producción y el transporte, junto con desigualdades y contaminación.\n\nEjemplo de una sección resumida:\n• Tecnología → Máquina de vapor → Impulsó fábricas y transporte.\n\nEste ejemplo general no sustituye tus apuntes; comprueba las fechas y contenidos de tu examen.',
+      rules:{
+        rol:{ patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/], no:'Puedes asignar un papel: «Actúa como profesor de historia». En esta misión es opcional.' },
+        contexto:{ patterns:[/\brevolucion industrial\b/, /\bexamen de historia\b/, /\bapuntes de historia\b/, /\bestudiante\b[\s\S]{0,80}\b(?:historia|examen)\b/], yes:'Has explicado el tema o tu situación de estudio.', no:'Explica que tienes un examen de historia y apuntes largos sobre la Revolución Industrial.' },
+        objetivo:{ patterns:[/\b(?:haz|crea|elabora|prepara|escribe|dame|necesito|quiero)\b[\s\S]{0,80}\b(?:resumen|sintesis|repaso)\b/, /\bresume\b/, /\bsintetiza\b/, /\bextrae\b[\s\S]{0,40}\bideas principales\b/], yes:'Has pedido resumir o sintetizar el material para estudiar.', no:'Pide un resultado concreto: «Resume mis apuntes con las ideas principales para repasar el examen».' },
+        formato:{ patterns:[/\bvinetas\b/, /\btabla\b/, /\blista\b/, /\besquema\b/, /\b(?:apartados|columnas|pasos)\b/], no:'Pide una estructura concreta: viñetas por tema, una tabla o un esquema de causas y consecuencias.' },
+        restricciones:{ patterns:[/\b(?:maximo|hasta|menos de|no mas de)\b[\s\S]{0,25}\b(?:palabras|minutos|lineas)\b/, /\b(?:no|sin)\s+(?:inventar|inventes|anadir|anadas)\b/, /\b(?:solo|unicamente)\b[\s\S]{0,30}\b(?:apuntes|ideas principales)\b/, /\bbreve\b/], yes:'Has limitado la extensión o el contenido del repaso.', no:'Puedes limitarlo a 200 palabras o pedir que solo use tus apuntes, sin inventar datos.' },
+        ejemplo:{ yes:'Has incluido una muestra de cómo debe verse una parte del resumen.', no:'Añade una muestra concreta: «Por ejemplo: Causas → Mejoras agrícolas y nuevas máquinas». Aquí el ejemplo es obligatorio.' }
+      }
+    }]
   }
 };
 const language = 'es';
-const { ui, criteria, mission } = CONTENT[language];
-const state = { hints:0, completed:false, revision:0, busy:false, cache:new Map(), requests:[] };
+const { ui, missions } = CONTENT[language];
+let mission = missions[0];
+let criteria = CONTENT[language].criteria;
+const state = { missionIndex:0, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
 const $ = id => document.getElementById(id);
 const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
 const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -481,22 +525,68 @@ function updateEditor() {
   $('character-count').textContent = format(ui.characters, { count:$('prompt').value.length });
 }
 
+function selectMission(index) {
+  if (state.busy || index !== state.missionIndex + 1 || !missions[index]
+    || !state.completed.has(mission.id)) return false;
+  state.missionIndex = index;
+  mission = missions[index];
+  criteria = CONTENT[language].criteria.map(criterion => ({ ...criterion, ...mission.rules?.[criterion.id] }));
+  state.hints = 0;
+  state.revision += 1;
+  return true;
+}
+
 document.querySelectorAll('[data-copy]').forEach(element => { element.textContent = ui[element.dataset.copy]; });
 $('prompt').placeholder = ui.placeholder;
-$('client-name').textContent = mission.client;
-$('brief').textContent = mission.brief;
-$('hint-button').textContent = ui.hint;
-$('result-summary').textContent = ui.waiting;
-$('progress-text').textContent = format(ui.progress, { count:0 });
 $('editor-help').textContent = ui.editorHelp + ' ' + ui.privacy;
-$('evaluation-mode').textContent = ['http:', 'https:'].includes(location.protocol) ? ui.pendingMode : ui.simulationTag;
-mission.required.forEach(id => {
-  const chip = document.createElement('li');
-  chip.textContent = criteria.find(criterion => criterion.id === id).label;
-  $('required-chips').append(chip);
+
+function renderProgress() {
+  $('progress').value = state.completed.size;
+  $('progress-text').textContent = format(ui.progress, { count:state.completed.size });
+}
+
+function renderMission() {
+  const values = { ...mission, number:state.missionIndex + 1 };
+  for (const name of ['level','missionNumber','missionTitle']) {
+    document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
+  }
+  document.querySelector('[data-copy="clientTag"]').textContent = mission.clientTag;
+  $('client-name').textContent = mission.client;
+  $('brief').textContent = mission.brief;
+  $('prompt').value = '';
+  $('prompt').removeAttribute('aria-invalid');
+  $('input-error').hidden = true;
+  $('hint').replaceChildren();
+  $('hint').hidden = true;
+  $('hint-button').textContent = ui.hint;
+  $('hint-button').disabled = false;
+  $('hint-button').setAttribute('aria-expanded','false');
+  $('result-summary').textContent = ui.waiting;
+  $('evaluation-mode').textContent = ['http:', 'https:'].includes(location.protocol) ? ui.pendingMode : ui.simulationTag;
+  $('evaluation-notice').textContent = ui.limitations;
+  $('response').hidden = true;
+  $('completion').hidden = true;
+  $('next-mission').hidden = true;
+  $('sheet-score').textContent = '0 / 6 criterios';
+  $('required-chips').replaceChildren(...mission.required.map(id => {
+    const chip = document.createElement('li');
+    chip.textContent = criteria.find(criterion => criterion.id === id).label;
+    return chip;
+  }));
+  renderProgress();
+  renderCriteria();
+  updateEditor();
+}
+renderMission();
+
+$('next-mission').addEventListener('click', () => {
+  if (!selectMission(state.missionIndex + 1)) return;
+  closeResults();
+  resetResultPresentation();
+  $('results-content').scrollTop = 0;
+  renderMission();
+  $('prompt').focus();
 });
-renderCriteria();
-updateEditor();
 
 $('hint-button').addEventListener('click', () => {
   if (state.hints >= mission.hints.length) return;
@@ -558,15 +648,16 @@ $('prompt-form').addEventListener('submit', async event => {
   renderCriteria(evaluation.results);
   const count = evaluation.results.filter(result => result.passed).length;
   const missing = evaluation.results.filter(result => mission.required.includes(result.id) && !result.passed).map(result => result.label).join(', ');
-  $('result-summary').textContent = format(evaluation.passed ? ui.success : ui.retry, { count, missing }) + (evaluation.feedback ? ' ' + evaluation.feedback : '');
+  $('result-summary').textContent = format(evaluation.passed ? ui.success : ui.retry, { count, missing, requiredCount:mission.required.length }) + (evaluation.feedback ? ' ' + evaluation.feedback : '');
   $('response').hidden = false;
   $('response-title').textContent = evaluation.passed ? ui.referenceTitle : ui.weakTitle;
   $('response-note').textContent = evaluation.passed ? ui.referenceNote : ui.weakNote;
   $('response-text').textContent = evaluation.passed ? mission.reference : mission.weakResponse;
   $('completion').hidden = !evaluation.passed;
-  state.completed = state.completed || evaluation.passed;
-  $('progress').value = Number(state.completed);
-  $('progress-text').textContent = format(ui.progress, { count:Number(state.completed) });
+  if (evaluation.passed) state.completed.add(mission.id);
+  $('completion-text').textContent = state.completed.size === missions.length ? ui.allCompleted : mission.completion;
+  $('next-mission').hidden = !evaluation.passed || state.missionIndex === missions.length - 1;
+  renderProgress();
   presentResult(count);
 });
 

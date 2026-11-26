@@ -10,7 +10,9 @@ El progreso dura únicamente mientras la página está abierta.
 
 ## Estado
 
-Paso 2: misión del menú semanal para el restaurante La Esquina. Incluye seis criterios, tres pistas, evaluación con Gemini y respaldo por reglas. Rol, objetivo y formato son obligatorios según la lista de la sección 7 del documento de diseño; contexto, restricciones y ejemplo son opcionales. La respuesta aprobada sigue siendo un ejemplo fijo, no un menú generado por IA.
+Tres misiones con progresión secuencial: menú semanal (Claridad), correos de una tienda de ropa (Contexto) y resumen para examen (Formato). Cada una incluye seis criterios, tres pistas y una respuesta de referencia fija. Los criterios obligatorios son, respectivamente: rol/objetivo/formato; rol/contexto/restricciones; contexto/objetivo/formato/ejemplo.
+
+Al aprobar aparece «Siguiente misión». La cabecera muestra el nivel, la misión actual y el total completado. Al terminar la tercera se muestra un resumen de habilidades. El progreso y la caché viven solo en memoria. Los textos y patrones por misión están en los objetos de `CONTENT.es.missions`, al inicio del script de `index.html`. El servidor selecciona su propio encargo de confianza por identificador, sin confiar en el texto enviado por el navegador.
 
 La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `src/index.js`, reemplazando la carpeta prevista `functions/api/`. `index.html` conserva su ubicación en la raíz.
 
@@ -19,8 +21,10 @@ La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `s
 1. Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
 2. Ejecuta `Dame un menú de comida`: debe señalar los criterios que faltan y mostrar una respuesta poco útil.
 3. Ejecuta `Actúa como chef del restaurante La Esquina. Crea un menú de 7 días económico y sin gluten. Preséntalo en una tabla. Por ejemplo: Lunes | Arroz con frijoles.`: debe detectar los seis criterios, completar la misión y mostrar el menú de referencia.
-4. Edita el prompt y vuelve a ejecutar. Prueba las tres pistas y una ventana estrecha.
-5. Recarga: el editor y el progreso deben reiniciarse.
+4. Pulsa «Siguiente misión». Prueba `Ayúdame con un correo` y después `Actúa como agente de atención al cliente de una tienda de ropa en línea. Redacta un correo amable sobre envíos y devoluciones de máximo 80 palabras, sin prometer plazos. Por ejemplo: Gracias por escribirnos.`.
+5. Avanza a la misión 3. Prueba `Dime algo de historia` y después `Tengo un examen de historia sobre la Revolución Industrial mañana. Resume mis apuntes en viñetas, máximo 200 palabras. Por ejemplo: Causas → Mejoras agrícolas y nuevas máquinas.`. Debe aprobar sin exigir un rol y mostrar el cierre de las tres misiones.
+6. Edita, reejecuta, prueba las pistas y una ventana estrecha. En móvil se conserva la hoja de 70dvh y en escritorio las dos columnas.
+7. Recarga: el editor y el progreso deben reiniciarse.
 
 La detección por reglas acepta varias expresiones, pero puede dar falsos positivos o no reconocer un prompt válido. Evalúa la estructura, no la calidad creativa ni el significado completo.
 
@@ -55,7 +59,7 @@ node --test tests/*.test.mjs
 npx wrangler@4 deploy --dry-run
 ```
 
-Comprueba también la interfaz con Gemini deshabilitado, errores del proveedor y edición mientras se está evaluando. El Worker acepta solo JSON, prompts no vacíos de hasta 1500 caracteres y la misión conocida. No confía en el encargo o la lista de obligatorios enviados por el cliente.
+Comprueba también la interfaz con Gemini deshabilitado, errores del proveedor y edición mientras se está evaluando. El Worker acepta solo JSON, prompts no vacíos de hasta 1500 caracteres y uno de los tres identificadores de misión conocidos. No confía en el encargo o la lista de obligatorios enviados por el cliente.
 
 ## Documentación oficial consultada
 
