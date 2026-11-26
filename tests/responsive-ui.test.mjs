@@ -29,6 +29,13 @@ function setup({ desktop = false, popover = true } = {}) {
       node.parentElement = this;
       this.children.push(node);
     }
+    prepend(node) { this.append(node); this.children.unshift(this.children.pop()); }
+    after(node) {
+      const parent = this.parentElement;
+      parent.append(node);
+      parent.children.pop();
+      parent.children.splice(parent.children.indexOf(this) + 1, 0, node);
+    }
     contains(node) { return this === node || this.children.some(child => child.contains(node)); }
     matches() { return !!this.popoverOpen; }
     showPopover() { this.popoverOpen = true; }
@@ -41,7 +48,7 @@ function setup({ desktop = false, popover = true } = {}) {
   }
   if (popover) Element.prototype.popover = 'manual';
   class Dialog extends Element { show() { this.open = true; } close() { this.open = false; } }
-  const names = ['desktop-results', 'results-panel', 'results-content', 'open-result', 'last-result', 'result-toast', 'toast-count', 'result-announcement', 'hint', 'hint-button', 'close-results', 'close-toast', 'prompt-form', 'execute'];
+  const names = ['desktop-results', 'results-panel', 'results-content', 'open-result', 'last-result', 'result-toast', 'toast-count', 'result-announcement', 'hint', 'hint-button', 'close-results', 'close-toast', 'prompt-form', 'execute', 'sheet-score', 'sheet-edit-note', 'criteria'];
   const nodes = Object.fromEntries(names.map(id => [id, new Element(id)]));
   nodes['result-sheet'] = new Dialog('result-sheet');
   document.body = new Element('body');
@@ -50,6 +57,8 @@ function setup({ desktop = false, popover = true } = {}) {
   nodes['desktop-results'].append(nodes['results-panel']);
   nodes['results-panel'].append(nodes['close-results']);
   nodes['results-panel'].append(nodes['results-content']);
+  nodes['results-content'].append(nodes.hint);
+  nodes['results-content'].append(nodes.criteria);
   const media = { matches: desktop, addEventListener() {} };
   const context = vm.createContext({
     document, HTMLElement: Element, HTMLDialogElement: Dialog,
@@ -73,7 +82,8 @@ test('en móvil solo aparece el aviso cuando termina una evaluación', () => {
   assert.equal(nodes['result-toast'].popoverOpen, true);
   assert.equal(nodes['result-sheet'].popoverOpen, undefined);
   assert.equal(nodes['last-result'].hidden, false);
-  assert.equal(nodes['result-sheet'].properties['--sheet-room'], '203px');
+  assert.equal(nodes['sheet-score'].textContent, '4 / 6 criterios');
+  assert.equal(nodes['sheet-score'].classList.contains('is-incomplete'), true);
 });
 
 test('abrir y cerrar la hoja conserva un acceso permanente y devuelve el foco', () => {
@@ -98,7 +108,25 @@ test('el aviso se puede descartar sin perder el resultado y editar elimina el av
   run("openResults($('last-result'))");
   run('resetResultPresentation()');
   assert.equal(nodes['last-result'].hidden, true);
-  assert.equal(nodes['result-sheet'].popoverOpen, false);
+  assert.equal(nodes['result-sheet'].popoverOpen, true);
+  assert.equal(nodes['sheet-edit-note'].hidden, false);
+  run('resetResultPresentation()');
+  assert.equal(nodes['result-sheet'].popoverOpen, true);
+});
+
+test('volver a ejecutar actualiza la hoja abierta sin tapar el editor ni mostrar otro aviso', () => {
+  const { nodes, document, run } = setup();
+  run('presentResult(2)');
+  run("openResults($('open-result'))");
+  run('resetResultPresentation()');
+  nodes.execute.focus();
+  run('presentResult(6)');
+  assert.equal(nodes['result-sheet'].popoverOpen, true);
+  assert.equal(nodes['result-toast'].popoverOpen, false);
+  assert.equal(nodes['sheet-edit-note'].hidden, true);
+  assert.equal(nodes['sheet-score'].textContent, '6 / 6 criterios');
+  assert.equal(nodes['sheet-score'].classList.contains('is-incomplete'), false);
+  assert.equal(document.activeElement, nodes.execute);
 });
 
 test('cruzar 768 px mueve el mismo resultado y cierra las superficies móviles', () => {
@@ -109,11 +137,13 @@ test('cruzar 768 px mueve el mismo resultado y cierra las superficies móviles',
   media.matches = true;
   run('syncResultLayout()');
   assert.equal(panel.parentElement, nodes['desktop-results']);
+  assert.deepEqual(nodes['results-content'].children.map(node => node.id), ['hint', 'criteria']);
   assert.equal(nodes['result-sheet'].popoverOpen, false);
   assert.equal(nodes['result-toast'].popoverOpen, false);
   media.matches = false;
   run('syncResultLayout()');
   assert.equal(panel.parentElement, nodes['result-sheet']);
+  assert.equal(nodes['results-content'].children[0].id, 'criteria');
   assert.equal(nodes['last-result'].hidden, false);
 });
 
