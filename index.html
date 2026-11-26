@@ -18,14 +18,14 @@
   --title: #79c0ff;
   --muted: #9da7b3;
   --control-border: #697583;
-  --dock-space: calc(4.125rem + env(safe-area-inset-bottom, 0px));
+  --dock-space: 0px;
 }
 * { box-sizing: border-box; }
 html { scroll-padding-block-end: var(--dock-space); }
 body {
   margin: 0;
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--bg);
@@ -63,12 +63,12 @@ progress { display: block; width: 100%; height: 5px; margin-top: .25rem; accent-
 progress::-webkit-progress-bar { background: var(--border); border-radius: 4px; }
 progress::-webkit-progress-value { background: var(--success); border-radius: 4px; }
 progress::-moz-progress-bar { background: var(--success); }
-main { flex: 1; min-block-size: 0; display: flex; flex-direction: column; gap: .5rem; padding-block: .5rem var(--dock-space); }
-.intro { flex: none; }
+main { flex: 1; min-block-size: 0; display: flex; flex-direction: column; gap: .75rem; padding-block: .75rem calc(4rem + env(safe-area-inset-bottom, 0px)); }
+.intro { flex: none; width: 100%; max-inline-size: 36rem; margin-inline: auto; }
 h1 { margin: 0; color: #f0f6fc; font-size: 1rem; line-height: 1.35; letter-spacing: -.025em; }
 .eyebrow, .intro > .muted { display: none; }
-.workspace { flex: 1; min-block-size: 0; display: flex; flex-direction: column; gap: .5rem; }
-.left { flex: none; display: flex; flex-direction: column; gap: .5rem; }
+.workspace { flex: 1; min-block-size: 0; display: block; }
+.left { width: 100%; max-inline-size: 36rem; margin-inline: auto; display: flex; flex-direction: column; gap: .75rem; }
 .panel { min-inline-size: 0; border: 1px solid var(--border); border-radius: 7px; background: #10161e; }
 .panel-bar { padding: .375rem .625rem; border-bottom: 1px solid var(--border); background: #161b22; border-radius: 7px 7px 0 0; flex-wrap: wrap; }
 h2 { margin: 0; font-size: .875rem; font-weight: 500; color: var(--title); }
@@ -83,7 +83,7 @@ p { margin: .5rem 0; }
 .required-line > p { font-size: .75rem; margin: 0; color: var(--muted); }
 .chips { display: flex; flex-wrap: wrap; gap: .25rem; padding: 0; list-style: none; margin: 0; }
 .chips li { padding: .125rem .375rem; font-size: .75rem; border: 1px solid var(--border); border-radius: 4px; }
-.hint-button { flex: none; inline-size: 6.75rem; max-inline-size: 100%; color: var(--hint); border-color: #a58b37; font-size: .875rem; }
+.hint-button { flex: none; inline-size: 7rem; max-inline-size: 100%; color: var(--hint); border-color: #a58b37; font-size: .875rem; }
 .hint { color: var(--hint); background: #211f16; border: 1px solid #a58b37; border-radius: 4px; padding: .625rem; margin-bottom: .75rem; }
 .hint p { margin: .375rem 0; }
 label { display: block; margin-bottom: .375rem; font-size: .875rem; }
@@ -105,13 +105,9 @@ textarea {
 }
 textarea::placeholder { color: #9da7b3; }
 .editor-bottom {
-  position: fixed;
-  inset-inline: 0;
-  bottom: 0;
-  z-index: 2;
-  padding: .5rem max(.75rem, env(safe-area-inset-right, 0px)) max(.5rem, env(safe-area-inset-bottom, 0px)) max(.75rem, env(safe-area-inset-left, 0px));
-  border-top: 1px solid var(--border);
-  background: var(--bg);
+  position: relative;
+  flex-wrap: wrap;
+  margin-top: .75rem;
 }
 .primary { flex: 1; max-inline-size: 14rem; min-block-size: 45px; background: var(--success); border-color: var(--success); color: var(--bg); font-weight: 700; }
 .primary:hover { background: #a0efaa; color: var(--bg); border-color: #a0efaa; }
@@ -146,9 +142,10 @@ summary { cursor: pointer; padding-block: .75rem; color: var(--title); font-size
 footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
 [hidden] { display: none !important; }
 /* El escritorio amplía la misma composición; la base está pensada para teléfonos. */
-@media (min-width: 52rem) {
+@media (min-width: 768px) {
   :root { --dock-space: 0px; }
-  .shell { width: min(1180px, calc(100% - 3rem)); }
+  body { height: 100vh; height: 100dvh; }
+  .shell { width: min(1180px, calc(100% - 2rem)); }
   header { padding-block: 1rem; }
   .brand { font-size: 1.3rem; }
   .subtitle { display: block; margin: .25rem 0 0; font-size: .875rem; }
@@ -158,13 +155,14 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
   h1 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); }
   .eyebrow { display: block; color: var(--title); font-size: .875rem; margin: 0 0 .25rem; }
   .intro > .muted { display: block; margin: .375rem 0 0; }
-  .workspace { display: grid; grid-template-columns: minmax(0, 1.14fr) minmax(0, 1fr); gap: 1.25rem; }
-  .left { gap: 1rem; }
+  .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+  .intro { max-inline-size: none; }
+  .left { max-inline-size: none; gap: 1rem; min-inline-size: 0; }
   .panel-bar { padding: .625rem 1rem; }
   .panel-body { padding: .875rem 1rem; }
-  h3 { font-size: 1rem; }
+  h3 { font-size: .875rem; }
   .mission-panel .tag { display: inline; }
-  .brief { margin-block: .75rem; font-size: 1rem; }
+  .brief { margin-block: .75rem; font-size: .875rem; }
   .required-line > p, .chips li { font-size: .875rem; }
   .editor-bottom { position: static; border: 0; background: transparent; margin-top: .75rem; padding: 0; }
   .primary { flex: none; }
@@ -176,10 +174,81 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
   body { height: auto; min-height: 100vh; min-height: 100dvh; }
   main { flex: none; }
   .workspace { flex: none; }
-  .results-panel { min-height: 12rem; max-height: 55dvh; }
+  #desktop-results .results-panel { min-height: 12rem; max-height: 65dvh; }
 }
 @media (prefers-reduced-motion: no-preference) {
   button { transition: background .15s, border-color .15s; }
+}
+
+/* Un único resultado cambia de contenedor al cruzar el punto de quiebre. */
+#desktop-results { display: none; }
+.results-panel { min-inline-size: 0; }
+.sheet-close { margin-left: auto; }
+.last-result { margin-top: .75rem; width: 100%; font-size: .875rem; color: var(--title); }
+.sheet-is-open .last-result { visibility: hidden; }
+.result-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  margin: 0 auto;
+  padding: .375rem 0 max(.5rem, env(safe-area-inset-bottom, 0px));
+  width: min(100%, 38rem);
+  max-width: 100%;
+  height: min(48vh, var(--sheet-room, 15rem));
+  height: min(48dvh, var(--sheet-room, 15rem));
+  max-height: var(--sheet-room, 15rem);
+  border: 1px solid var(--control-border);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background: #10161e;
+  color: var(--text);
+  box-shadow: 0 -10px 30px #0006;
+  z-index: 5;
+  overflow: visible;
+}
+.result-sheet[open], .result-sheet.fallback-open { display: flex; flex-direction: column; }
+.result-sheet:popover-open { display: flex; flex-direction: column; }
+.result-sheet .results-panel { border: 0; border-radius: 0; }
+.result-sheet .panel-bar { padding-block: .25rem; gap: .25rem .5rem; }
+.result-sheet .sheet-close { order: 1; }
+.result-sheet #evaluation-mode { order: 2; flex-basis: 100%; }
+.result-sheet .results-scroll { padding-bottom: .875rem; }
+.result-sheet .scroll-hint { display: none; }
+.result-sheet .result-summary { overflow-wrap: break-word; }
+.result-toast {
+  position: fixed;
+  inset: auto;
+  top: var(--toast-top, 70%);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: .375rem;
+  width: min(24rem, calc(100% - 1.5rem));
+  max-width: calc(100% - 1.5rem);
+  border: 1px solid var(--success);
+  border-radius: 7px;
+  background: #14251b;
+  color: var(--text);
+  box-shadow: 0 6px 20px #0005;
+  z-index: 4;
+}
+.result-toast.fallback-open { display: flex; align-items: center; gap: .5rem; }
+.result-toast:popover-open { display: flex; align-items: center; gap: .5rem; }
+.toast-open { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: .125rem; border: 0; text-align: left; font-size: .875rem; }
+.toast-open:hover { background: #1c3225; }
+.toast-count { color: var(--success); }
+.toast-link { color: var(--title); text-decoration: underline; text-underline-offset: .2em; }
+.toast-close { flex: none; padding-inline: .5rem; font-size: .875rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; border: 0; }
+@supports not selector(:popover-open) {
+  [popover]:not(.fallback-open):not([open]) { display: none; }
+}
+@media (min-width: 768px) {
+  #desktop-results { display: flex; min-block-size: 0; min-inline-size: 0; }
+  #desktop-results > .results-panel { width: 100%; }
+  .result-sheet, .result-sheet[open], .result-sheet.fallback-open { display: none; }
+  .result-sheet:popover-open { display: none; }
+  .result-toast, .result-toast.fallback-open, .sheet-close, .last-result { display: none; }
+  .result-toast:popover-open { display: none; }
 }
 </style>
 </head>
@@ -220,16 +289,18 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
           <textarea id="prompt" name="prompt" rows="5" maxlength="1500" aria-required="true" aria-describedby="privacy-note editor-help input-error" spellcheck="true"></textarea>
           <p id="input-error" class="error small" role="alert" hidden></p>
           <div class="editor-bottom"><span class="small muted" id="character-count"></span><button class="primary" type="submit" data-copy="execute"></button></div>
+          <button type="button" id="last-result" class="last-result" aria-controls="result-sheet" aria-expanded="false" hidden data-copy="lastResult"></button>
           <p id="privacy-note" class="privacy-note" data-copy="privacyShort"></p>
         </form>
       </section>
     </div>
-    <section class="panel results-panel" aria-labelledby="results-title">
-      <div class="panel-bar"><h2 id="results-title" data-copy="resultsTitle"></h2><span class="tag" id="evaluation-mode" data-copy="simulationTag"></span></div>
+    <div id="desktop-results">
+    <section class="panel results-panel" id="results-panel" aria-labelledby="results-title">
+      <div class="panel-bar"><h2 id="results-title" data-copy="resultsTitle"></h2><span class="tag" id="evaluation-mode" data-copy="simulationTag"></span><button type="button" id="close-results" class="sheet-close" autofocus data-copy="closeResults"></button></div>
       <div class="panel-body results-scroll" id="results-content" tabindex="0" role="region" aria-label="Criterios, pistas y respuesta">
         <p class="scroll-hint" data-copy="scrollHint"></p>
-        <div id="hint" class="hint" role="status" hidden></div>
         <p id="result-summary" class="result-summary small" role="status"></p>
+        <div id="hint" class="hint" role="status" hidden></div>
         <ul id="criteria" class="criteria" role="list"></ul>
         <div class="response" id="response" hidden><h3 id="response-title"></h3><p class="small muted" id="response-note"></p><pre id="response-text"></pre></div>
         <div class="completion" id="completion" role="status" hidden><p data-copy="completion"></p></div>
@@ -237,8 +308,15 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
         <details class="help"><summary data-copy="helpTitle"></summary><p id="editor-help" class="notice" data-copy="editorHelp"></p><footer data-copy="footer"></footer></details>
       </div>
     </section>
+    </div>
   </div>
 </main>
+<dialog id="result-sheet" class="result-sheet" popover="manual" aria-labelledby="results-title"></dialog>
+<div id="result-toast" class="result-toast" popover="manual" role="region" aria-label="Aviso de evaluación">
+  <button type="button" id="open-result" class="toast-open" aria-controls="result-sheet" aria-expanded="false"><span id="toast-count" class="toast-count"></span><span class="toast-link" data-copy="viewResult"></span></button>
+  <button type="button" id="close-toast" class="toast-close" aria-label="Cerrar aviso" data-copy="closeToast"></button>
+</div>
+<p id="result-announcement" class="sr-only" role="status" aria-atomic="true"></p>
 <noscript>Activa JavaScript en tu navegador para jugar. No necesitas conexión a internet.</noscript>
 <script>
 'use strict';
@@ -254,7 +332,7 @@ const CONTENT = {
       editorHelp:'Puedes editar y volver a ejecutar las veces que quieras. Máximo 1500 caracteres.', resultsTitle:'Resultados', simulationTag:'Simulación por reglas',
       waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
       pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
-      hint:'Ver pista', nextHint:'Otra pista', hintsDone:'Pistas vistas', hintNumber:'Pista {current} de 3',
+      hint:'Ver pista', nextHint:'Otra pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
       characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'{count} / 1 completada',
       empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
       success:'✓ Prompt aprobado. Cumples los 3 criterios obligatorios y {count} de los 6 criterios en total.',
@@ -272,7 +350,9 @@ const CONTENT = {
       liveCounter:'{count} / 6 por reglas',
       privacyShort:'Al ejecutar, tu prompt se envía a Gemini.',
       scrollHint:'Desplaza esta zona para ver el detalle.',
-      helpTitle:'Ayuda y privacidad'
+      helpTitle:'Ayuda y privacidad',
+      viewResult:'Ver resultado', lastResult:'Ver último resultado', closeResults:'Cerrar', closeToast:'Cerrar',
+      resultCount:'{count} de 6 criterios cumplidos', resultReady:'{count} de 6 criterios cumplidos. Resultado disponible.'
     },
     criteria: [
       { id:'rol', label:'Rol', patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/, /\bcomo (?:chef|cocinero|cocinera|nutricionista)\b/], yes:'Has indicado qué papel debe asumir la IA.', no:'Dale una especialidad: «Actúa como chef». Un rol orienta el tipo de respuesta.' },
@@ -403,9 +483,11 @@ $('hint-button').addEventListener('click', () => {
   $('hint-button').setAttribute('aria-expanded','true');
   $('hint-button').textContent = state.hints === mission.hints.length ? ui.hintsDone : ui.nextHint;
   $('hint-button').disabled = state.hints === mission.hints.length;
+  openResults($('hint-button'));
 });
 
 $('prompt').addEventListener('input', () => {
+  resetResultPresentation();
   state.revision += 1;
   updateEditor();
   $('input-error').hidden = true;
@@ -457,7 +539,142 @@ $('prompt-form').addEventListener('submit', async event => {
   state.completed = state.completed || evaluation.passed;
   $('progress').value = Number(state.completed);
   $('progress-text').textContent = format(ui.progress, { count:Number(state.completed) });
+  presentResult(count);
 });
+
+// Presentación responsiva: el evaluador anterior conserva su contrato y sus reglas.
+const desktopLayout = window.matchMedia('(min-width: 768px)');
+const resultPresentation = { available:false, opener:null };
+const supportsPopover = 'popover' in HTMLElement.prototype;
+
+function isOverlayOpen(element) {
+  return supportsPopover ? element.matches(':popover-open') : element.classList.contains('fallback-open');
+}
+
+function showOverlay(element) {
+  if (isOverlayOpen(element)) return;
+  if (supportsPopover) element.showPopover();
+  else {
+    element.classList.add('fallback-open');
+    if (element instanceof HTMLDialogElement) element.show();
+  }
+}
+
+function hideOverlay(element) {
+  if (!isOverlayOpen(element)) return;
+  if (supportsPopover) element.hidePopover();
+  else {
+    element.classList.remove('fallback-open');
+    if (element instanceof HTMLDialogElement) element.close();
+  }
+}
+
+function positionResultOverlays() {
+  if (desktopLayout.matches) return;
+  const button = document.querySelector('.primary').getBoundingClientRect();
+  // La hoja empieza debajo del botón; nunca lo cubre en los tamaños de juego.
+  const availableRoom = Math.max(0, window.innerHeight - Math.max(12, button.bottom + 12));
+  $('result-sheet').style.setProperty('--sheet-room', availableRoom + 'px');
+  const toastHeight = $('result-toast').getBoundingClientRect().height;
+  const toastTop = Math.max(8, Math.min(button.bottom + 12, window.innerHeight - toastHeight - 12));
+  $('result-toast').style.setProperty('--toast-top', toastTop + 'px');
+}
+
+function closeResults() {
+  const sheet = $('result-sheet');
+  const wasFocused = sheet.contains(document.activeElement);
+  hideOverlay(sheet);
+  document.body.classList.remove('sheet-is-open');
+  $('open-result').setAttribute('aria-expanded', 'false');
+  $('last-result').setAttribute('aria-expanded', 'false');
+  // El aviso se oculta al abrir: usar su alternativa permanente al devolver el foco.
+  if (wasFocused) {
+    const target = resultPresentation.opener === $('open-result') ? $('last-result') : resultPresentation.opener;
+    if (target?.isConnected && !target.hidden && !target.disabled) target.focus({ preventScroll:true });
+    else document.querySelector('.primary').focus({ preventScroll:true });
+  }
+}
+
+function openResults(opener) {
+  if (desktopLayout.matches) {
+    $('results-content').focus({ preventScroll:true });
+    if (opener === $('hint-button')) scrollToHint();
+    return;
+  }
+  resultPresentation.opener = opener;
+  hideOverlay($('result-toast'));
+  // En vistas muy bajas, traer el botón a la vista antes de calcular el espacio de la hoja.
+  const execute = document.querySelector('.primary');
+  if (execute.getBoundingClientRect().bottom > innerHeight - 96) execute.scrollIntoView({ block:'center' });
+  positionResultOverlays();
+  showOverlay($('result-sheet'));
+  document.body.classList.add('sheet-is-open');
+  $('close-results').focus({ preventScroll:true });
+  $('open-result').setAttribute('aria-expanded', 'true');
+  $('last-result').setAttribute('aria-expanded', 'true');
+  if (opener === $('hint-button')) scrollToHint();
+}
+
+function scrollToHint() {
+  const content = $('results-content');
+  content.scrollTop += $('hint').getBoundingClientRect().top - content.getBoundingClientRect().top;
+}
+
+function resetResultPresentation() {
+  closeResults();
+  hideOverlay($('result-toast'));
+  resultPresentation.available = false;
+  $('last-result').hidden = true;
+  $('result-announcement').textContent = '';
+}
+
+function presentResult(count) {
+  resultPresentation.available = true;
+  $('toast-count').textContent = format(ui.resultCount, { count });
+  $('last-result').hidden = false;
+  $('results-content').scrollTop = 0;
+  if (!desktopLayout.matches) {
+    closeResults();
+    showOverlay($('result-toast'));
+    positionResultOverlays();
+    $('result-announcement').textContent = format(ui.resultReady, { count });
+  }
+}
+
+function syncResultLayout() {
+  const hadResultFocus = $('results-panel').contains(document.activeElement);
+  closeResults();
+  hideOverlay($('result-toast'));
+  const destination = desktopLayout.matches ? $('desktop-results') : $('result-sheet');
+  destination.append($('results-panel'));
+  if (hadResultFocus) {
+    // Esperar al traslado del nodo para no perder el foco al cerrarse el Popover.
+    requestAnimationFrame(() => {
+      if (desktopLayout.matches) $('results-content').focus({ preventScroll:true });
+      else document.querySelector('.primary').focus({ preventScroll:true });
+    });
+  }
+  if (desktopLayout.matches) $('result-announcement').textContent = '';
+  $('last-result').hidden = !resultPresentation.available;
+  positionResultOverlays();
+}
+
+$('open-result').addEventListener('click', () => openResults($('open-result')));
+$('last-result').addEventListener('click', () => openResults($('last-result')));
+$('close-results').addEventListener('click', closeResults);
+$('close-toast').addEventListener('click', () => {
+  const wasFocused = $('result-toast').contains(document.activeElement);
+  hideOverlay($('result-toast'));
+  if (wasFocused) $('last-result').focus({ preventScroll:true });
+});
+$('result-sheet').addEventListener('keydown', event => {
+  if (event.key === 'Escape') { event.preventDefault(); closeResults(); }
+});
+window.addEventListener('resize', positionResultOverlays);
+window.addEventListener('scroll', positionResultOverlays, { passive:true });
+new ResizeObserver(positionResultOverlays).observe($('prompt-form'));
+desktopLayout.addEventListener('change', syncResultLayout);
+syncResultLayout();
 </script>
 </body>
 </html>
