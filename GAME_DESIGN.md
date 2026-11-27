@@ -118,7 +118,7 @@ Al completar una misión aparece un mensaje de avance y el botón "siguiente mis
 
 - **Frontend:** un solo archivo `index.html` con HTML, CSS y JavaScript. Sin frameworks ni pasos de compilación.
 - **Backend:** un Worker de módulo ES en `src/index.js`. Su manejador `fetch(request, env)` atiende `POST /api/evaluar` y delega las demás rutas a `env.ASSETS.fetch(request)`.
-- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar solo `index.html`. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npx wrangler@4 deploy`, sin compilación.
+- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar solo `index.html` y la imagen del personaje. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npx wrangler@4 deploy`, sin compilación.
 - **Proveedor de IA:** Google Gemini (Google AI Studio). El nombre exacto de un modelo compatible con `generateContent` y salida JSON debe copiarse desde AI Studio a la variable `GEMINI_MODEL`, porque cambia con el tiempo. Revisar su disponibilidad y cuota gratuita en la cuenta.
 - **Respaldo:** la evaluación simulada por reglas, que corre en el navegador cuando Gemini falla o se agota la cuota.
 - **Secretos:** la clave de Gemini se guarda como variable de entorno en el panel de Cloudflare, con el nombre `GEMINI_API_KEY`. Nunca se escribe en el código ni se sube a GitHub.
@@ -129,6 +129,7 @@ Estructura de archivos del proyecto:
 ```
 prompt-quest/
 ├── index.html              (juego completo: pantalla, misiones, evaluación simulada)
+├── assets/epson_ia_mapache.png (personaje original de bienvenida)
 ├── src/
 │   └── index.js            (Worker: API de evaluación y acceso a ASSETS)
 ├── wrangler.jsonc          (entrada del Worker, assets y límite de solicitudes)
@@ -202,3 +203,9 @@ Al empezar a construir:
 - ¿El nombre "Prompt Quest" se queda o prefieres otro?
 - ¿Quieres que el juego sea en español únicamente o también en inglés desde el inicio?
 - ¿Cuántas misiones te gustaría tener en la primera versión pública?
+
+## 16. Presentación e incentivos implementados
+
+La entrada sigue portada → bienvenida de Epson_IA → encargos. Epson_IA es el personaje de bienvenida y guía de pistas; cada cliente tiene su propia voz y una reacción al completar su encargo. No se reemplaza el encargo aprobado del restaurante.
+
+Una barra representa la reputación mediante misiones completadas. El portafolio conserva en memoria el último prompt aprobado por misión y su respuesta de referencia fija; los intentos fallidos no lo modifican. Al finalizar las tres misiones hay un cierre de historia y acceso al portafolio final. No se añaden cuentas, almacenamiento persistente ni cambios en la evaluación.

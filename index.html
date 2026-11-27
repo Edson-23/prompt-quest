@@ -301,7 +301,8 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 .chat-message > p:last-child { margin-bottom: 0; }
 .guide-message { border-left-color: var(--success); }
 .guide-message .speaker { color: var(--success); }
-.client-message { margin-block: .625rem; }
+.client-message { margin-block: .625rem; padding: .5rem .625rem; }
+@media (min-width: 768px) { .intro { row-gap: 0; } }
 .hint p + p { border-top: 1px solid #a58b37; padding-top: .625rem; }
 .completion > .speaker { margin-top: .75rem; }
 .completion button { margin-top: .75rem; width: 100%; }
@@ -425,7 +426,7 @@ const CONTENT = {
       retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
       referenceTitle:'Respuesta de referencia desbloqueada', weakTitle:'Respuesta simulada de un prompt incompleto',
       referenceNote:'Este es un ejemplo fijo del encargo, no una respuesta generada a partir de tus instrucciones. Compara también los criterios opcionales.', weakNote:'Esta respuesta fija ilustra lo poco útil que puede ser una petición incompleta.',
-      portfolioTitle:'Mi portafolio', portfolioEmpty:'Tu portafolio empieza con el primer encargo aprobado.', portfolioNote:'Tus trabajos viven solo en esta sesión. Al recargar se pierden.', yourPrompt:'Tu prompt aprobado', fixedResponse:'Respuesta de referencia', graduationTitle:'Tu primer día, completado', graduationMessage:'Tres clientes atendidos. Ya sabes dar instrucciones con intención. Este portafolio es tu primera muestra de trabajo. Bienvenido al equipo.', viewGraduation:'Cerrar mi primer día', returnGame:'Volver a los encargos',
+      portfolioTitle:'Mi portafolio', portfolioEmpty:'Tu portafolio empieza con el primer encargo aprobado.', portfolioNote:'Tus trabajos viven solo en esta sesión. Al recargar se pierden.', yourPrompt:'Tu prompt aprobado', fixedResponse:'Respuesta de referencia', graduationTitle:'Tu primer día, completado', graduationMessage:'Tres clientes atendidos. Ya sabes dar instrucciones con intención. Bienvenido al equipo.', viewGraduation:'Cerrar mi primer día', returnGame:'Volver a los encargos',
       nextMission:'Siguiente misión', nextClient:'Nuevo cliente: {client}',
       allCompleted:'✓ Completaste las 3 misiones. Has practicado claridad, contexto y formato: asignar un rol, explicar la situación, definir el objetivo, poner límites y guiar la respuesta con un formato y un ejemplo.',
       limitations:'Este evaluador reconoce palabras y patrones, no comprende el significado. Puede no reconocer otras expresiones correctas y no juzga la calidad creativa. Los criterios opcionales ayudan a resolver mejor el encargo.',
@@ -903,6 +904,7 @@ function presentResult(count) {
   $('toast-count').textContent = format(ui.resultCount, { count });
   $('last-result').hidden = false;
   $('results-content').scrollTop = 0;
+  if ($('portfolio-screen') && !$('portfolio-screen').hidden) return;
   if (!desktopLayout.matches) {
     if (!isOverlayOpen($('result-sheet'))) showOverlay($('result-toast'));
     positionResultOverlays();
@@ -919,6 +921,11 @@ function syncResultLayout() {
   // Orden de lectura móvil: resumen grande, criterios y retroalimentación completa.
   if (desktopLayout.matches) $('hint').after($('criteria'));
   else $('results-content').prepend($('criteria'));
+  const guide = $('guide-feedback');
+  if (guide) {
+    if (desktopLayout.matches) $('result-summary').before(guide);
+    else $('results-content').prepend(guide);
+  }
   $('sheet-edit-note').hidden = true;
   if (hadResultFocus) {
     // Esperar al traslado del nodo para no perder el foco al cerrarse el Popover.
