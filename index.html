@@ -135,24 +135,53 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
   @keyframes mail-arrive { from { opacity:.3; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
   @keyframes terminal-ready { from { opacity:.3; } to { opacity:1; } }
 }
-/* Laptop: correo y conversación a la izquierda; terminal a la derecha. */
+/* Laptop: escritorio con ventanas secuenciales. El celular conserva sus estilos. */
+.laptop-only { display:none; }
 @media (min-width:768px) {
-  .shell { width:min(1280px,calc(100% - 2rem)); }
-  header { padding-block:.75rem; }
-  .header-row { grid-template-columns:minmax(0,1fr) 14rem auto; gap:1rem; }
-  .header-row h1 { font-size:1rem; }
-  .header-row .portfolio-link { grid-column:3; grid-row:1; }
-  .progress-box { grid-column:2; grid-row:1; font-size:.75rem; }
-  body[data-mission-screen] .mission-desktop { display:grid; grid-template-columns:repeat(2,minmax(360px,1fr)); gap:.75rem; padding-block:.75rem; }
-  body[data-mission-screen] #inbox-window,body[data-mission-screen] #terminal-window,body[data-mission-screen] .conversation,body[data-mission-screen] .mail-bar { display:flex; }
-  body[data-mission-screen] .mail-list { display:block; flex:none; max-height:15rem; }
-  .mail-note { margin-top:.5rem; padding:.5rem .75rem; }
-  .mail-item { padding:.75rem; gap:.25rem; }
-  .mail-footer { display:none; }
-  .conversation { border-top:1px solid var(--border); }
-  #back-mail { display:none; }
-  .window-scroll { padding:1rem; }
+  body.in-game > header { order:2; height:28px; flex:0 0 28px; padding:0; border-top:1px solid var(--border); border-bottom:0; background:#161b22; z-index:20; }
+  .header-row { width:calc(100% - 1rem); height:100%; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:.5rem; }
+  .header-row h1 { font-size:.6875rem; line-height:1.2; }
+  .header-row .portfolio-link { justify-self:end; grid-column:3; grid-row:1; min-height:24px; height:24px; padding:.125rem .5rem; font-size:.6875rem; }
+  .progress-box { display:none; }
+  .desktop-task-links { display:flex; grid-column:2; grid-row:1; gap:.25rem; }
+  .desktop-task-links button { min-height:24px; height:24px; padding:.125rem .625rem; font-size:.6875rem; }
+  .desktop-task-links button[aria-pressed="true"] { border-color:var(--success); color:var(--success); }
+  body[data-mission-screen] .mission-desktop { order:1; position:relative; width:100%; margin:0; padding:0; display:block; min-height:0; overflow:hidden; }
+  body[data-mission-screen] #inbox-window,body[data-mission-screen] #terminal-window { position:absolute; display:none; left:var(--laptop-x,50%); top:var(--laptop-y,50%); transform:translate(-50%,-50%); width:min(60%,800px); min-height:300px; height:min(70dvh,680px); max-height:calc(100% - 2rem); box-shadow:0 15px 45px #0008; z-index:2; }
+  body[data-mission-screen] #terminal-window { --window-default-offset:24px; left:var(--laptop-x,calc(50% + 24px)); top:var(--laptop-y,calc(50% + 20px)); height:min(74dvh,720px); }
+  body[data-mission-screen] #inbox-window[data-laptop-open="true"],body[data-mission-screen] #terminal-window[data-laptop-open="true"] { display:flex; }
+  .computer-window[data-laptop-active="false"] { opacity:.5; --window-opacity:.5; }
+  .computer-window[data-laptop-active="true"] { opacity:1; z-index:3 !important; --window-opacity:1; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="mail"] .conversation { display:none; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="mail"] .mail-list { display:block; flex:1; max-height:none; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="mail"] .mail-bar { display:flex; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="chat"] .mail-bar,body[data-mission-screen] #inbox-window[data-laptop-view="chat"] .mail-list { display:none; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="chat"] .conversation { display:flex; }
+  .mail-footer,#hint-button,#chat-hints,#back-chat,.laptop-copy { display:none; }
+  #client-guide .mobile-copy { display:block; }
+  #client-guide,#client-guide .speaker { color:var(--hint); }
+  #client-guide { border-left-color:var(--hint); }
+  .window-bar { min-height:34px; padding:.25rem .5rem; cursor:grab; user-select:none; touch-action:none; }
+  .window-bar:active { cursor:grabbing; }
+  .window-bar > button { min-height:24px; min-width:24px; padding:.125rem .375rem; font-size:.75rem; }
+  .window-bar .window-close { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; padding:0; font-size:1.125rem; }
+  #back-mail { display:inline-flex; align-items:center; gap:.25rem; }
+  #back-mail .laptop-only { display:inline; }
+  body.in-game #mobile-notification { display:none; position:absolute; inset:1rem 1rem auto auto; width:360px; max-width:calc(100% - 2rem); height:auto; min-height:0; padding:0; border:0; background:transparent; z-index:5; }
+  body.in-game[data-laptop-notification="true"] #mobile-notification { display:flex; }
+  .mail-notification { display:flex; flex-direction:column; gap:.5rem; width:100%; padding:1rem; text-align:left; background:#161b22; border-color:var(--title); }
+  .notification-label { color:var(--title); font-size:.75rem; }
+  .mail-notification strong { font-size:.875rem; }
+  .notification-help { color:var(--muted); font-size:.75rem; }
+  #client-profile { display:none !important; }
+  #desktop-finished { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(28rem,70%); text-align:center; }
+  #desktop-finished[data-visible="true"] { display:block; }
+  #desktop-finished button { margin-top:1rem; }
   .guide-image { width:min(240px,100%); }
+}
+@media (min-width:768px) and (prefers-reduced-motion:no-preference) {
+  .window-enter { animation:laptop-window-in 200ms ease-out; }
+  @keyframes laptop-window-in { from { opacity:0; transform:translate(-50%,-50%) scale(.96); } to { opacity:var(--window-opacity,1); transform:translate(-50%,-50%) scale(1); } }
 }
 /* Pasos adicionales exclusivos del celular. */
 .mobile-only { display:none; }
@@ -208,7 +237,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
 <a class="skip" href="#work-area" data-copy="skip"></a>
 <header>
   <div class="shell header-row">
-    <h1 data-copy="missionTitle"></h1>
+    <h1 data-copy="missionTitle"></h1><nav class="laptop-only desktop-task-links" aria-label="Ventanas abiertas"><button type="button" id="task-mail" aria-pressed="false" hidden data-copy="inbox"></button><button type="button" id="task-terminal" aria-pressed="false" hidden data-copy="taskTerminal"></button></nav>
     <button id="open-portfolio" type="button" class="portfolio-link" data-copy="portfolioTitle"></button>
     <div class="progress-box"><div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div><progress id="progress" value="0" max="3" aria-label="Reputación de la agencia: misiones completadas"></progress></div>
   </div>
@@ -223,7 +252,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
     <p class="profile-instruction" data-copy="tapProfile"></p>
   </section>
   <section id="inbox-window" class="computer-window" aria-labelledby="inbox-title">
-    <div class="window-bar mail-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span></div>
+    <div class="window-bar mail-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span><button type="button" id="close-mail" class="laptop-only window-close" aria-label="Cerrar Correo">×</button></div>
     <div class="mail-list">
       <button type="button" id="new-mail" class="mail-item"><strong id="mail-sender"></strong><span id="mail-subject"></span><span class="muted" id="mail-preview"></span></button>
       <article class="mail-note"><p class="speaker">Epson_IA</p><p data-copy="mailGuide"></p></article>
@@ -231,7 +260,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
     <p class="mobile-only mobile-copy inbox-instruction" data-copy="tapMail"></p>
     <div class="window-actions mail-footer"><button type="button" class="primary" id="open-mail" data-copy="openMail"></button></div>
     <section id="chat-window" class="conversation" aria-labelledby="client-name">
-      <div class="window-bar"><button type="button" id="back-mail" aria-label="Volver al correo">←</button><h2 id="client-name" tabindex="-1"></h2><span class="tag" data-copy="clientLabel"></span></div>
+      <div class="window-bar"><button type="button" id="back-mail" aria-label="Volver al correo">←<span class="laptop-only" data-copy="inbox"></span></button><h2 id="client-name" tabindex="-1"></h2><span class="tag" data-copy="clientLabel"></span><button type="button" id="close-chat" class="laptop-only window-close" aria-label="Cerrar Correo">×</button></div>
       <div id="chat-scroll" class="window-scroll" tabindex="0" role="log" aria-label="Conversación con el cliente" aria-live="polite">
         <div class="chat-message client-message"><p class="speaker" id="client-speaker"></p><p id="brief"></p></div>
         <div id="client-guide" class="chat-message guide-message"><p class="speaker">Epson_IA</p><p class="laptop-copy" data-copy="chatGuide"></p><p class="mobile-only mobile-copy" data-copy="mobileChatGuide"></p></div>
@@ -242,7 +271,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
     </section>
   </section>
   <section id="terminal-window" class="computer-window terminal-window" aria-labelledby="editor-title">
-    <div class="window-bar"><button type="button" id="back-chat" aria-label="Volver a la conversación">←</button><h2 id="editor-title" data-copy="terminalTitle"></h2><span id="terminal-mission" class="tag"></span></div>
+    <div class="window-bar"><button type="button" id="back-chat" aria-label="Volver a la conversación">←</button><h2 id="editor-title" data-copy="terminalTitle"></h2><span id="terminal-mission" class="tag"></span><button type="button" id="close-terminal" class="laptop-only window-close" aria-label="Cerrar terminal">×</button></div>
     <div id="terminal-scroll" class="window-scroll terminal-scroll" tabindex="0" role="region" aria-label="Terminal de trabajo">
       <p id="terminal-to" class="terminal-context"></p><p id="terminal-brief" class="terminal-context"></p>
       <details id="terminal-history" class="terminal-history" hidden><summary data-copy="historyTitle"></summary><div id="history-items"></div></details>
@@ -272,6 +301,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
       <div id="result-actions" class="result-actions" hidden><button type="button" id="retry-prompt" data-copy="retryPrompt"></button><button type="button" id="result-hint" class="hint-button" aria-controls="hint"></button><button type="button" id="next-mission" class="primary" hidden data-copy="continue"></button><button type="button" id="view-graduation" class="primary" hidden data-copy="continue"></button></div>
     </div>
   </section>
+<div id="desktop-finished" class="laptop-only"><p data-copy="desktopComplete"></p><button type="button" id="desktop-continue" class="primary" data-copy="continue"></button></div>
 </main>
 <p id="result-announcement" class="sr-only" role="status" aria-atomic="true"></p>
 <noscript>Activa JavaScript en tu navegador para jugar. No necesitas conexión a internet.</noscript>
@@ -281,6 +311,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
 const CONTENT = {
   es: {
     ui: {
+      taskTerminal:'Terminal', desktopComplete:'Encargo completado. Puedes continuar tu trabajo en la agencia.',
       terminalTitle:'terminal', evaluatingLine:'$ evaluando…', terminalTo:'$ para: {client}', terminalBrief:'$ encargo: {brief}',
       notificationLabel:'Correo · 1 nuevo', tapNotification:'toca la notificación', tapMail:'toca el correo del cliente', clientWrote:'Te escribió un encargo', tapProfile:'toca para leer el encargo', mobileChatGuide:'Cuando estés listo, abre la terminal.', clientShortNames:{'menu-semanal':'La Esquina'}, clientInitials:{'menu-semanal':'LE'},
       clientLabel:'Cliente', resultsLine:'$ resultados', score:'{count} / 6 criterios', historyTitle:'Historial de prompts', retryPrompt:'Volver a intentar', continue:'Continuar', missionLabel:'Misión {number}',
@@ -499,12 +530,85 @@ function renderProgress() {
 }
 
 // Flujo de misión: correo, conversación, escritura y resultado en la terminal.
+function usesLaptopMissionFlow() { return window.matchMedia('(min-width:768px)').matches; }
+function laptopWindows() {
+  return state.desktop ||= { mailOpen:false, terminalOpen:false, active:null, mailScreen:'mail', terminalScreen:'terminal', notification:true };
+}
+function renderLaptopWindows(focus = false) {
+  const desktop = laptopWindows();
+  document.body.dataset.laptopNotification = String(desktop.notification);
+  document.body.dataset.missionScreen = desktop.active === 'terminal' ? desktop.terminalScreen : desktop.active === 'mail' ? desktop.mailScreen : desktop.notification ? 'notification' : 'desktop';
+  for (const name of ['mail','terminal']) {
+    const element = $(name === 'mail' ? 'inbox-window' : 'terminal-window');
+    element.dataset.laptopOpen = String(desktop[name + 'Open']);
+    element.dataset.laptopActive = String(desktop.active === name);
+    $('task-' + name).hidden = !desktop[name + 'Open'];
+    $('task-' + name).setAttribute('aria-pressed', String(desktop.active === name));
+  }
+  $('inbox-window').dataset.laptopView = desktop.mailScreen;
+  $('desktop-finished').dataset.visible = String(!desktop.mailOpen && !desktop.terminalOpen && !desktop.notification);
+  const results = desktop.terminalScreen === 'results';
+  $('prompt-form').hidden = results;
+  $('results-panel').hidden = !results;
+  $('execute').hidden = results;
+  $('result-actions').hidden = !results;
+  renderHistory(results);
+  if (!focus || !document.body.classList.contains('in-game')) return;
+  const target = desktop.active === 'terminal' ? (results ? 'terminal-scroll' : 'prompt') : desktop.active === 'mail' ? (desktop.mailScreen === 'chat' ? 'client-name' : 'new-mail') : desktop.notification ? 'mail-notification' : 'desktop-continue';
+  $(target).focus({ preventScroll:true });
+}
+function setLaptopMissionScreen(screen, focus) {
+  const desktop = laptopWindows();
+  if (screen === 'notification') {
+    desktop.mailOpen = desktop.terminalOpen = false;
+    desktop.active = null;
+    desktop.notification = !state.completed.has(mission.id);
+  } else if (screen === 'mail' || screen === 'chat' || screen === 'profile') {
+    if (!desktop.mailOpen) $('inbox-window').classList.add('window-enter');
+    desktop.mailOpen = true;
+    desktop.active = 'mail';
+    desktop.mailScreen = screen === 'chat' ? 'chat' : 'mail';
+    desktop.notification = false;
+    if (screen === 'chat' && document.body.classList.contains('in-game')) prepareConversation();
+  } else if (screen === 'terminal' || screen === 'results') {
+    if (!desktop.terminalOpen) $('terminal-window').classList.add('window-enter');
+    desktop.terminalOpen = true;
+    desktop.active = 'terminal';
+    desktop.terminalScreen = screen;
+    desktop.notification = false;
+  }
+  renderLaptopWindows(focus);
+}
+function activateLaptopWindow(name, focus = false) {
+  if (!usesLaptopMissionFlow() || !laptopWindows()[name + 'Open'] || (laptopWindows().active === name && !focus)) return;
+  laptopWindows().active = name;
+  renderLaptopWindows(focus);
+}
+function closeLaptopWindow(name) {
+  if (!usesLaptopMissionFlow()) return;
+  const desktop = laptopWindows();
+  desktop[name + 'Open'] = false;
+  desktop.active = desktop.terminalOpen ? 'terminal' : desktop.mailOpen ? 'mail' : null;
+  desktop.notification = !desktop.active && !state.completed.has(mission.id);
+  renderLaptopWindows(true);
+}
+function boundedWindowPosition(x, y, width, height, areaWidth, areaHeight) {
+  return { x:Math.max(width / 2, Math.min(areaWidth - width / 2, x)), y:Math.max(height / 2, Math.min(areaHeight - height / 2, y)) };
+}
+function positionLaptopWindow(element, x, y) {
+  const area = $('work-area').getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
+  const point = boundedWindowPosition(x, y, rect.width, rect.height, area.width, area.height);
+  element.style.setProperty('--laptop-x', point.x + 'px');
+  element.style.setProperty('--laptop-y', point.y + 'px');
+}
 function usesMobileClientFlow() {
   return mission.id === 'menu-semanal' && !window.matchMedia('(min-width:768px)').matches;
 }
-function missionEntryScreen() { return usesMobileClientFlow() ? 'notification' : 'mail'; }
+function missionEntryScreen() { return usesLaptopMissionFlow() || usesMobileClientFlow() ? 'notification' : 'mail'; }
 function openClientMail() { setMissionScreen(usesMobileClientFlow() ? 'profile' : 'chat'); }
 function openNotification() {
+  if (usesLaptopMissionFlow()) { setMissionScreen('mail'); return; }
   if (state.notificationClosing) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setMissionScreen('mail'); return; }
   state.notificationClosing = true;
@@ -517,6 +621,7 @@ function openNotification() {
   }, 180);
 }
 function setMissionScreen(screen, focus = true) {
+  if (usesLaptopMissionFlow()) { setLaptopMissionScreen(screen, focus); return; }
   if ((screen === 'notification' || screen === 'profile') && !usesMobileClientFlow()) screen = 'mail';
   document.body.dataset.missionScreen = screen;
   if (document.body.classList.contains('in-game') && (screen === 'chat' || (screen === 'mail' && window.matchMedia('(min-width:768px)').matches))) prepareConversation();
@@ -596,6 +701,11 @@ function presentResult(count) {
 // Fin del flujo de misión.
 
 function renderMission() {
+  state.desktop = null;
+  for (const id of ['inbox-window','terminal-window']) {
+    $(id).style.removeProperty('--laptop-x');
+    $(id).style.removeProperty('--laptop-y');
+  }
   if (state.chatTimer) clearTimeout(state.chatTimer);
   state.chatTimer = null;
   state.chatRevealed = false;
@@ -750,6 +860,64 @@ function renderWelcome() {
   $('welcome-next').textContent = state.welcomeIndex === 2 ? ui.startTrial : ui.next;
   guideAnimation.message();
 }
+// Interacciones exclusivas del escritorio; las posiciones no afectan al celular.
+for (const [id, name] of [['close-mail','mail'],['close-chat','mail'],['close-terminal','terminal']]) $(id).addEventListener('click', () => closeLaptopWindow(name));
+for (const name of ['mail','terminal']) {
+  const element = $(name === 'mail' ? 'inbox-window' : 'terminal-window');
+  $('task-' + name).addEventListener('click', () => activateLaptopWindow(name, true));
+  element.addEventListener('pointerdown', () => activateLaptopWindow(name));
+  element.addEventListener('focusin', () => {
+    if (usesLaptopMissionFlow() && laptopWindows().active !== name) activateLaptopWindow(name);
+  });
+  element.addEventListener('animationend', event => { if (event.target === element) element.classList.remove('window-enter'); });
+  for (const bar of element.querySelectorAll('.window-bar')) {
+    let drag = null;
+    bar.addEventListener('pointerdown', event => {
+      if (!usesLaptopMissionFlow() || event.button !== 0 || event.target.closest('button')) return;
+      element.classList.remove('window-enter');
+      const rect = element.getBoundingClientRect(), area = $('work-area').getBoundingClientRect();
+      drag = { x:event.clientX, y:event.clientY, centerX:rect.left - area.left + rect.width / 2, centerY:rect.top - area.top + rect.height / 2 };
+      bar.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+    bar.addEventListener('pointermove', event => {
+      if (drag) positionLaptopWindow(element, drag.centerX + event.clientX - drag.x, drag.centerY + event.clientY - drag.y);
+    });
+    for (const type of ['pointerup','pointercancel','lostpointercapture']) bar.addEventListener(type, () => { drag = null; });
+    bar.addEventListener('keydown', event => {
+      if (!usesLaptopMissionFlow() || event.target !== bar || !['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) return;
+      event.preventDefault();
+      const rect = element.getBoundingClientRect(), area = $('work-area').getBoundingClientRect(), step = event.shiftKey ? 40 : 10;
+      positionLaptopWindow(element, rect.left - area.left + rect.width / 2 + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0), rect.top - area.top + rect.height / 2 + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0));
+    });
+  }
+}
+const laptopQuery = window.matchMedia('(min-width:768px)');
+function updateLaptopTitlebars() {
+  for (const bar of document.querySelectorAll('#inbox-window .window-bar, #terminal-window .window-bar')) {
+    if (laptopQuery.matches) { bar.tabIndex = 0; bar.setAttribute('aria-label','Mover ventana con las flechas'); }
+    else { bar.removeAttribute('tabindex'); bar.removeAttribute('aria-label'); }
+  }
+}
+laptopQuery.addEventListener('change', () => {
+  const previous = document.body.dataset.missionScreen;
+  if (laptopQuery.matches) setMissionScreen(previous === 'profile' ? 'mail' : previous, false);
+  else {
+    const desktop = laptopWindows();
+    setMissionScreen(desktop.active === 'terminal' ? desktop.terminalScreen : desktop.mailOpen ? desktop.mailScreen : missionEntryScreen(), false);
+  }
+  updateLaptopTitlebars();
+});
+window.addEventListener('resize', () => {
+  if (!laptopQuery.matches) return;
+  for (const id of ['inbox-window','terminal-window']) {
+    const element = $(id);
+    if (element.dataset.laptopOpen !== 'true') continue;
+    const rect = element.getBoundingClientRect(), area = $('work-area').getBoundingClientRect();
+    positionLaptopWindow(element, rect.left - area.left + rect.width / 2, rect.top - area.top + rect.height / 2);
+  }
+});
+updateLaptopTitlebars();
 for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', openClientMail);
 $('mail-notification').addEventListener('click', openNotification);
 $('read-client').addEventListener('click', () => setMissionScreen('chat'));
@@ -780,10 +948,15 @@ $('welcome-next').addEventListener('click', () => {
   setMissionScreen(missionEntryScreen());
 });
 
-$('next-mission').addEventListener('click', () => {
+function advanceMission() {
   if (!selectMission(state.missionIndex + 1)) return;
   renderMission();
   setMissionScreen(missionEntryScreen());
+}
+$('next-mission').addEventListener('click', advanceMission);
+$('desktop-continue').addEventListener('click', () => {
+  if (state.completed.size === missions.length) showPortfolio(true);
+  else advanceMission();
 });
 
 function renderPortfolio(graduation) {

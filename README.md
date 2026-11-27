@@ -18,9 +18,11 @@ Se usan animaciones de 220 ms que respetan la preferencia de movimiento reducido
 
 ## Flujo de trabajo de las misiones
 
-Correo → conversación → terminal → resultados en la misma terminal. En la misión 1 de celular, la entrada es notificación → bandeja → ficha del cliente «LE» → encargo. La notificación baja en 400 ms y desaparece al tocarla. El encargo móvil muestra solo «Iniciar prompt»; las pistas se piden en los resultados de la terminal. La laptop conserva su flujo anterior. En celular no se muestran el editor y los resultados a la vez. «Volver a intentar» recupera el prompt anterior; el historial conserva los prompts enviados durante la sesión para compararlos. Las pistas se pueden pedir en la conversación y en el resultado, con tres niveles compartidos por misión.
+En celular, la misión 1 sigue notificación → bandeja → ficha «LE» → encargo → terminal. La notificación baja en 400 ms y desaparece al tocarla. El encargo muestra solo «Iniciar prompt». Los resultados sustituyen al editor; las pistas están en la terminal junto a «Volver a intentar».
 
-La página del juego usa 100dvh y desplazamiento interno en las ventanas. Los botones de acción quedan fuera del contenido desplazable. En laptop, las dos ventanas se muestran simultáneamente, con ancho mínimo de 360 px por ventana. La portada, la bienvenida animada y el portafolio se mantienen.
+En laptop (desde 768 px), el recorrido también es secuencial: notificación en la esquina superior derecha → ventana de Correo → encargo en esa misma ventana → terminal encima del correo. La barra inferior muestra la misión, los accesos a las ventanas abiertas y «Mi portafolio». Al activar una ventana, la otra queda detrás con opacidad 0.5. La X de la terminal recupera el correo en el mismo punto. Cerrar todas las ventanas devuelve la notificación si el encargo está pendiente; si ya se completó, permite continuar.
+
+Las ventanas se pueden mover por su barra de título con el ratón o las flechas del teclado (Mayús aumenta el paso), sin salir del escritorio. Su aparición dura 200 ms y respeta movimiento reducido. La página usa 100dvh; el desplazamiento es interno y los botones de acción permanecen fuera del contenido desplazable. «Volver a intentar» conserva el prompt y el historial permanece en memoria. La portada, la bienvenida y el portafolio se mantienen.
 
 ## Estado
 
@@ -32,12 +34,12 @@ La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `s
 
 ## Prueba rápida
 
-1. Pulsa «Empezar mi primer día», recorre la bienvenida y pulsa «Empezar la prueba». En celular, toca la notificación, el correo y la ficha del cliente. Lee el encargo y pulsa «Iniciar prompt». En laptop, abre el correo directamente. Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
+1. Pulsa «Empezar mi primer día», recorre la bienvenida y pulsa «Empezar la prueba». En celular, toca la notificación, el correo y la ficha del cliente. Lee el encargo y pulsa «Iniciar prompt». En laptop, toca la notificación y abre el correo del restaurante. Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
 2. Ejecuta `Dame un menú de comida`: debe señalar los criterios que faltan y mostrar una respuesta poco útil.
 3. Ejecuta `Actúa como chef del restaurante La Esquina. Crea un menú de 7 días económico y sin gluten. Preséntalo en una tabla. Por ejemplo: Lunes | Arroz con frijoles.`: debe detectar los seis criterios, completar la misión y mostrar el menú de referencia.
 4. Pulsa «Continuar». Prueba `Ayúdame con un correo` y después `Actúa como agente de atención al cliente de una tienda de ropa en línea. Redacta un correo amable sobre envíos y devoluciones de máximo 80 palabras, sin prometer plazos. Por ejemplo: Gracias por escribirnos.`.
 5. Avanza a la misión 3. Prueba `Dime algo de historia` y después `Tengo un examen de historia sobre la Revolución Industrial mañana. Resume mis apuntes en viñetas, máximo 200 palabras. Por ejemplo: Causas → Mejoras agrícolas y nuevas máquinas.`. Debe aprobar sin exigir un rol y mostrar el cierre de las tres misiones.
-6. Edita, reejecuta, prueba las pistas y una ventana estrecha. En móvil se muestra una etapa a la vez, con resultados y scroll dentro de la terminal. En laptop, desde 768 px, correo/conversación y terminal se ven en dos ventanas.
+6. Edita, reejecuta, prueba las pistas y una ventana estrecha. En móvil se muestra una etapa a la vez, con resultados y scroll dentro de la terminal. En laptop, desde 768 px, las ventanas se abren en orden. Prueba sus accesos en la barra inferior y las X para cerrarlas.
 7. Recarga: el editor y el progreso deben reiniciarse.
 
 La detección por reglas acepta varias expresiones, pero puede dar falsos positivos o no reconocer un prompt válido. Evalúa la estructura, no la calidad creativa ni el significado completo.
