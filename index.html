@@ -7,331 +7,127 @@
 <title>Prompt Quest | Tu primera misión</title>
 <style>
 
-:root {
-  color-scheme: dark;
-  --bg: #0d1117;
-  --border: #30363d;
-  --text: #c9d1d9;
-  --success: #7ee787;
-  --error: #f85149;
-  --hint: #e3b341;
-  --title: #79c0ff;
-  --muted: #9da7b3;
-  --control-border: #697583;
-  --dock-space: 0px;
-}
-* { box-sizing: border-box; }
-html { scroll-padding-block-end: var(--dock-space); }
-body {
-  margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-  color: var(--text);
-  font: 1rem/1.45 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  overflow-wrap: break-word;
-}
-button, textarea, summary { font: inherit; }
-button, summary { min-block-size: 45px; min-inline-size: 45px; }
-button {
-  cursor: pointer;
-  border: 1px solid var(--control-border);
-  border-radius: 5px;
-  background: transparent;
-  color: var(--text);
-  padding: .5rem .75rem;
-}
-button:hover { border-color: var(--title); background: #161e29; }
-button:disabled { cursor: default; opacity: .65; }
-:focus-visible { outline: 2px solid var(--title); outline-offset: 3px; }
-a { color: var(--title); }
-.skip { position: fixed; left: .75rem; top: -5rem; background: var(--bg); padding: .6rem; z-index: 3; }
-.skip:focus { top: .5rem; }
-.shell { width: min(1180px, calc(100% - 1.25rem)); margin-inline: auto; }
-header { flex: none; border-bottom: 1px solid var(--border); padding: .5rem 0; padding-top: max(.5rem, env(safe-area-inset-top, 0px)); }
-.header-row, .panel-bar, .brief-heading, .editor-bottom, .progress-label { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.header-row > *, .panel-bar > *, .brief-heading > *, .editor-bottom > * { min-inline-size: 0; }
-.brand { margin: 0; font-size: 1rem; color: var(--success); white-space: nowrap; }
-.brand span { color: var(--text); }
-.subtitle, .muted { color: var(--muted); }
-.subtitle { display: none; }
-.progress-box { width: 9.25rem; flex: none; font-size: .75rem; }
-.progress-label { flex-wrap: wrap; gap: 0 .5rem; }
-progress { display: block; width: 100%; height: 5px; margin-top: .25rem; accent-color: var(--success); border: 0; background: var(--border); }
-progress::-webkit-progress-bar { background: var(--border); border-radius: 4px; }
-progress::-webkit-progress-value { background: var(--success); border-radius: 4px; }
-progress::-moz-progress-bar { background: var(--success); }
-main { flex: 1; min-block-size: 0; display: flex; flex-direction: column; gap: .75rem; padding-block: .75rem calc(4rem + env(safe-area-inset-bottom, 0px)); }
-.intro { flex: none; width: 100%; max-inline-size: 36rem; margin-inline: auto; }
-h1 { margin: 0; color: #f0f6fc; font-size: 1rem; line-height: 1.35; letter-spacing: -.025em; }
-.eyebrow, .intro > .muted { display: none; }
-.workspace { flex: 1; min-block-size: 0; display: block; }
-.left { width: 100%; max-inline-size: 36rem; margin-inline: auto; display: flex; flex-direction: column; gap: .75rem; }
-.panel { min-inline-size: 0; border: 1px solid var(--border); border-radius: 7px; background: #10161e; }
-.panel-bar { padding: .375rem .625rem; border-bottom: 1px solid var(--border); background: #161b22; border-radius: 7px 7px 0 0; flex-wrap: wrap; }
-h2 { margin: 0; font-size: .875rem; font-weight: 500; color: var(--title); }
-.tag { font-size: .75rem; color: var(--muted); }
-.mission-panel .tag { display: none; }
-.panel-body { padding: .5rem .625rem; }
-h3 { margin: 0; font-size: .875rem; color: #f0f6fc; }
-p { margin: .5rem 0; }
-.brief { margin: .375rem 0; font-size: .875rem; line-height: 1.4; }
-.brief p { margin: 0; }
-.required-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: .25rem .5rem; }
-.required-line > p { font-size: .75rem; margin: 0; color: var(--muted); }
-.chips { display: flex; flex-wrap: wrap; gap: .25rem; padding: 0; list-style: none; margin: 0; }
-.chips li { padding: .125rem .375rem; font-size: .75rem; border: 1px solid var(--border); border-radius: 4px; }
-.hint-button { flex: none; inline-size: 7rem; max-inline-size: 100%; color: var(--hint); border-color: #a58b37; font-size: .875rem; }
-.hint { color: var(--hint); background: #211f16; border: 1px solid #a58b37; border-radius: 4px; padding: .625rem; margin-bottom: .75rem; }
-.hint p { margin: .375rem 0; }
-label { display: block; margin-bottom: .375rem; font-size: .875rem; }
-textarea {
-  display: block;
-  width: 100%;
-  height: 8.5rem;
-  min-height: 8.5rem;
-  max-height: 8.5rem;
-  resize: none;
-  overflow-y: auto;
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--control-border);
-  border-radius: 5px;
-  padding: .5rem .625rem;
-  font-size: max(1rem, 16px);
-  line-height: 1.5;
-}
-textarea::placeholder { color: #9da7b3; }
-.editor-bottom {
-  position: relative;
-  flex-wrap: wrap;
-  margin-top: .75rem;
-}
-.primary { flex: 1; max-inline-size: 14rem; min-block-size: 45px; background: var(--success); border-color: var(--success); color: var(--bg); font-weight: 700; }
-.primary:hover { background: #a0efaa; color: var(--bg); border-color: #a0efaa; }
-.small { font-size: .875rem; }
-#character-count { font-size: .75rem; }
-.error { color: var(--error); }
-#input-error { margin-block: .375rem 0; }
-.privacy-note { margin: .375rem 0 0; font-size: .75rem; color: var(--muted); }
-.notice { font-size: .875rem; color: var(--muted); margin: .75rem 0 0; }
-.results-panel { flex: 1; min-block-size: 0; display: flex; flex-direction: column; }
-.results-panel .panel-bar { flex: none; }
-.results-scroll { flex: 1; min-block-size: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; scroll-padding-block: .75rem; }
-.results-scroll:focus-visible { outline-offset: -3px; }
-.scroll-hint { color: var(--muted); margin: 0 0 .5rem; font-size: .75rem; }
-.result-summary { padding-bottom: .625rem; margin: 0; border-bottom: 1px solid var(--border); }
-.criteria { list-style: none; margin: 0; padding: 0; }
-.criterion { display: grid; grid-template-columns: 1rem minmax(0, 1fr); gap: .5rem; padding: .625rem 0; border-bottom: 1px solid var(--border); }
-.criterion:last-child { border-bottom: 0; }
-.criterion p { margin: .25rem 0 0; font-size: .875rem; color: var(--muted); }
-.criterion strong { font-weight: 500; }
-.requirement { color: var(--muted); font-size: .75rem; margin-left: .5rem; }
-.pass .symbol { color: var(--success); }
-.fail .symbol { color: var(--error); }
-.pending .symbol { color: var(--muted); }
-.response { margin-top: .75rem; border-top: 1px solid var(--border); padding-top: .75rem; }
-.response h3 { color: var(--title); font-size: 1rem; }
-pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .875rem; margin: .625rem 0 0; }
-.completion { padding: .75rem; border: 1px solid #375d3e; border-radius: 5px; background: #13231a; color: var(--success); margin-top: .75rem; }
-.completion p { margin: 0; }
-.help { border-top: 1px solid var(--border); margin-top: .75rem; }
-summary { cursor: pointer; padding-block: .75rem; color: var(--title); font-size: .875rem; }
-footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
-[hidden] { display: none !important; }
-/* El escritorio amplía la misma composición; la base está pensada para teléfonos. */
-@media (min-width: 768px) {
-  :root { --dock-space: 0px; }
-  body { height: 100vh; height: 100dvh; }
-  .shell { width: min(1180px, calc(100% - 2rem)); }
-  header { padding-block: 1rem; }
-  .brand { font-size: 1.3rem; }
-  .subtitle { display: block; margin: .25rem 0 0; font-size: .875rem; }
-  .progress-box { width: 15rem; font-size: .875rem; }
-  .progress-label { gap: .5rem; }
-  main { gap: 1rem; padding-block: 1.25rem; }
-  h1 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); }
-  .eyebrow { display: block; color: var(--title); font-size: .875rem; margin: 0 0 .25rem; }
-  .intro > .muted { display: block; margin: .375rem 0 0; }
-  .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
-  .intro { max-inline-size: none; }
-  .left { max-inline-size: none; gap: 1rem; min-inline-size: 0; }
-  .panel-bar { padding: .625rem 1rem; }
-  .panel-body { padding: .875rem 1rem; }
-  h3 { font-size: .875rem; }
-  .mission-panel .tag { display: inline; }
-  .brief { margin-block: .75rem; font-size: .875rem; }
-  .required-line > p, .chips li { font-size: .875rem; }
-  .editor-bottom { position: static; border: 0; background: transparent; margin-top: .75rem; padding: 0; }
-  .primary { flex: none; }
-  .tag { font-size: .8125rem; }
-  .criterion { padding-block: .875rem; }
-}
-/* Altura reducida, zoom o teclado: priorizar acceso al contenido sobre encajarlo a la fuerza. */
-@media (max-height: 38rem) {
-  body { height: auto; min-height: 100vh; min-height: 100dvh; }
-  main { flex: none; }
-  .workspace { flex: none; }
-  #desktop-results .results-panel { min-height: 12rem; max-height: 65dvh; }
-}
-@keyframes arrive { from { opacity: .35; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: no-preference) {
-  .completion:not([hidden]), #welcome-message, #graduation-message:not([hidden]) { animation: arrive 220ms ease-out; }
-  button { transition: background .15s, border-color .15s; }
-}
-
-/* Un único resultado cambia de contenedor al cruzar el punto de quiebre. */
-#desktop-results { display: none; }
-.results-panel { min-inline-size: 0; }
-.sheet-close { margin-left: auto; }
-.last-result { margin-top: .75rem; width: 100%; font-size: .875rem; color: var(--title); }
-.sheet-is-open .last-result { visibility: hidden; }
-.result-sheet {
-  position: fixed;
-  inset: auto 0 0;
-  margin: 0 auto;
-  padding: .375rem 0 max(.5rem, env(safe-area-inset-bottom, 0px));
-  width: min(100%, 38rem);
-  max-width: 100%;
-  height: 70vh;
-  height: 70dvh;
-  max-height: 70dvh;
-  border: 1px solid var(--control-border);
-  border-bottom: 0;
-  border-radius: 14px 14px 0 0;
-  background: #10161e;
-  color: var(--text);
-  box-shadow: 0 -10px 30px #0006;
-  z-index: 5;
-  overflow: visible;
-}
-.result-sheet[open], .result-sheet.fallback-open { display: flex; flex-direction: column; }
-.result-sheet:popover-open { display: flex; flex-direction: column; }
-.result-sheet .results-panel { border: 0; border-radius: 0; }
-.result-sheet .panel-bar { padding-block: .25rem; gap: .25rem .5rem; }
-.result-sheet .panel-bar { position: relative; padding-right: 3.5rem; min-height: 45px; }
-.result-sheet .sheet-close { position: absolute; right: .25rem; top: 0; padding: 0; width: 45px; height: 45px; font-size: 1.25rem; border-color: transparent; }
-.result-sheet #evaluation-mode { flex-basis: 100%; }
-.sheet-score { display: none; }
-.result-sheet .sheet-score { display: block; flex: none; margin: .375rem .625rem; font-size: 1.75rem; font-weight: 700; color: var(--success); }
-.result-sheet .sheet-score.is-incomplete { color: var(--error); }
-.sheet-edit-note { color: var(--hint); font-size: .875rem; }
-.result-sheet .results-scroll { padding-bottom: .875rem; }
-.result-sheet .scroll-hint { display: none; }
-.result-sheet .result-summary { overflow-wrap: break-word; }
-.result-toast {
-  position: fixed;
-  inset: auto;
-  top: var(--toast-top, 70%);
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  padding: .375rem;
-  width: min(24rem, calc(100% - 1.5rem));
-  max-width: calc(100% - 1.5rem);
-  border: 1px solid var(--success);
-  border-radius: 7px;
-  background: #14251b;
-  color: var(--text);
-  box-shadow: 0 6px 20px #0005;
-  z-index: 4;
-}
-.result-toast.fallback-open { display: flex; align-items: center; gap: .5rem; }
-.result-toast:popover-open { display: flex; align-items: center; gap: .5rem; }
-.toast-open { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: .125rem; border: 0; text-align: left; font-size: .875rem; }
-.toast-open:hover { background: #1c3225; }
-.toast-count { color: var(--success); }
-.toast-link { color: var(--title); text-decoration: underline; text-underline-offset: .2em; }
-.toast-close { flex: none; padding-inline: .5rem; font-size: .875rem; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; border: 0; }
-@supports not selector(:popover-open) {
-  [popover]:not(.fallback-open):not([open]) { display: none; }
-}
-@media (max-width: 767px) {
-  /* El editor ocupa el espacio libre sobre la hoja y sigue siendo interactivo. */
-  .sheet-is-open > header, .sheet-is-open .intro, .sheet-is-open .mission-panel { display: none; }
-  .sheet-is-open .editor-panel {
-    position: fixed; inset: 0 0 auto; margin: 0 auto;
-    width: min(100%, 38rem); height: 30vh; height: 30dvh;
-    display: flex; flex-direction: column; border-radius: 0; z-index: 2;
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-  .sheet-is-open .editor-panel > .panel-bar { flex: none; padding-block: .125rem; }
-  .sheet-is-open #prompt-form {
-    flex: 1; min-height: 0; display: flex; flex-direction: column;
-    gap: .25rem; padding-block: .375rem;
-  }
-  .sheet-is-open #prompt-form label { margin: 0; flex: none; }
-  .sheet-is-open textarea { flex: 1; min-height: 0; height: 0; max-height: none; padding: .375rem; font-size: 16px; }
-  .sheet-is-open .editor-bottom { flex: none; flex-wrap: nowrap; margin: 0; }
-  .sheet-is-open .privacy-note, .sheet-is-open .last-result { display: none; }
-}
-@media (min-width: 768px) {
-  #desktop-results { display: flex; min-block-size: 0; min-inline-size: 0; }
-  #desktop-results > .results-panel { width: 100%; }
-  .result-sheet, .result-sheet[open], .result-sheet.fallback-open { display: none; }
-  .result-sheet:popover-open { display: none; }
-  .result-toast, .result-toast.fallback-open, .sheet-close, .last-result { display: none; }
-  .result-toast:popover-open { display: none; }
-}
-/* Entrada a la agencia: el editor solo aparece al terminar la bienvenida. */
-body:not(.in-game) { height: auto; }
-body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game) > .skip { display: none; }
-.story-screen { width: min(480px, calc(100% - 2rem)); min-height: 100vh; min-height: 100dvh; margin-inline: auto; padding: max(1.5rem, env(safe-area-inset-top)) 0 max(1rem, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 1.25rem; }
-.story-screen h1 { font-size: clamp(2.75rem, 12vw, 4rem); line-height: 1; color: var(--success); }
-.agency-label { font-size: .75rem; letter-spacing: .15em; color: var(--title); }
-.cover-content { margin-block: auto; padding-block: 2rem; }
-.cover-content > p:last-child { max-width: 28ch; margin-top: 1.5rem; font-size: 1.125rem; }
-.story-action { width: 100%; max-inline-size: none; min-height: 52px; flex: none; }
-.story-screen .story-footer { margin-top: auto; padding-top: 1rem; }
-.story-screen h2 { font-size: 1.4rem; color: var(--success); }
-.intro { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
-.intro h1 { flex: 1; min-width: 0; }
-.intro .eyebrow, .intro > .muted { flex-basis: 100%; }
-.portfolio-link { flex: none; font-size: .75rem; color: var(--title); }
-.portfolio-screen { padding-bottom: 2rem; }
-.portfolio-work { border-block-start: 1px solid var(--border); padding-bottom: 1rem; }
-.portfolio-work h3 { margin-top: 1rem; color: var(--title); }
-.portfolio-work pre { font-size: .875rem; }
-.guide-image { display: block; width: min(200px, 100%); height: auto; align-self: center; border: 1px solid var(--success); border-radius: 6px; }
-.chat-message { border: 1px solid var(--border); border-left: 3px solid var(--title); border-radius: 4px; padding: .75rem; background: #10161e; }
-.speaker { margin: 0 0 .375rem; color: var(--title); font-size: .75rem; }
-.chat-message > p:last-child { margin-bottom: 0; }
-.guide-message { border-left-color: var(--success); }
-.guide-message .speaker { color: var(--success); }
-.client-message { margin-block: .625rem; padding: .5rem .625rem; }
-@media (min-width: 768px) { .intro { row-gap: 0; } }
-.hint p + p { border-top: 1px solid #a58b37; padding-top: .625rem; }
-.completion > .speaker { margin-top: .75rem; }
-.completion button { margin-top: .75rem; width: 100%; }
-#guide-feedback { margin-block: .75rem; }
-.welcome-actions { display: flex; justify-content: space-between; gap: .75rem; }
-.welcome-actions .primary { flex: 1; }
-@media (min-width: 768px) { .guide-image { width: min(240px, 100%); } }
-.story-screen p { overflow-wrap: anywhere; }
-.inbox-screen { display: none; }
-.in-game[data-mission-screen="mail"] .inbox-screen { display: block; }
-.in-game[data-mission-screen="mail"] .workspace { display: none; }
-.mail-item { display: flex; flex-direction: column; gap: .5rem; width: 100%; text-align: left; border-color: var(--title); }
-.mail-item strong { color: var(--title); }
-.mail-item .muted { font-size: .875rem; }
-.mail-note { margin-top: 1rem; padding: .75rem; border: 1px solid var(--border); }
-@media (max-width: 767px) {
-  [data-mission-screen="chat"] .editor-panel, [data-mission-screen="chat"] #desktop-results { display: none; }
-  [data-mission-screen="terminal"] .mission-panel { display: none; }
-}
-.editor-panel { background: #010409; }
-.terminal-context { color: var(--muted); font-size: .75rem; margin: .375rem 0; }
-.terminal-input { display: flex; gap: .25rem; align-items: flex-start; margin-top: .625rem; }
-.prompt-prefix { color: var(--success); flex: none; padding-top: .625rem; }
-.terminal-input textarea { min-width: 0; background: #010409; caret-color: var(--success); height: 9rem; min-height: 9rem; max-height: 9rem; }
-.terminal-cursor { display: inline-block; width: .4rem; height: 1rem; background: var(--success); vertical-align: middle; }
-.terminal-input:focus-within .terminal-cursor { display: none; }
-@media (prefers-reduced-motion: no-preference) {
-  .terminal-cursor { animation: cursor-blink 1s steps(2, start) infinite; }
-  @keyframes cursor-blink { to { visibility: hidden; } }
+:root { color-scheme: dark; --bg:#0d1117; --border:#30363d; --text:#c9d1d9; --success:#7ee787; --error:#f85149; --hint:#e3b341; --title:#79c0ff; --muted:#9da7b3; --control-border:#697583; }
+* { box-sizing:border-box; }
+body { margin:0; min-height:100vh; min-height:100dvh; background:var(--bg); color:var(--text); font:1rem/1.45 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace; overflow-wrap:break-word; }
+body.in-game { height:100vh; height:100dvh; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+button,textarea,summary { font:inherit; }
+button,summary { min-height:45px; min-width:45px; }
+button { cursor:pointer; padding:.5rem .75rem; color:var(--text); border:1px solid var(--control-border); border-radius:5px; background:transparent; }
+button:hover { background:#161e29; border-color:var(--title); }
+button:disabled { cursor:default; opacity:.65; }
+:focus-visible { outline:2px solid var(--title); outline-offset:3px; }
+a { color:var(--title); }
+.primary { background:var(--success); border-color:var(--success); color:var(--bg); font-weight:700; }
+.primary:hover { background:#a0efaa; border-color:#a0efaa; color:var(--bg); }
+[hidden] { display:none !important; }
+h1,h2,h3,p { margin:0; }
+h1 { font-size:.875rem; color:var(--title); }
+h2 { font-size:.875rem; font-weight:500; color:var(--title); }
+h3 { font-size:.875rem; color:var(--title); }
+p + p { margin-top:.5rem; }
+.muted,.tag,.terminal-context { color:var(--muted); }
+.tag,.small { font-size:.8125rem; }
+.error { color:var(--error); }
+.shell { width:calc(100% - 1rem); margin-inline:auto; }
+header { flex:none; padding:max(.5rem,env(safe-area-inset-top)) 0 .5rem; border-bottom:1px solid var(--border); }
+.header-row { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:.375rem .5rem; }
+.header-row > * { min-width:0; }
+.portfolio-link { color:var(--title); font-size:.75rem; }
+.progress-box { grid-column:1 / -1; font-size:.6875rem; }
+.progress-label { display:flex; justify-content:space-between; flex-wrap:wrap; gap:.25rem; }
+progress { display:block; width:100%; height:4px; margin-top:.25rem; accent-color:var(--success); border:0; background:var(--border); }
+progress::-webkit-progress-bar { background:var(--border); }
+progress::-webkit-progress-value { background:var(--success); }
+progress::-moz-progress-bar { background:var(--success); }
+.mission-desktop { flex:1; min-height:0; display:flex; padding-block:.5rem max(.5rem,env(safe-area-inset-bottom)); }
+.computer-window { flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; background:#10161e; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+.window-bar { display:flex; align-items:center; gap:.5rem; flex:none; min-height:45px; padding:.25rem .625rem; background:#161b22; border-bottom:1px solid var(--border); }
+.window-bar > h2 { flex:1; min-width:0; }
+.window-bar .tag { flex:none; font-size:.6875rem; }
+.window-bar > button { flex:none; padding:.25rem; }
+.window-scroll { flex:1; min-height:0; min-width:0; overflow-y:auto; overscroll-behavior-y:contain; padding:.75rem; scrollbar-gutter:stable; }
+.window-scroll:focus-visible { outline-offset:-3px; }
+.window-actions { display:flex; gap:.5rem; padding:.625rem; flex:none; border-top:1px solid var(--border); background:#10161e; }
+.window-actions > button { flex:1; min-width:0; }
+.mail-list { flex:1; min-height:0; overflow-y:auto; padding:.75rem; }
+.mail-item { display:flex; flex-direction:column; gap:.5rem; width:100%; text-align:left; border-color:var(--title); padding:1rem; }
+.mail-item strong { color:var(--title); font-size:.875rem; }
+.mail-item .muted { font-size:.8125rem; }
+.mail-note { padding:.75rem; margin-top:.75rem; border:1px solid var(--border); font-size:.875rem; }
+.conversation { display:flex; flex-direction:column; flex:1; min-height:0; }
+.chat-message { border:1px solid var(--border); border-left:3px solid var(--title); padding:.75rem; margin-bottom:.75rem; border-radius:4px; font-size:.875rem; background:#10161e; }
+.speaker { color:var(--title); font-size:.75rem; margin-bottom:.375rem; }
+.guide-message { border-left-color:var(--success); }
+.guide-message .speaker { color:var(--success); }
+.hint-button { color:var(--hint); }
+.required-line { margin-top:1rem; }
+.required-line > p { font-size:.75rem; color:var(--muted); }
+.chips { padding:0; margin:.375rem 0 0; list-style:none; display:flex; gap:.25rem; flex-wrap:wrap; }
+.chips li { font-size:.75rem; border:1px solid var(--border); border-radius:4px; padding:.125rem .375rem; }
+.terminal-window,.terminal-scroll { background:#010409; }
+.terminal-context { font-size:.75rem; margin-bottom:.5rem; }
+#prompt-form { margin-top:1rem; }
+label { display:block; font-size:.875rem; margin-bottom:.5rem; }
+.terminal-input { display:flex; align-items:flex-start; gap:.375rem; }
+.prompt-prefix { flex:none; color:var(--success); padding-block:.5rem; }
+textarea { display:block; width:100%; min-width:0; height:9.5rem; min-height:9.5rem; max-height:9.5rem; resize:none; border:1px solid var(--control-border); border-radius:3px; padding:.5rem; background:#010409; color:var(--text); caret-color:var(--success); font-size:16px; line-height:1.5; }
+textarea::placeholder { color:var(--muted); }
+.terminal-cursor { display:inline-block; width:.4rem; height:1rem; background:var(--success); vertical-align:middle; }
+.terminal-input:focus-within .terminal-cursor { display:none; }
+.editor-bottom { display:flex; flex-wrap:wrap; justify-content:space-between; gap:.25rem; margin-top:.5rem; font-size:.6875rem; }
+.privacy-note { margin-top:.5rem; color:var(--muted); font-size:.75rem; }
+#input-error,#evaluating-line { margin-top:.5rem; }
+.terminal-actions { display:block; }
+.terminal-actions > button { width:100%; }
+.result-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:.5rem; }
+.result-actions .primary { grid-column:1 / -1; }
+pre { font:inherit; font-size:.8125rem; white-space:pre-wrap; overflow-wrap:anywhere; margin:0; }
+.submitted-prompt { color:var(--text); margin:1rem 0; padding-bottom:.75rem; border-bottom:1px solid var(--border); }
+.terminal-score { font-size:1.75rem; font-weight:700; color:var(--hint); margin:.5rem 0; }
+.criteria { list-style:none; padding:0; margin:0 0 1rem; }
+.criterion { display:grid; grid-template-columns:1rem minmax(0,1fr); gap:.5rem; padding:.5rem 0; border-bottom:1px solid var(--border); font-size:.875rem; }
+.criterion p { font-size:.8125rem; margin-top:.25rem; color:var(--muted); }
+.criterion strong { font-weight:500; }
+.requirement { font-size:.6875rem; color:var(--muted); margin-left:.375rem; }
+.pass .symbol { color:var(--success); }
+.fail .symbol { color:var(--error); }
+.pending .symbol { color:var(--muted); }
+.response { padding-top:1rem; margin-top:1rem; border-top:1px solid var(--border); }
+.response p,.response pre { margin-top:.625rem; }
+.completion { border:1px solid #375d3e; background:#13231a; padding:.75rem; color:var(--success); margin-top:1rem; border-radius:4px; }
+.completion > .speaker { margin-top:.5rem; }
+.notice { font-size:.75rem; color:var(--muted); margin-top:.75rem; }
+#evaluation-mode { display:block; margin-top:1rem; }
+.help,.terminal-history { border-top:1px solid var(--border); margin-top:.75rem; }
+summary { cursor:pointer; padding-block:.75rem; color:var(--title); font-size:.8125rem; }
+.terminal-history article { margin-bottom:.75rem; padding-bottom:.75rem; border-bottom:1px solid var(--border); }
+footer { color:var(--muted); font-size:.75rem; padding-block:.75rem; }
+.skip { position:fixed; left:.5rem; top:-5rem; background:var(--bg); padding:.5rem; z-index:5; }
+.skip:focus { top:.5rem; }
+.sr-only { position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) > .skip { display:none; }
+.story-screen { width:min(480px,calc(100% - 2rem)); min-height:100vh; min-height:100dvh; margin-inline:auto; padding:max(1.5rem,env(safe-area-inset-top)) 0 max(1rem,env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:1.25rem; }
+.story-screen h1 { font-size:clamp(2.75rem,12vw,4rem); line-height:1; color:var(--success); }
+.agency-label { font-size:.75rem; letter-spacing:.15em; color:var(--title); }
+.cover-content { margin-block:auto; padding-block:2rem; }
+.cover-content > p:last-child { max-width:28ch; margin-top:1.5rem; font-size:1.125rem; }
+.story-action { width:100%; min-height:52px; }
+.story-footer { margin-top:auto; padding-top:1rem; }
+.story-screen h2 { font-size:1.4rem; color:var(--success); }
+.guide-image { display:block; width:min(200px,100%); height:auto; align-self:center; border:1px solid var(--success); border-radius:6px; }
+.welcome-actions { display:flex; justify-content:space-between; gap:.75rem; }
+.welcome-actions .primary { flex:1; max-width:14rem; }
+.portfolio-work { border-top:1px solid var(--border); padding-bottom:1rem; }
+.portfolio-work h3 { margin-top:1rem; }
+.portfolio-work pre { margin-top:.625rem; }
+/* Celular: cada herramienta ocupa la ventana de trabajo completa. */
+[data-mission-screen="mail"] .conversation,[data-mission-screen="mail"] #terminal-window { display:none; }
+[data-mission-screen="chat"] .mail-bar,[data-mission-screen="chat"] .mail-list,[data-mission-screen="chat"] .mail-footer,[data-mission-screen="chat"] #terminal-window { display:none; }
+[data-mission-screen="terminal"] #inbox-window,[data-mission-screen="results"] #inbox-window { display:none; }
+@media (prefers-reduced-motion:no-preference) {
+  .terminal-cursor { animation:cursor-blink 1s steps(2,start) infinite; }
+  @keyframes cursor-blink { to { visibility:hidden; } }
 }
 </style>
 </head>
@@ -359,80 +155,62 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 <a class="skip" href="#prompt" data-copy="skip"></a>
 <header>
   <div class="shell header-row">
-    <div><p class="brand">&gt;_ <span>Prompt Quest</span></p><p class="subtitle" data-copy="tagline"></p></div>
-    <div class="progress-box">
-      <div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div>
-      <progress id="progress" value="0" max="3" aria-label="Reputación de la agencia: misiones completadas"></progress>
-    </div>
+    <h1 data-copy="missionTitle"></h1>
+    <button id="open-portfolio" type="button" class="portfolio-link" data-copy="portfolioTitle"></button>
+    <div class="progress-box"><div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div><progress id="progress" value="0" max="3" aria-label="Reputación de la agencia: misiones completadas"></progress></div>
   </div>
 </header>
-<main class="shell">
-  <div class="intro">
-    <p class="eyebrow" data-copy="missionNumber"></p>
-    <h1 data-copy="missionTitle"></h1><button id="open-portfolio" type="button" class="portfolio-link" data-copy="portfolioTitle"></button>
-    <p class="muted" data-copy="intro"></p>
-  </div>
-  <section id="inbox-screen" class="panel inbox-screen" aria-labelledby="inbox-title">
-    <div class="panel-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span></div>
-    <div class="panel-body mail-list">
+<main class="shell mission-desktop">
+  <section id="inbox-window" class="computer-window" aria-labelledby="inbox-title">
+    <div class="window-bar mail-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span></div>
+    <div class="mail-list">
       <button type="button" id="new-mail" class="mail-item"><strong id="mail-sender"></strong><span id="mail-subject"></span><span class="muted" id="mail-preview"></span></button>
       <article class="mail-note"><p class="speaker">Epson_IA</p><p data-copy="mailGuide"></p></article>
     </div>
-    <div class="panel-body"><button type="button" class="primary" id="open-mail" data-copy="openMail"></button></div>
-  </section>
-  <div class="workspace">
-    <div class="left">
-      <section class="panel mission-panel" aria-labelledby="brief-title">
-        <div class="panel-bar"><button type="button" id="back-mail" aria-label="Volver al correo">←</button><h2 id="brief-title" data-copy="briefTitle"></h2><span class="tag" data-copy="clientTag"></span></div>
-        <div class="panel-body">
-          <div class="brief-heading">
-            <h3 id="client-name" tabindex="-1"></h3>
-            <button type="button" class="hint-button" id="hint-button" aria-controls="hint" aria-expanded="false"></button>
-          </div>
-          <div class="brief chat-message client-message"><p id="brief"></p></div>
-          <div class="chat-message guide-message"><p class="speaker">Epson_IA</p><p data-copy="chatGuide"></p></div><div id="chat-hints" aria-live="polite"></div>
-          <div class="required-line"><p data-copy="requiredIntro"></p><ul class="chips" id="required-chips" role="list"></ul></div>
-        </div>
-        <div class="panel-body"><button type="button" id="start-prompt" class="primary" data-copy="startPrompt"></button></div>
-      </section>
-      <section class="panel editor-panel" aria-labelledby="editor-title">
-        <div class="panel-bar"><button type="button" id="back-chat" aria-label="Volver a la conversación">←</button><h2 id="editor-title" data-copy="editorTitle"></h2><span class="tag" id="criteria-count" aria-live="off"></span></div>
-        <form id="prompt-form" class="panel-body" novalidate>
-          <p id="terminal-to" class="terminal-context"></p><p id="terminal-brief" class="terminal-context"></p>
-          <label for="prompt" data-copy="promptLabel"></label>
-          <div class="terminal-input"><span class="prompt-prefix" aria-hidden="true">&gt; <span class="terminal-cursor"></span></span><textarea id="prompt" name="prompt" rows="5" maxlength="1500" aria-required="true" aria-describedby="privacy-note editor-help input-error" spellcheck="true"></textarea></div><p id="evaluating-line" class="terminal-context" role="status" hidden data-copy="evaluatingLine"></p>
-          <p id="input-error" class="error small" role="alert" hidden></p>
-          <div class="editor-bottom"><span class="small muted" id="character-count"></span><button class="primary" type="submit" data-copy="execute"></button></div>
-          <button type="button" id="last-result" class="last-result" aria-controls="result-sheet" aria-expanded="false" hidden data-copy="lastResult"></button>
-          <p id="privacy-note" class="privacy-note" data-copy="privacyShort"></p>
-        </form>
-      </section>
-    </div>
-    <div id="desktop-results">
-    <section class="panel results-panel" id="results-panel" aria-labelledby="results-title">
-      <div class="panel-bar"><h2 id="results-title" data-copy="resultsTitle"></h2><span class="tag" id="evaluation-mode" data-copy="simulationTag"></span><button type="button" id="close-results" class="sheet-close" aria-label="Cerrar resultado" autofocus data-copy="closeResults"></button></div>
-      <p id="sheet-score" class="sheet-score">0 / 6 criterios</p>
-      <div class="panel-body results-scroll" id="results-content" tabindex="0" role="region" aria-label="Criterios, pistas y respuesta">
-        <p id="sheet-edit-note" class="sheet-edit-note" hidden>Prompt modificado. Ejecuta de nuevo para actualizar el resultado.</p>
-        <p class="scroll-hint" data-copy="scrollHint"></p>
-        <div id="guide-feedback" class="chat-message guide-message" hidden><p class="speaker">Epson_IA</p><p id="guide-feedback-text"></p></div>
-        <p id="result-summary" class="result-summary small" role="status"></p>
-        <div id="hint" class="hint guide-message" role="status" hidden></div>
-        <ul id="criteria" class="criteria" role="list"></ul>
-        <div class="response" id="response" hidden><h3 id="response-title"></h3><p class="small muted" id="response-note"></p><pre id="response-text"></pre></div>
-        <div class="completion" id="completion" hidden><div class="chat-message"><p class="speaker" id="client-reaction-name"></p><p id="client-reaction"></p></div><p class="speaker">Epson_IA</p><p id="completion-text" role="status"></p><p id="next-client-preview" class="small"></p><button type="button" id="view-graduation" hidden data-copy="viewGraduation"></button><button type="button" id="next-mission" hidden data-copy="nextMission"></button></div>
-        <p class="notice" id="evaluation-notice" data-copy="limitations"></p>
-        <details class="help"><summary data-copy="helpTitle"></summary><p id="editor-help" class="notice" data-copy="editorHelp"></p><footer data-copy="footer"></footer></details>
+    <div class="window-actions mail-footer"><button type="button" class="primary" id="open-mail" data-copy="openMail"></button></div>
+    <section id="chat-window" class="conversation" aria-labelledby="client-name">
+      <div class="window-bar"><button type="button" id="back-mail" aria-label="Volver al correo">←</button><h2 id="client-name" tabindex="-1"></h2><span class="tag" data-copy="clientLabel"></span></div>
+      <div id="chat-scroll" class="window-scroll" tabindex="0" role="log" aria-label="Conversación con el cliente" aria-live="polite">
+        <div class="chat-message client-message"><p class="speaker" id="client-speaker"></p><p id="brief"></p></div>
+        <div id="client-guide" class="chat-message guide-message"><p class="speaker">Epson_IA</p><p data-copy="chatGuide"></p></div>
+        <div id="chat-hints"></div>
+        <div class="required-line"><p data-copy="requiredIntro"></p><ul class="chips" id="required-chips" role="list"></ul></div>
       </div>
+      <div class="window-actions"><button type="button" class="hint-button" id="hint-button" aria-controls="chat-hints"></button><button type="button" id="start-prompt" class="primary" data-copy="startPrompt"></button></div>
     </section>
+  </section>
+  <section id="terminal-window" class="computer-window terminal-window" aria-labelledby="editor-title">
+    <div class="window-bar"><button type="button" id="back-chat" aria-label="Volver a la conversación">←</button><h2 id="editor-title" data-copy="terminalTitle"></h2><span id="terminal-mission" class="tag"></span></div>
+    <div id="terminal-scroll" class="window-scroll terminal-scroll" tabindex="0" role="region" aria-label="Terminal de trabajo">
+      <p id="terminal-to" class="terminal-context"></p><p id="terminal-brief" class="terminal-context"></p>
+      <details id="terminal-history" class="terminal-history" hidden><summary data-copy="historyTitle"></summary><div id="history-items"></div></details>
+      <form id="prompt-form" novalidate>
+        <label for="prompt" data-copy="promptLabel"></label>
+        <div class="terminal-input"><span class="prompt-prefix" aria-hidden="true">&gt; <span class="terminal-cursor"></span></span><textarea id="prompt" name="prompt" rows="6" maxlength="1500" aria-required="true" aria-describedby="privacy-note editor-help input-error" spellcheck="true"></textarea></div>
+        <p id="input-error" class="error small" role="alert" hidden></p>
+        <div class="editor-bottom"><span id="criteria-count" class="muted"></span><span id="character-count" class="muted"></span></div>
+        <p id="evaluating-line" class="terminal-context" role="status" hidden data-copy="evaluatingLine"></p>
+        <p id="privacy-note" class="privacy-note" data-copy="privacyShort"></p>
+      </form>
+      <section id="results-panel" aria-label="Resultados de la evaluación" hidden>
+        <pre id="submitted-prompt" class="submitted-prompt"></pre>
+        <p class="terminal-context" data-copy="resultsLine"></p><p id="sheet-score" class="terminal-score" role="status"></p>
+        <ul id="criteria" class="criteria" role="list"></ul>
+        <div id="guide-feedback" class="chat-message guide-message" hidden><p class="speaker">Epson_IA</p><p id="guide-feedback-text"></p></div>
+        <p id="result-summary" class="small" role="status"></p>
+        <div id="hint" class="hint guide-message" role="status" hidden></div>
+        <div id="response" class="response" hidden><h3 id="response-title"></h3><p id="response-note" class="small muted"></p><pre id="response-text"></pre></div>
+        <div id="completion" class="completion" hidden><div class="chat-message"><p id="client-reaction-name" class="speaker"></p><p id="client-reaction"></p></div><p class="speaker">Epson_IA</p><p id="completion-text" role="status"></p><p id="next-client-preview" class="small"></p></div>
+        <p id="evaluation-mode" class="tag"></p><p id="evaluation-notice" class="notice"></p>
+      </section>
+      <details class="help"><summary data-copy="helpTitle"></summary><p id="editor-help" class="notice"></p><footer data-copy="footer"></footer></details>
     </div>
-  </div>
+    <div class="window-actions terminal-actions">
+      <button id="execute" class="primary" type="submit" form="prompt-form" data-copy="execute"></button>
+      <div id="result-actions" class="result-actions" hidden><button type="button" id="retry-prompt" data-copy="retryPrompt"></button><button type="button" id="result-hint" class="hint-button" aria-controls="hint"></button><button type="button" id="next-mission" class="primary" hidden data-copy="continue"></button><button type="button" id="view-graduation" class="primary" hidden data-copy="continue"></button></div>
+    </div>
+  </section>
 </main>
-<dialog id="result-sheet" class="result-sheet" popover="manual" aria-labelledby="results-title"></dialog>
-<div id="result-toast" class="result-toast" popover="manual" role="region" aria-label="Aviso de evaluación">
-  <button type="button" id="open-result" class="toast-open" aria-controls="result-sheet" aria-expanded="false"><span id="toast-count" class="toast-count"></span><span class="toast-link" data-copy="viewResult"></span></button>
-  <button type="button" id="close-toast" class="toast-close" aria-label="Cerrar aviso" data-copy="closeToast"></button>
-</div>
 <p id="result-announcement" class="sr-only" role="status" aria-atomic="true"></p>
 <noscript>Activa JavaScript en tu navegador para jugar. No necesitas conexión a internet.</noscript>
 <script>
@@ -442,6 +220,7 @@ const CONTENT = {
   es: {
     ui: {
       terminalTitle:'terminal', evaluatingLine:'$ evaluando…', terminalTo:'$ para: {client}', terminalBrief:'$ encargo: {brief}',
+      clientLabel:'Cliente', resultsLine:'$ resultados', score:'{count} / 6 criterios', historyTitle:'Historial de prompts', retryPrompt:'Volver a intentar', continue:'Continuar', missionLabel:'Misión {number}',
       startPrompt:'Iniciar prompt', chatGuide:'Tu prueba consiste en escribir las instrucciones para la IA. Cuando estés listo, abre la terminal.',
       inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
@@ -455,7 +234,7 @@ const CONTENT = {
       editorHelp:'Puedes editar y volver a ejecutar las veces que quieras. Máximo 1500 caracteres.', resultsTitle:'Resultados', simulationTag:'Simulación por reglas',
       waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
       pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
-      hint:'Ver pista', nextHint:'Otra pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
+      hint:'Pedir pista', nextHint:'Pedir pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
       characters:'{count} / 1500', counter:'{count} / 6 criterios detectados', progress:'Reputación · {count} / 3',
       empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
       success:'✓ Prompt aprobado. Cumples los {requiredCount} criterios obligatorios y {count} de los 6 criterios en total.',
@@ -549,7 +328,7 @@ const language = 'es';
 const { ui, missions } = CONTENT[language];
 let mission = missions[0];
 let criteria = CONTENT[language].criteria;
-const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), returnToSheet:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
+const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
 const $ = id => document.getElementById(id);
 const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
 const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -614,6 +393,7 @@ function renderCriteria(results = null) {
     requirement.className = 'requirement';
     requirement.textContent = mission.required.includes(criterion.id) ? ui.required : ui.optional;
     const feedback = document.createElement('p');
+    feedback.hidden = !!result?.passed;
     feedback.textContent = result ? (result.feedback || (result.passed ? criterion.yes : criterion.no)) : ui.pending;
     body.append(label, requirement, feedback);
     item.append(symbol, body);
@@ -655,40 +435,96 @@ function renderProgress() {
   $('progress-text').textContent = format(ui.progress, { count:state.completed.size });
 }
 
-function renderMail() {
-  document.body.dataset.missionScreen = 'mail';
+// Flujo de misión: correo, conversación, escritura y resultado en la terminal.
+function setMissionScreen(screen, focus = true) {
+  document.body.dataset.missionScreen = screen;
+  const results = screen === 'results';
+  $('prompt-form').hidden = results;
+  $('results-panel').hidden = !results;
+  $('execute').hidden = results;
+  $('result-actions').hidden = !results;
+  renderHistory(results);
+  if (!focus || !document.body.classList.contains('in-game')) return;
+  if (screen === 'mail') $('new-mail').focus({ preventScroll:true });
+  else if (screen === 'chat') $('client-name').focus({ preventScroll:true });
+  else if (results) $('terminal-scroll').focus({ preventScroll:true });
+  else $('prompt').focus({ preventScroll:true });
+}
+function renderHistory(results = false) {
+  const attempts = state.history.get(mission.id) || [];
+  const previous = results ? attempts.slice(0, -1) : attempts;
+  $('terminal-history').hidden = previous.length === 0;
+  $('history-items').replaceChildren(...previous.map(attempt => {
+    const item = document.createElement('article');
+    const score = document.createElement('p');
+    score.className = 'tag';
+    score.textContent = format(ui.score, { count:attempt.count });
+    const prompt = document.createElement('pre');
+    prompt.textContent = '> ' + attempt.prompt;
+    item.append(score, prompt);
+    return item;
+  }));
+}
+function updateHintButtons() {
+  for (const id of ['hint-button','result-hint']) {
+    $(id).textContent = state.hints >= mission.hints.length ? ui.hintsDone : ui.hint;
+    $(id).disabled = state.hints >= mission.hints.length;
+  }
+}
+function requestHint(target) {
+  if (state.hints >= mission.hints.length) return;
+  const message = document.createElement('div');
+  message.className = 'chat-message guide-message';
+  const speaker = document.createElement('p');
+  speaker.className = 'speaker';
+  speaker.textContent = 'Epson_IA · ' + format(ui.hintNumber, { current:state.hints + 1 });
+  const text = document.createElement('p');
+  text.textContent = mission.hints[state.hints++];
+  message.append(speaker, text);
+  target.append(message);
+  target.hidden = false;
+  updateHintButtons();
+  const scroller = target === $('hint') ? $('terminal-scroll') : $('chat-scroll');
+  scroller.scrollTop += message.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+}
+function presentResult(count) {
+  const attempts = state.history.get(mission.id) || [];
+  attempts.push({ prompt:$('prompt').value, count });
+  state.history.set(mission.id, attempts);
+  $('submitted-prompt').textContent = '> ' + $('prompt').value;
+  $('sheet-score').textContent = format(ui.score, { count });
+  $('result-announcement').textContent = format(ui.resultReady, { count });
+  setMissionScreen('results');
+  $('terminal-scroll').scrollTop = 0;
+}
+// Fin del flujo de misión.
+
+function renderMission() {
+  const values = { ...mission, number:state.missionIndex + 1 };
+  for (const name of ['level','missionTitle']) document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
   $('mail-sender').textContent = mission.client;
   $('mail-subject').textContent = mission.mailSubject || mission.title;
   $('mail-preview').textContent = mission.brief.slice(0, 60) + '…';
-}
-function renderMission() {
-  renderMail();
-  const values = { ...mission, number:state.missionIndex + 1 };
-  for (const name of ['level','missionNumber','missionTitle']) {
-    document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
-  }
-  document.querySelector('[data-copy="clientTag"]').textContent = mission.clientTag;
   $('client-name').textContent = mission.client;
+  $('client-speaker').textContent = mission.client;
   $('brief').textContent = mission.brief;
   $('terminal-to').textContent = format(ui.terminalTo, mission);
   $('terminal-brief').textContent = format(ui.terminalBrief, mission);
+  $('terminal-mission').textContent = format(ui.missionLabel, values);
   $('prompt').value = '';
   $('prompt').removeAttribute('aria-invalid');
   $('input-error').hidden = true;
+  $('evaluating-line').hidden = true;
   $('hint').replaceChildren();
   $('hint').hidden = true;
-  $('hint-button').textContent = ui.hint;
-  $('hint-button').disabled = false;
-  $('hint-button').setAttribute('aria-expanded','false');
+  $('chat-hints').replaceChildren();
+  $('chat-scroll').scrollTop = 0;
+  $('terminal-scroll').scrollTop = 0;
+  updateHintButtons();
   $('result-summary').textContent = ui.waiting;
   $('evaluation-mode').textContent = ['http:', 'https:'].includes(location.protocol) ? ui.pendingMode : ui.simulationTag;
   $('evaluation-notice').textContent = ui.limitations;
-  $('response').hidden = true;
-  $('completion').hidden = true;
-  $('guide-feedback').hidden = true;
-  $('next-mission').hidden = true;
-  $('view-graduation').hidden = true;
-  $('sheet-score').textContent = '0 / 6 criterios';
+  for (const id of ['response','completion','guide-feedback','next-mission','view-graduation']) $(id).hidden = true;
   $('required-chips').replaceChildren(...mission.required.map(id => {
     const chip = document.createElement('li');
     chip.textContent = criteria.find(criterion => criterion.id === id).label;
@@ -697,6 +533,7 @@ function renderMission() {
   renderProgress();
   renderCriteria();
   updateEditor();
+  setMissionScreen('mail', false);
 }
 renderMission();
 
@@ -804,13 +641,13 @@ function renderWelcome() {
   $('welcome-next').textContent = state.welcomeIndex === 2 ? ui.startTrial : ui.next;
   guideAnimation.message();
 }
-for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () => {
-  document.body.dataset.missionScreen = 'chat';
-  $('client-name').focus();
-});
-$('back-chat').addEventListener('click', () => { document.body.dataset.missionScreen='chat'; $('client-name').focus(); });
-$('back-mail').addEventListener('click', () => { document.body.dataset.missionScreen='mail'; $('new-mail').focus(); });
-$('start-prompt').addEventListener('click', () => { document.body.dataset.missionScreen='terminal'; $('prompt').focus(); });
+for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () => setMissionScreen('chat'));
+$('back-mail').addEventListener('click', () => setMissionScreen('mail'));
+$('start-prompt').addEventListener('click', () => setMissionScreen('terminal'));
+$('back-chat').addEventListener('click', () => setMissionScreen('chat'));
+$('retry-prompt').addEventListener('click', () => setMissionScreen('terminal'));
+$('hint-button').addEventListener('click', () => requestHint($('chat-hints')));
+$('result-hint').addEventListener('click', () => requestHint($('hint')));
 $('start-day').addEventListener('click', () => {
   $('cover-screen').hidden = true;
   $('welcome-screen').hidden = false;
@@ -826,16 +663,13 @@ $('welcome-next').addEventListener('click', () => {
   guideAnimation.stop();
   $('welcome-screen').hidden = true;
   document.body.classList.add('in-game');
-  $('prompt').focus();
+  setMissionScreen('mail');
 });
 
 $('next-mission').addEventListener('click', () => {
   if (!selectMission(state.missionIndex + 1)) return;
-  closeResults();
-  resetResultPresentation();
-  $('results-content').scrollTop = 0;
   renderMission();
-  $('prompt').focus();
+  setMissionScreen('mail');
 });
 
 function renderPortfolio(graduation) {
@@ -865,9 +699,7 @@ function renderPortfolio(graduation) {
 }
 function showPortfolio(graduation = false) {
   if (graduation && state.completed.size !== missions.length) return;
-  state.returnToSheet = !desktopLayout.matches && isOverlayOpen($('result-sheet'));
-  closeResults();
-  hideOverlay($('result-toast'));
+
   renderPortfolio(graduation);
   document.body.classList.remove('in-game');
   $('portfolio-screen').hidden = false;
@@ -878,37 +710,14 @@ $('view-graduation').addEventListener('click', () => showPortfolio(true));
 $('return-game').addEventListener('click', () => {
   $('portfolio-screen').hidden = true;
   document.body.classList.add('in-game');
-  if (state.returnToSheet) openResults(document.querySelector('.primary[type="submit"]'));
-  else $('open-portfolio').focus();
-});
-
-$('hint-button').addEventListener('click', () => {
-  if (state.hints >= mission.hints.length) return;
-  const paragraph = document.createElement('p');
-  paragraph.textContent = 'Epson_IA · ' + format(ui.hintNumber, { current:state.hints + 1 }) + ': ' + mission.hints[state.hints];
-  const inChat = document.body.dataset.missionScreen === 'chat';
-  (inChat ? $('chat-hints') : $('hint')).append(paragraph);
-  state.hints += 1;
-  $('hint').hidden = false;
-  $('results-content').scrollTop = 0;
-  $('hint-button').setAttribute('aria-expanded','true');
-  $('hint-button').textContent = state.hints === mission.hints.length ? ui.hintsDone : ui.nextHint;
-  $('hint-button').disabled = state.hints === mission.hints.length;
-  if (!inChat) openResults($('hint-button'));
+  setMissionScreen(document.body.dataset.missionScreen);
 });
 
 $('prompt').addEventListener('input', () => {
-  resetResultPresentation();
   state.revision += 1;
   updateEditor();
   $('input-error').hidden = true;
   $('prompt').removeAttribute('aria-invalid');
-  if (!resultPresentation.keepVisible) {
-    $('response').hidden = true;
-    $('completion').hidden = true;
-    $('result-summary').textContent = ui.edited;
-    renderCriteria();
-  }
 });
 
 $('prompt-form').addEventListener('submit', async event => {
@@ -922,10 +731,11 @@ $('prompt-form').addEventListener('submit', async event => {
     $('prompt').focus();
     return;
   }
+  setMissionScreen('terminal', false);
   state.busy = true;
   $('evaluating-line').hidden = false;
   const revision = state.revision;
-  const executeButton = $('prompt-form').querySelector('button[type="submit"]');
+  const executeButton = $('execute');
   executeButton.disabled = true;
   executeButton.textContent = ui.evaluating;
   $('result-summary').textContent = ui.evaluatingSummary;
@@ -966,148 +776,6 @@ $('prompt-form').addEventListener('submit', async event => {
   presentResult(count);
 });
 
-// Presentación responsiva: el evaluador anterior conserva su contrato y sus reglas.
-const desktopLayout = window.matchMedia('(min-width: 768px)');
-const resultPresentation = { available:false, opener:null, keepVisible:false };
-const supportsPopover = 'popover' in HTMLElement.prototype;
-
-function isOverlayOpen(element) {
-  return supportsPopover ? element.matches(':popover-open') : element.classList.contains('fallback-open');
-}
-
-function showOverlay(element) {
-  if (isOverlayOpen(element)) return;
-  if (supportsPopover) element.showPopover();
-  else {
-    element.classList.add('fallback-open');
-    if (element instanceof HTMLDialogElement) element.show();
-  }
-}
-
-function hideOverlay(element) {
-  if (!isOverlayOpen(element)) return;
-  if (supportsPopover) element.hidePopover();
-  else {
-    element.classList.remove('fallback-open');
-    if (element instanceof HTMLDialogElement) element.close();
-  }
-}
-
-function positionResultOverlays() {
-  if (desktopLayout.matches) return;
-  const button = document.querySelector('#prompt-form .primary').getBoundingClientRect();
-  const toastHeight = $('result-toast').getBoundingClientRect().height;
-  const toastTop = Math.max(8, Math.min(button.bottom + 12, window.innerHeight - toastHeight - 12));
-  $('result-toast').style.setProperty('--toast-top', toastTop + 'px');
-}
-
-function closeResults() {
-  const sheet = $('result-sheet');
-  const wasFocused = sheet.contains(document.activeElement);
-  hideOverlay(sheet);
-  document.body.classList.remove('sheet-is-open');
-  $('open-result').setAttribute('aria-expanded', 'false');
-  $('last-result').setAttribute('aria-expanded', 'false');
-  // El aviso se oculta al abrir: usar su alternativa permanente al devolver el foco.
-  if (wasFocused) {
-    const target = resultPresentation.opener === $('open-result') ? $('last-result') : resultPresentation.opener;
-    if (target?.isConnected && !target.hidden && !target.disabled) target.focus({ preventScroll:true });
-    else document.querySelector('#prompt-form .primary').focus({ preventScroll:true });
-  }
-}
-
-function openResults(opener) {
-  if (desktopLayout.matches) {
-    $('results-content').focus({ preventScroll:true });
-    if (opener === $('hint-button')) scrollToHint();
-    return;
-  }
-  resultPresentation.opener = opener;
-  hideOverlay($('result-toast'));
-  document.body.classList.add('sheet-is-open');
-  showOverlay($('result-sheet'));
-  $('close-results').focus({ preventScroll:true });
-  $('open-result').setAttribute('aria-expanded', 'true');
-  $('last-result').setAttribute('aria-expanded', 'true');
-  if (opener === $('hint-button')) scrollToHint();
-}
-
-function scrollToHint() {
-  const content = $('results-content');
-  content.scrollTop += $('hint').getBoundingClientRect().top - content.getBoundingClientRect().top;
-}
-
-function resetResultPresentation() {
-  resultPresentation.keepVisible = !desktopLayout.matches && isOverlayOpen($('result-sheet'));
-  if (!resultPresentation.keepVisible) closeResults();
-  $('sheet-edit-note').hidden = !resultPresentation.keepVisible;
-  hideOverlay($('result-toast'));
-  resultPresentation.available = false;
-  $('last-result').hidden = true;
-  $('result-announcement').textContent = '';
-}
-
-function presentResult(count) {
-  resultPresentation.available = true;
-  resultPresentation.keepVisible = false;
-  $('sheet-edit-note').hidden = true;
-  $('sheet-score').textContent = `${count} / 6 criterios`;
-  if (count < 6) $('sheet-score').classList.add('is-incomplete');
-  else $('sheet-score').classList.remove('is-incomplete');
-  $('toast-count').textContent = format(ui.resultCount, { count });
-  $('last-result').hidden = false;
-  $('results-content').scrollTop = 0;
-  if ($('portfolio-screen') && !$('portfolio-screen').hidden) return;
-  if (!desktopLayout.matches) {
-    if (!isOverlayOpen($('result-sheet'))) showOverlay($('result-toast'));
-    positionResultOverlays();
-    $('result-announcement').textContent = format(ui.resultReady, { count });
-  }
-}
-
-function syncResultLayout() {
-  const hadResultFocus = $('results-panel').contains(document.activeElement);
-  closeResults();
-  hideOverlay($('result-toast'));
-  const destination = desktopLayout.matches ? $('desktop-results') : $('result-sheet');
-  destination.append($('results-panel'));
-  // Orden de lectura móvil: resumen grande, criterios y retroalimentación completa.
-  if (desktopLayout.matches) $('hint').after($('criteria'));
-  else $('results-content').prepend($('criteria'));
-  const guide = $('guide-feedback');
-  if (guide) {
-    if (desktopLayout.matches) $('result-summary').before(guide);
-    else $('results-content').prepend(guide);
-  }
-  $('sheet-edit-note').hidden = true;
-  if (hadResultFocus) {
-    // Esperar al traslado del nodo para no perder el foco al cerrarse el Popover.
-    requestAnimationFrame(() => {
-      if (desktopLayout.matches) $('results-content').focus({ preventScroll:true });
-      else document.querySelector('#prompt-form .primary').focus({ preventScroll:true });
-    });
-  }
-  if (desktopLayout.matches) $('result-announcement').textContent = '';
-  $('last-result').hidden = !resultPresentation.available;
-  positionResultOverlays();
-}
-
-$('open-result').addEventListener('click', () => openResults($('open-result')));
-$('last-result').addEventListener('click', () => openResults($('last-result')));
-$('close-results').addEventListener('click', closeResults);
-$('close-toast').addEventListener('click', () => {
-  const wasFocused = $('result-toast').contains(document.activeElement);
-  hideOverlay($('result-toast'));
-  if (wasFocused) $('last-result').focus({ preventScroll:true });
-});
-$('result-sheet').addEventListener('keydown', event => {
-  if (event.key === 'Escape') { event.preventDefault(); closeResults(); }
-});
-window.addEventListener('resize', positionResultOverlays);
-window.addEventListener('scroll', positionResultOverlays, { passive:true });
-new ResizeObserver(positionResultOverlays).observe($('prompt-form'));
-desktopLayout.addEventListener('change', syncResultLayout);
-syncResultLayout();
 </script>
 </body>
 </html>
