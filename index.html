@@ -128,6 +128,12 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
 @media (prefers-reduced-motion:no-preference) {
   .terminal-cursor { animation:cursor-blink 1s steps(2,start) infinite; }
   @keyframes cursor-blink { to { visibility:hidden; } }
+  [data-mission-screen="mail"] .mail-item { animation:mail-arrive 300ms ease-out; }
+  [data-mission-screen="terminal"] #terminal-to { animation:terminal-ready 180ms ease-out both; }
+  [data-mission-screen="terminal"] #terminal-brief { animation:terminal-ready 180ms 200ms ease-out both; }
+  #client-guide:not([hidden]) { animation:terminal-ready 180ms ease-out; }
+  @keyframes mail-arrive { from { opacity:.3; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes terminal-ready { from { opacity:.3; } to { opacity:1; } }
 }
 /* Laptop: correo y conversación a la izquierda; terminal a la derecha. */
 @media (min-width:768px) {
@@ -171,7 +177,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
   <div id="portfolio-items"></div>
   <div class="story-footer"><button type="button" id="return-game" class="primary story-action" data-copy="returnGame"></button></div>
 </section>
-<a class="skip" href="#prompt" data-copy="skip"></a>
+<a class="skip" href="#work-area" data-copy="skip"></a>
 <header>
   <div class="shell header-row">
     <h1 data-copy="missionTitle"></h1>
@@ -179,7 +185,7 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
     <div class="progress-box"><div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div><progress id="progress" value="0" max="3" aria-label="Reputación de la agencia: misiones completadas"></progress></div>
   </div>
 </header>
-<main class="shell mission-desktop">
+<main id="work-area" class="shell mission-desktop" tabindex="-1">
   <section id="inbox-window" class="computer-window" aria-labelledby="inbox-title">
     <div class="window-bar mail-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span></div>
     <div class="mail-list">
@@ -245,7 +251,7 @@ const CONTENT = {
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
       welcomeTitle:'Tu primer día', back:'Atrás', next:'Siguiente', startTrial:'Empezar la prueba', welcomeProgress:'Bienvenida · {current} de 3',
       agencyLabel:'AGENCIA DE IA', coverPitch:'Tu primer día en una agencia de IA. Tres clientes. ¿Les darás lo que necesitan?', startDay:'Empezar mi primer día',
-      skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
+      skip:'Ir al área de trabajo', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
       level:'Nivel {level} · Misión {number} de 3', missionNumber:'Nivel {level} · {skill}', missionTitle:'Misión {number} · {title}',
       intro:'Lee el encargo. Da instrucciones claras. Prueba y mejora.', briefTitle:'Mensaje del cliente', clientTag:'Restaurante',
       requiredIntro:'Obligatorios:', editorTitle:'terminal', promptLabel:'Escribe tu prompt para la IA',
@@ -347,7 +353,7 @@ const language = 'es';
 const { ui, missions } = CONTENT[language];
 let mission = missions[0];
 let criteria = CONTENT[language].criteria;
-const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
+const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), chatTimer:null, chatRevealed:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
 const $ = id => document.getElementById(id);
 const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
 const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -457,6 +463,7 @@ function renderProgress() {
 // Flujo de misión: correo, conversación, escritura y resultado en la terminal.
 function setMissionScreen(screen, focus = true) {
   document.body.dataset.missionScreen = screen;
+  if (document.body.classList.contains('in-game') && (screen === 'chat' || (screen === 'mail' && window.matchMedia('(min-width:768px)').matches))) prepareConversation();
   const results = screen === 'results';
   $('prompt-form').hidden = results;
   $('results-panel').hidden = !results;
@@ -468,6 +475,18 @@ function setMissionScreen(screen, focus = true) {
   else if (screen === 'chat') $('client-name').focus({ preventScroll:true });
   else if (results) $('terminal-scroll').focus({ preventScroll:true });
   else $('prompt').focus({ preventScroll:true });
+}
+function revealConversation() {
+  if (state.chatTimer) clearTimeout(state.chatTimer);
+  state.chatTimer = null;
+  state.chatRevealed = true;
+  $('client-guide').hidden = false;
+}
+function prepareConversation() {
+  if (state.chatRevealed || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { revealConversation(); return; }
+  if (state.chatTimer) return;
+  $('client-guide').hidden = true;
+  state.chatTimer = setTimeout(revealConversation, 600);
 }
 function renderHistory(results = false) {
   const attempts = state.history.get(mission.id) || [];
@@ -519,6 +538,10 @@ function presentResult(count) {
 // Fin del flujo de misión.
 
 function renderMission() {
+  if (state.chatTimer) clearTimeout(state.chatTimer);
+  state.chatTimer = null;
+  state.chatRevealed = false;
+  $('client-guide').hidden = true;
   const values = { ...mission, number:state.missionIndex + 1 };
   for (const name of ['level','missionTitle']) document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
   $('mail-sender').textContent = mission.client;
@@ -661,6 +684,8 @@ function renderWelcome() {
   guideAnimation.message();
 }
 for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () => setMissionScreen('chat'));
+$('chat-scroll').addEventListener('click', revealConversation);
+$('chat-scroll').addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); revealConversation(); } });
 $('back-mail').addEventListener('click', () => setMissionScreen('mail'));
 $('start-prompt').addEventListener('click', () => setMissionScreen('terminal'));
 $('back-chat').addEventListener('click', () => setMissionScreen('chat'));

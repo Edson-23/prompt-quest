@@ -105,14 +105,16 @@ Para el MVP solo se incluyen los niveles 1 a 3, con una misión por nivel. Al co
 
 ## 10. Pantallas del MVP
 
-Una sola pantalla con cuatro bloques:
+La misión se presenta como herramientas de una computadora:
 
-1. **Cabecera:** nombre del juego, nivel actual y progreso.
-2. **Encargo:** cliente, necesidad y botón para ver pista.
-3. **Editor:** área de texto para el prompt, botón de ejecutar y contador de criterios.
-4. **Resultados:** lista de criterios con ✓ o ✗, retroalimentación y respuesta simulada cuando el prompt pasa.
+1. Correo nuevo del cliente y acción Abrir encargo.
+2. Conversación con el cliente, pistas de Epson_IA y acción Iniciar prompt.
+3. Terminal con textarea real de seis líneas y botón Ejecutar.
+4. Resultados en la misma terminal, sustituyendo al editor en celular. Volver a intentar recupera el prompt y el historial conserva los intentos previos en memoria.
 
-Al completar una misión aparece un mensaje de avance y el botón "siguiente misión".
+En móvil se muestra una etapa a la vez. Desde 768 px se muestran correo/conversación a la izquierda y terminal a la derecha. No se usa la antigua hoja inferior ni un panel independiente de resultados. La evaluación y los datos de las misiones no cambian.
+
+Al completar una misión aparece Continuar; tras la última abre la graduación y el portafolio final.
 
 ## 11. Tecnología
 

@@ -14,14 +14,15 @@ function setup(){
   focus(){document.activeElement=this;}
   getBoundingClientRect(){return {top:0};}
  }
- const ids=['prompt-form','results-panel','execute','result-actions','new-mail','client-name','terminal-scroll','prompt','terminal-history','history-items','hint-button','result-hint','hint','chat-hints','chat-scroll','submitted-prompt','sheet-score','result-announcement'];
+ const ids=['prompt-form','results-panel','execute','result-actions','new-mail','client-name','terminal-scroll','prompt','terminal-history','history-items','hint-button','result-hint','hint','chat-hints','chat-scroll','client-guide','submitted-prompt','sheet-score','result-announcement'];
  const nodes=Object.fromEntries(ids.map(id=>[id,new Element(id)]));
  document.createElement=()=>new Element('');
- const state={history:new Map(),hints:0};
+ const state={history:new Map(),hints:0,chatTimer:null,chatRevealed:false};
  const mission={id:'menu-semanal',hints:['Primera pista','Segunda pista','Tercera pista']};
- const context=vm.createContext({document,state,mission,$:id=>nodes[id],ui:{score:'{count} / 6 criterios',hint:'Pedir pista',hintsDone:'Pistas: 3',hintNumber:'Pista {current} de 3',resultReady:'{count} criterios'},format:(text,values)=>text.replace(/\{(\w+)\}/g,(_,key)=>values[key])});
+ const timers=[];
+ const context=vm.createContext({document,state,mission,window:{matchMedia:()=>({matches:false})},setTimeout:(fn,delay)=>{timers.push({fn,delay});return timers.length},clearTimeout:()=>{},$:id=>nodes[id],ui:{score:'{count} / 6 criterios',hint:'Pedir pista',hintsDone:'Pistas: 3',hintNumber:'Pista {current} de 3',resultReady:'{count} criterios'},format:(text,values)=>text.replace(/\{(\w+)\}/g,(_,key)=>values[key])});
  vm.runInContext(controller,context);
- return {nodes,state,mission,document,run:code=>vm.runInContext(code,context)};
+ return {nodes,state,mission,document,timers,run:code=>vm.runInContext(code,context)};
 }
 test('la terminal alterna editor y resultados, con foco en el control correspondiente',()=>{
  const {nodes,document,run}=setup();
@@ -53,4 +54,8 @@ test('el historial se separa por misión y no se arrastra al siguiente cliente',
 });
 test('si la evaluación acaba mientras se consulta el portafolio no roba el foco',()=>{
  const {nodes,document,run}=setup();document.body.classList.contains=()=>false;document.activeElement={id:'portfolio-title'};nodes.prompt.value='Prueba';run('presentResult(4)');assert.equal(document.activeElement.id,'portfolio-title');assert.equal(document.body.dataset.missionScreen,'results');
+});
+
+test('la conversación puede revelarse inmediatamente sin esperar los 600 ms',()=>{
+ const {nodes,state,timers,run}=setup();run("setMissionScreen('chat')");assert.equal(nodes['client-guide'].hidden,true);assert.equal(timers[0].delay,600);run('revealConversation()');assert.equal(nodes['client-guide'].hidden,false);assert.equal(state.chatTimer,null);run("setMissionScreen('terminal')");assert.equal(nodes['prompt-form'].hidden,false);
 });

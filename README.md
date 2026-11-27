@@ -16,22 +16,28 @@ La portada abre el primer día en la agencia. Epson_IA da la bienvenida en tres 
 
 Se usan animaciones de 220 ms que respetan la preferencia de movimiento reducido. No hay cuentas ni sonido automático. Los textos de presentación están en `CONTENT.es`, junto con el contenido de misiones.
 
+## Flujo de trabajo de las misiones
+
+Correo → conversación → terminal → resultados en la misma terminal. En celular no se muestran el editor y los resultados a la vez. «Volver a intentar» recupera el prompt anterior; el historial conserva los prompts enviados durante la sesión para compararlos. Las pistas se pueden pedir en la conversación y en el resultado, con tres niveles compartidos por misión.
+
+La página del juego usa 100dvh y desplazamiento interno en las ventanas. Los botones de acción quedan fuera del contenido desplazable. En laptop, las dos ventanas se muestran simultáneamente, con ancho mínimo de 360 px por ventana. La portada, la bienvenida animada y el portafolio se mantienen.
+
 ## Estado
 
 Tres misiones con progresión secuencial: menú semanal (Claridad), correos de una tienda de ropa (Contexto) y resumen para examen (Formato). Cada una incluye seis criterios, tres pistas y una respuesta de referencia fija. Los criterios obligatorios son, respectivamente: rol/objetivo/formato; rol/contexto/restricciones; contexto/objetivo/formato/ejemplo.
 
-Al aprobar aparece «Siguiente misión». La cabecera muestra el nivel, la misión actual y el total completado. Al terminar la tercera se muestra un resumen de habilidades. El progreso y la caché viven solo en memoria. Los textos y patrones por misión están en los objetos de `CONTENT.es.missions`, al inicio del script de `index.html`. El servidor selecciona su propio encargo de confianza por identificador, sin confiar en el texto enviado por el navegador.
+Al aprobar aparece «Continuar». La cabecera muestra el nivel, la misión actual y el total completado. Al terminar la tercera se muestra un resumen de habilidades. El progreso y la caché viven solo en memoria. Los textos y patrones por misión están en los objetos de `CONTENT.es.missions`, al inicio del script de `index.html`. El servidor selecciona su propio encargo de confianza por identificador, sin confiar en el texto enviado por el navegador.
 
 La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `src/index.js`, reemplazando la carpeta prevista `functions/api/`. `index.html` conserva su ubicación en la raíz.
 
 ## Prueba rápida
 
-1. Pulsa «Empezar mi primer día», recorre los tres mensajes y pulsa «Empezar la prueba». Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
+1. Pulsa «Empezar mi primer día», recorre la bienvenida y pulsa «Empezar la prueba». Abre el correo, lee la conversación y pulsa «Iniciar prompt». Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
 2. Ejecuta `Dame un menú de comida`: debe señalar los criterios que faltan y mostrar una respuesta poco útil.
 3. Ejecuta `Actúa como chef del restaurante La Esquina. Crea un menú de 7 días económico y sin gluten. Preséntalo en una tabla. Por ejemplo: Lunes | Arroz con frijoles.`: debe detectar los seis criterios, completar la misión y mostrar el menú de referencia.
-4. Pulsa «Siguiente misión». Prueba `Ayúdame con un correo` y después `Actúa como agente de atención al cliente de una tienda de ropa en línea. Redacta un correo amable sobre envíos y devoluciones de máximo 80 palabras, sin prometer plazos. Por ejemplo: Gracias por escribirnos.`.
+4. Pulsa «Continuar». Prueba `Ayúdame con un correo` y después `Actúa como agente de atención al cliente de una tienda de ropa en línea. Redacta un correo amable sobre envíos y devoluciones de máximo 80 palabras, sin prometer plazos. Por ejemplo: Gracias por escribirnos.`.
 5. Avanza a la misión 3. Prueba `Dime algo de historia` y después `Tengo un examen de historia sobre la Revolución Industrial mañana. Resume mis apuntes en viñetas, máximo 200 palabras. Por ejemplo: Causas → Mejoras agrícolas y nuevas máquinas.`. Debe aprobar sin exigir un rol y mostrar el cierre de las tres misiones.
-6. Edita, reejecuta, prueba las pistas y una ventana estrecha. En móvil se conserva la hoja de 70dvh y en escritorio las dos columnas.
+6. Edita, reejecuta, prueba las pistas y una ventana estrecha. En móvil se muestra una etapa a la vez, con resultados y scroll dentro de la terminal. En laptop, desde 768 px, correo/conversación y terminal se ven en dos ventanas.
 7. Recarga: el editor y el progreso deben reiniciarse.
 
 La detección por reglas acepta varias expresiones, pero puede dar falsos positivos o no reconocer un prompt válido. Evalúa la estructura, no la calidad creativa ni el significado completo.
