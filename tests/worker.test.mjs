@@ -133,6 +133,6 @@ test('solo el juego y el personaje se permiten como assets y la API ejecuta el W
   assert.equal(config.assets.binding, 'ASSETS');
   assert.equal(config.keep_vars, true);
   assert.deepEqual(config.assets.run_worker_first, ['/api/*']);
-  const rules = (await readFile(new URL('../.assetsignore', import.meta.url), 'utf8')).split('\n').filter(line => line && !line.startsWith('#'));
+  const rules = (await readFile(new URL('../.assetsignore', import.meta.url), 'utf8')).split(/\r?\n/).filter(line => line && !line.startsWith('#'));
   assert.deepEqual(rules, ['*', '!index.html', '!assets/', 'assets/*', '!assets/epson_ia_mapache.png']);
 });
