@@ -311,6 +311,13 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 .welcome-actions .primary { flex: 1; }
 @media (min-width: 768px) { .guide-image { width: min(240px, 100%); } }
 .story-screen p { overflow-wrap: anywhere; }
+.inbox-screen { display: none; }
+.in-game[data-mission-screen="mail"] .inbox-screen { display: block; }
+.in-game[data-mission-screen="mail"] .workspace { display: none; }
+.mail-item { display: flex; flex-direction: column; gap: .5rem; width: 100%; text-align: left; border-color: var(--title); }
+.mail-item strong { color: var(--title); }
+.mail-item .muted { font-size: .875rem; }
+.mail-note { margin-top: 1rem; padding: .75rem; border: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -350,6 +357,14 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
     <h1 data-copy="missionTitle"></h1><button id="open-portfolio" type="button" class="portfolio-link" data-copy="portfolioTitle"></button>
     <p class="muted" data-copy="intro"></p>
   </div>
+  <section id="inbox-screen" class="panel inbox-screen" aria-labelledby="inbox-title">
+    <div class="panel-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span></div>
+    <div class="panel-body mail-list">
+      <button type="button" id="new-mail" class="mail-item"><strong id="mail-sender"></strong><span id="mail-subject"></span><span class="muted" id="mail-preview"></span></button>
+      <article class="mail-note"><p class="speaker">Epson_IA</p><p data-copy="mailGuide"></p></article>
+    </div>
+    <div class="panel-body"><button type="button" class="primary" id="open-mail" data-copy="openMail"></button></div>
+  </section>
   <div class="workspace">
     <div class="left">
       <section class="panel mission-panel" aria-labelledby="brief-title">
@@ -408,6 +423,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 const CONTENT = {
   es: {
     ui: {
+      inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
       welcomeTitle:'Tu primer día', back:'Atrás', next:'Siguiente', startTrial:'Empezar la prueba', welcomeProgress:'Bienvenida · {current} de 3',
       agencyLabel:'AGENCIA DE IA', coverPitch:'Tu primer día en una agencia de IA. Tres clientes. ¿Les darás lo que necesitan?', startDay:'Empezar mi primer día',
@@ -456,7 +472,7 @@ const CONTENT = {
       thanks:'Gracias. Ahora podemos organizar la semana y cuidar a nuestros clientes.',
       level:1, skill:'Claridad', title:'Menú semanal', clientTag:'Restaurante',
       completion:'✓ Misión 1 completada. Ya sabes indicar un rol, un objetivo y un formato. Has desbloqueado la misión 2.',
-      id:'menu-semanal', client:'Restaurante «La Esquina»', brief:'Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día.',
+      mailSubject:'Menú de 7 días sin gluten', id:'menu-semanal', client:'Restaurante «La Esquina»', brief:'Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día.',
       required:['rol','objetivo','formato'],
       hints:[
         'Piensa en tres decisiones: quién debe ser la IA, qué debe crear y cómo debe presentar la respuesta.',
@@ -619,7 +635,14 @@ function renderProgress() {
   $('progress-text').textContent = format(ui.progress, { count:state.completed.size });
 }
 
+function renderMail() {
+  document.body.dataset.missionScreen = 'mail';
+  $('mail-sender').textContent = mission.client;
+  $('mail-subject').textContent = mission.mailSubject || mission.title;
+  $('mail-preview').textContent = mission.brief.slice(0, 60) + '…';
+}
 function renderMission() {
+  renderMail();
   const values = { ...mission, number:state.missionIndex + 1 };
   for (const name of ['level','missionNumber','missionTitle']) {
     document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
@@ -759,6 +782,10 @@ function renderWelcome() {
   $('welcome-next').textContent = state.welcomeIndex === 2 ? ui.startTrial : ui.next;
   guideAnimation.message();
 }
+for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () => {
+  document.body.dataset.missionScreen = 'chat';
+  $('client-name').focus();
+});
 $('start-day').addEventListener('click', () => {
   $('cover-screen').hidden = true;
   $('welcome-screen').hidden = false;
