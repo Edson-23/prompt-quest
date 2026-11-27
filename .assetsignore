@@ -1,3 +1,6 @@
-# La raíz es el directorio de assets. Publicar solo la página del juego.
+# Publicar solo el juego y la imagen aprobada.
 *
 !index.html
+!assets/
+assets/*
+!assets/epson_ia_mapache.png

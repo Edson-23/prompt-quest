@@ -285,6 +285,15 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 .story-action { width: 100%; max-inline-size: none; min-height: 52px; flex: none; }
 .story-screen .story-footer { margin-top: auto; padding-top: 1rem; }
 .story-screen h2 { font-size: 1.4rem; color: var(--success); }
+.guide-image { display: block; width: min(200px, 100%); height: auto; align-self: center; border: 1px solid var(--success); border-radius: 6px; }
+.chat-message { border: 1px solid var(--border); border-left: 3px solid var(--title); border-radius: 4px; padding: .75rem; background: #10161e; }
+.speaker { margin: 0 0 .375rem; color: var(--title); font-size: .75rem; }
+.chat-message > p:last-child { margin-bottom: 0; }
+.guide-message { border-left-color: var(--success); }
+.guide-message .speaker { color: var(--success); }
+.welcome-actions { display: flex; justify-content: space-between; gap: .75rem; }
+.welcome-actions .primary { flex: 1; }
+@media (min-width: 768px) { .guide-image { width: min(240px, 100%); } }
 .story-screen p { overflow-wrap: anywhere; }
 </style>
 </head>
@@ -292,6 +301,13 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 <section id="cover-screen" class="story-screen" aria-labelledby="cover-title">
   <div class="cover-content"><p class="agency-label" data-copy="agencyLabel"></p><h1 id="cover-title" tabindex="-1">PROMPT<br>QUEST</h1><p data-copy="coverPitch"></p></div>
   <div class="story-footer"><button id="start-day" class="primary story-action" type="button" data-copy="startDay"></button></div>
+</section>
+<section id="welcome-screen" class="story-screen" aria-labelledby="welcome-title" hidden>
+  <div><p id="welcome-progress"></p><progress id="welcome-bar" max="3" value="1" aria-label="Progreso de bienvenida"></progress></div>
+  <h2 id="welcome-title" tabindex="-1" data-copy="welcomeTitle"></h2>
+  <img class="guide-image" src="assets/epson_ia_mapache.png" width="1376" height="768" alt="Epson_IA, un mapache de pixel art que saluda" decoding="async">
+  <div class="chat-message guide-message"><p class="speaker">Epson_IA</p><p id="welcome-message" aria-live="polite" aria-atomic="true"></p></div>
+  <div class="story-footer welcome-actions"><button type="button" id="welcome-back" data-copy="back"></button><button type="button" id="welcome-next" class="primary"></button></div>
 </section>
 <a class="skip" href="#prompt" data-copy="skip"></a>
 <header>
@@ -366,6 +382,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 const CONTENT = {
   es: {
     ui: {
+      welcomeTitle:'Tu primer día', back:'Atrás', next:'Siguiente', startTrial:'Empezar la prueba', welcomeProgress:'Bienvenida · {current} de 3',
       agencyLabel:'AGENCIA DE IA', coverPitch:'Eres el nuevo integrante del equipo. Los clientes esperan. ¿Sabrás darles lo que necesitan?', startDay:'Empezar mi primer día',
       skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
       level:'Nivel {level} · Misión {number} de 3', missionNumber:'Nivel {level} · {skill}', missionTitle:'Misión {number} · {title}',
@@ -398,6 +415,7 @@ const CONTENT = {
       viewResult:'Ver resultado', lastResult:'Ver último resultado', closeResults:'×', closeToast:'Cerrar',
       resultCount:'{count} de 6 criterios cumplidos', resultReady:'{count} de 6 criterios cumplidos. Resultado disponible.'
     },
+    welcome:['Bienvenido al equipo. Aquí resolvemos encargos de clientes que necesitan una respuesta útil.', 'Tu trabajo: escribir instrucciones claras para que la IA ayude a cada cliente.', 'Primero, una prueba sencilla. Si la pasas, te presento al siguiente cliente.'],
     criteria: [
       { id:'rol', label:'Rol', patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/, /\bcomo (?:chef|cocinero|cocinera|nutricionista)\b/], yes:'Has indicado qué papel debe asumir la IA.', no:'Dale una especialidad: «Actúa como chef». Un rol orienta el tipo de respuesta.' },
       { id:'contexto', label:'Contexto', patterns:[/\bla esquina\b/, /\brestaurante\b/, /\bnegocio de comida\b/, /\bcomedor\b/], yes:'Has mencionado al cliente o su tipo de negocio.', no:'Explica para quién trabajas: el restaurante La Esquina necesita un menú para sus clientes.' },
@@ -464,7 +482,7 @@ const language = 'es';
 const { ui, missions } = CONTENT[language];
 let mission = missions[0];
 let criteria = CONTENT[language].criteria;
-const state = { missionIndex:0, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
+const state = { welcomeIndex:0, missionIndex:0, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
 const $ = id => document.getElementById(id);
 const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
 const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -596,8 +614,26 @@ function renderMission() {
 }
 renderMission();
 
+function renderWelcome() {
+  $('welcome-progress').textContent = format(ui.welcomeProgress, { current:state.welcomeIndex + 1 });
+  $('welcome-bar').value = state.welcomeIndex + 1;
+  $('welcome-message').textContent = CONTENT[language].welcome[state.welcomeIndex];
+  $('welcome-back').disabled = state.welcomeIndex === 0;
+  $('welcome-next').textContent = state.welcomeIndex === 2 ? ui.startTrial : ui.next;
+}
 $('start-day').addEventListener('click', () => {
   $('cover-screen').hidden = true;
+  $('welcome-screen').hidden = false;
+  renderWelcome();
+  $('welcome-title').focus();
+});
+$('welcome-back').addEventListener('click', () => {
+  if (state.welcomeIndex > 0) state.welcomeIndex -= 1;
+  renderWelcome();
+});
+$('welcome-next').addEventListener('click', () => {
+  if (state.welcomeIndex < 2) { state.welcomeIndex += 1; renderWelcome(); return; }
+  $('welcome-screen').hidden = true;
   document.body.classList.add('in-game');
   $('prompt').focus();
 });

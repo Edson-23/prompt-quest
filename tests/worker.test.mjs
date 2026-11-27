@@ -126,7 +126,7 @@ test('aborta una llamada que no responde', async t => {
   assert.equal((await worker.fetch(request(), environment())).status, 503);
 });
 
-test('solo index.html se permite como asset y la API ejecuta el Worker primero', async () => {
+test('solo el juego y el personaje se permiten como assets y la API ejecuta el Worker primero', async () => {
   const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
   assert.equal(config.main, 'src/index.js');
   assert.equal(config.assets.directory, '.');
@@ -134,5 +134,5 @@ test('solo index.html se permite como asset y la API ejecuta el Worker primero',
   assert.equal(config.keep_vars, true);
   assert.deepEqual(config.assets.run_worker_first, ['/api/*']);
   const rules = (await readFile(new URL('../.assetsignore', import.meta.url), 'utf8')).split('\n').filter(line => line && !line.startsWith('#'));
-  assert.deepEqual(rules, ['*', '!index.html']);
+  assert.deepEqual(rules, ['*', '!index.html', '!assets/', 'assets/*', '!assets/epson_ia_mapache.png']);
 });
