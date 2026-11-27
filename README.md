@@ -18,7 +18,7 @@ Se usan animaciones de 220 ms que respetan la preferencia de movimiento reducido
 
 ## Flujo de trabajo de las misiones
 
-Correo → conversación → terminal → resultados en la misma terminal. En celular no se muestran el editor y los resultados a la vez. «Volver a intentar» recupera el prompt anterior; el historial conserva los prompts enviados durante la sesión para compararlos. Las pistas se pueden pedir en la conversación y en el resultado, con tres niveles compartidos por misión.
+Correo → conversación → terminal → resultados en la misma terminal. En la misión 1 de celular, la entrada es notificación → bandeja → ficha del cliente «LE» → encargo. La notificación baja en 400 ms y desaparece al tocarla. El encargo móvil muestra solo «Iniciar prompt»; las pistas se piden en los resultados de la terminal. La laptop conserva su flujo anterior. En celular no se muestran el editor y los resultados a la vez. «Volver a intentar» recupera el prompt anterior; el historial conserva los prompts enviados durante la sesión para compararlos. Las pistas se pueden pedir en la conversación y en el resultado, con tres niveles compartidos por misión.
 
 La página del juego usa 100dvh y desplazamiento interno en las ventanas. Los botones de acción quedan fuera del contenido desplazable. En laptop, las dos ventanas se muestran simultáneamente, con ancho mínimo de 360 px por ventana. La portada, la bienvenida animada y el portafolio se mantienen.
 
@@ -32,7 +32,7 @@ La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `s
 
 ## Prueba rápida
 
-1. Pulsa «Empezar mi primer día», recorre la bienvenida y pulsa «Empezar la prueba». Abre el correo, lee la conversación y pulsa «Iniciar prompt». Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
+1. Pulsa «Empezar mi primer día», recorre la bienvenida y pulsa «Empezar la prueba». En celular, toca la notificación, el correo y la ficha del cliente. Lee el encargo y pulsa «Iniciar prompt». En laptop, abre el correo directamente. Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
 2. Ejecuta `Dame un menú de comida`: debe señalar los criterios que faltan y mostrar una respuesta poco útil.
 3. Ejecuta `Actúa como chef del restaurante La Esquina. Crea un menú de 7 días económico y sin gluten. Preséntalo en una tabla. Por ejemplo: Lunes | Arroz con frijoles.`: debe detectar los seis criterios, completar la misión y mostrar el menú de referencia.
 4. Pulsa «Continuar». Prueba `Ayúdame con un correo` y después `Actúa como agente de atención al cliente de una tienda de ropa en línea. Redacta un correo amable sobre envíos y devoluciones de máximo 80 palabras, sin prometer plazos. Por ejemplo: Gracias por escribirnos.`.

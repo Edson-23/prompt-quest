@@ -4,23 +4,23 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
 const flow=html.split('// Flujo de misión:')[1].split('// Fin del flujo de misión.')[0];
-const controller=flow.slice(flow.indexOf('function setMissionScreen'));
-function setup(){
+const controller=flow.slice(flow.indexOf('function usesMobileClientFlow'));
+function setup({desktop=false,reduced=false}={}){
  const document={activeElement:null,body:{dataset:{},classList:{contains:()=>true}}};
  class Element{
-  constructor(id){this.id=id;this.hidden=false;this.children=[];this.value='';this.scrollTop=0;}
+  constructor(id){this.id=id;this.hidden=false;this.children=[];this.value='';this.scrollTop=0;this.classes=new Set();this.classList={add:name=>this.classes.add(name),remove:name=>this.classes.delete(name)};}
   replaceChildren(...children){this.children=children;}
   append(...children){this.children.push(...children);}
   focus(){document.activeElement=this;}
   getBoundingClientRect(){return {top:0};}
  }
- const ids=['prompt-form','results-panel','execute','result-actions','new-mail','client-name','terminal-scroll','prompt','terminal-history','history-items','hint-button','result-hint','hint','chat-hints','chat-scroll','client-guide','submitted-prompt','sheet-score','result-announcement'];
+ const ids=['prompt-form','results-panel','execute','result-actions','new-mail','client-name','terminal-scroll','prompt','terminal-history','history-items','hint-button','result-hint','hint','chat-hints','chat-scroll','client-guide','submitted-prompt','sheet-score','result-announcement','mail-notification','read-client'];
  const nodes=Object.fromEntries(ids.map(id=>[id,new Element(id)]));
  document.createElement=()=>new Element('');
  const state={history:new Map(),hints:0,chatTimer:null,chatRevealed:false};
  const mission={id:'menu-semanal',hints:['Primera pista','Segunda pista','Tercera pista']};
  const timers=[];
- const context=vm.createContext({document,state,mission,window:{matchMedia:()=>({matches:false})},setTimeout:(fn,delay)=>{timers.push({fn,delay});return timers.length},clearTimeout:()=>{},$:id=>nodes[id],ui:{score:'{count} / 6 criterios',hint:'Pedir pista',hintsDone:'Pistas: 3',hintNumber:'Pista {current} de 3',resultReady:'{count} criterios'},format:(text,values)=>text.replace(/\{(\w+)\}/g,(_,key)=>values[key])});
+ const context=vm.createContext({document,state,mission,window:{matchMedia:query=>({matches:query.includes('min-width')?desktop:reduced})},setTimeout:(fn,delay)=>{timers.push({fn,delay});return timers.length},clearTimeout:()=>{},$:id=>nodes[id],ui:{score:'{count} / 6 criterios',hint:'Pedir pista',hintsDone:'Pistas: 3',hintNumber:'Pista {current} de 3',resultReady:'{count} criterios'},format:(text,values)=>text.replace(/\{(\w+)\}/g,(_,key)=>values[key])});
  vm.runInContext(controller,context);
  return {nodes,state,mission,document,timers,run:code=>vm.runInContext(code,context)};
 }
@@ -58,4 +58,23 @@ test('si la evaluación acaba mientras se consulta el portafolio no roba el foco
 
 test('la conversación puede revelarse inmediatamente sin esperar los 600 ms',()=>{
  const {nodes,state,timers,run}=setup();run("setMissionScreen('chat')");assert.equal(nodes['client-guide'].hidden,true);assert.equal(timers[0].delay,600);run('revealConversation()');assert.equal(nodes['client-guide'].hidden,false);assert.equal(state.chatTimer,null);run("setMissionScreen('terminal')");assert.equal(nodes['prompt-form'].hidden,false);
+});
+
+test('en móvil el primer cliente sigue notificación, bandeja, ficha y encargo',()=>{
+ const {nodes,state,document,timers,run}=setup();
+ run('setMissionScreen(missionEntryScreen())');assert.equal(document.body.dataset.missionScreen,'notification');assert.equal(document.activeElement,nodes['mail-notification']);
+ run('openNotification();openNotification()');assert.equal(timers.length,1);assert.equal(timers[0].delay,180);assert.equal(state.notificationClosing,true);assert.equal(nodes['mail-notification'].classes.has('is-leaving'),true);
+ timers[0].fn();assert.equal(document.body.dataset.missionScreen,'mail');assert.equal(nodes['mail-notification'].classes.has('is-leaving'),false);
+ run('openClientMail()');assert.equal(document.body.dataset.missionScreen,'profile');assert.equal(document.activeElement,nodes['read-client']);
+ run("setMissionScreen('chat')");assert.equal(document.body.dataset.missionScreen,'chat');
+ run("setMissionScreen('terminal')");assert.equal(document.activeElement,nodes.prompt);
+});
+test('laptop conserva la entrada directa a bandeja y conversación, sin pasos nuevos',()=>{
+ const {document,run}=setup({desktop:true});assert.equal(run('missionEntryScreen()'),'mail');run('openClientMail()');assert.equal(document.body.dataset.missionScreen,'chat');run("setMissionScreen('notification')");assert.equal(document.body.dataset.missionScreen,'mail');run("setMissionScreen('profile')");assert.equal(document.body.dataset.missionScreen,'mail');
+});
+test('movimiento reducido abre la bandeja sin esperar la salida de la notificación',()=>{
+ const {document,timers,run}=setup({reduced:true});run('setMissionScreen(missionEntryScreen());openNotification()');assert.equal(document.body.dataset.missionScreen,'mail');assert.equal(timers.length,0);
+});
+test('las misiones existentes siguientes mantienen su entrada previa',()=>{
+ const {mission,document,run}=setup();mission.id='correos-tienda';assert.equal(run('missionEntryScreen()'),'mail');run('openClientMail()');assert.equal(document.body.dataset.missionScreen,'chat');
 });

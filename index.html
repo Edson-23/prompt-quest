@@ -154,6 +154,34 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
   .window-scroll { padding:1rem; }
   .guide-image { width:min(240px,100%); }
 }
+/* Pasos adicionales exclusivos del celular. */
+.mobile-only { display:none; }
+@media (max-width:767px) {
+  .mobile-copy { display:block; }
+  .laptop-copy,#hint-button,#chat-hints,#back-mail,.mail-footer { display:none; }
+  [data-mission-screen="notification"] #inbox-window,[data-mission-screen="notification"] #terminal-window,
+  [data-mission-screen="profile"] #inbox-window,[data-mission-screen="profile"] #terminal-window { display:none; }
+  [data-mission-screen="notification"] #mobile-notification,[data-mission-screen="profile"] #client-profile { display:flex; }
+  [data-mission-screen="chat"] .inbox-instruction { display:none; }
+  #client-guide { color:var(--hint); border-left-color:var(--hint); }
+  #client-guide .speaker { color:var(--hint); }
+  .notification-space { padding:.75rem; background:transparent; border:0; }
+  .mail-notification { display:flex; flex-direction:column; gap:.5rem; width:100%; padding:1rem; text-align:left; background:#161b22; border-color:var(--title); }
+  .notification-label { color:var(--title); font-size:.75rem; }
+  .mail-notification strong { font-size:.875rem; }
+  .notification-help,.inbox-instruction,.profile-instruction { color:var(--muted); font-size:.75rem; }
+  .inbox-instruction,.profile-instruction { flex:none; padding:.75rem; text-align:center; }
+  .profile-content { flex:1; min-height:0; overflow-y:auto; display:flex; align-items:center; justify-content:center; padding:1rem; }
+  .client-profile-tap { display:flex; flex-direction:column; align-items:center; gap:1rem; width:100%; max-width:22rem; padding:1.5rem .75rem; text-align:center; }
+  .client-profile-tap > span:last-child { font-size:.875rem; color:var(--muted); }
+  .client-initials { display:grid; place-items:center; width:80px; height:80px; flex:none; border:1px solid var(--title); border-radius:50%; color:var(--title); background:#161e29; font-size:1.5rem; font-weight:700; }
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference) {
+  [data-mission-screen="notification"] .mail-notification { animation:notification-in 400ms ease-out both; }
+  [data-mission-screen="notification"] .mail-notification.is-leaving { animation:notification-out 180ms ease-in both; }
+  @keyframes notification-in { from { opacity:0; transform:translateY(-150%); } to { opacity:1; transform:translateY(0); } }
+  @keyframes notification-out { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-150%); } }
+}
 </style>
 </head>
 <body>
@@ -186,18 +214,27 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
   </div>
 </header>
 <main id="work-area" class="shell mission-desktop" tabindex="-1">
+  <section id="mobile-notification" class="computer-window mobile-only notification-space" aria-label="Notificaciones de correo">
+    <button type="button" id="mail-notification" class="mail-notification"><span class="notification-label" data-copy="notificationLabel"></span><strong id="notification-sender"></strong><span id="notification-subject"></span><span class="notification-help" data-copy="tapNotification"></span></button>
+  </section>
+  <section id="client-profile" class="computer-window mobile-only" aria-labelledby="profile-heading">
+    <div class="window-bar"><button type="button" id="back-profile" aria-label="Volver a la bandeja de correo">←</button><h2 id="profile-heading"></h2><span class="tag" data-copy="clientLabel"></span></div>
+    <div class="profile-content"><button type="button" id="read-client" class="client-profile-tap"><span id="client-initials" class="client-initials" aria-hidden="true"></span><strong id="profile-name"></strong><span data-copy="clientWrote"></span></button></div>
+    <p class="profile-instruction" data-copy="tapProfile"></p>
+  </section>
   <section id="inbox-window" class="computer-window" aria-labelledby="inbox-title">
     <div class="window-bar mail-bar"><h2 id="inbox-title" data-copy="inbox"></h2><span class="tag" data-copy="unread"></span></div>
     <div class="mail-list">
       <button type="button" id="new-mail" class="mail-item"><strong id="mail-sender"></strong><span id="mail-subject"></span><span class="muted" id="mail-preview"></span></button>
       <article class="mail-note"><p class="speaker">Epson_IA</p><p data-copy="mailGuide"></p></article>
     </div>
+    <p class="mobile-only mobile-copy inbox-instruction" data-copy="tapMail"></p>
     <div class="window-actions mail-footer"><button type="button" class="primary" id="open-mail" data-copy="openMail"></button></div>
     <section id="chat-window" class="conversation" aria-labelledby="client-name">
       <div class="window-bar"><button type="button" id="back-mail" aria-label="Volver al correo">←</button><h2 id="client-name" tabindex="-1"></h2><span class="tag" data-copy="clientLabel"></span></div>
       <div id="chat-scroll" class="window-scroll" tabindex="0" role="log" aria-label="Conversación con el cliente" aria-live="polite">
         <div class="chat-message client-message"><p class="speaker" id="client-speaker"></p><p id="brief"></p></div>
-        <div id="client-guide" class="chat-message guide-message"><p class="speaker">Epson_IA</p><p data-copy="chatGuide"></p></div>
+        <div id="client-guide" class="chat-message guide-message"><p class="speaker">Epson_IA</p><p class="laptop-copy" data-copy="chatGuide"></p><p class="mobile-only mobile-copy" data-copy="mobileChatGuide"></p></div>
         <div id="chat-hints"></div>
         <div class="required-line"><p data-copy="requiredIntro"></p><ul class="chips" id="required-chips" role="list"></ul></div>
       </div>
@@ -245,6 +282,7 @@ const CONTENT = {
   es: {
     ui: {
       terminalTitle:'terminal', evaluatingLine:'$ evaluando…', terminalTo:'$ para: {client}', terminalBrief:'$ encargo: {brief}',
+      notificationLabel:'Correo · 1 nuevo', tapNotification:'toca la notificación', tapMail:'toca el correo del cliente', clientWrote:'Te escribió un encargo', tapProfile:'toca para leer el encargo', mobileChatGuide:'Cuando estés listo, abre la terminal.', clientShortNames:{'menu-semanal':'La Esquina'}, clientInitials:{'menu-semanal':'LE'},
       clientLabel:'Cliente', resultsLine:'$ resultados', score:'{count} / 6 criterios', historyTitle:'Historial de prompts', retryPrompt:'Volver a intentar', continue:'Continuar', missionLabel:'Misión {number}',
       startPrompt:'Iniciar prompt', chatGuide:'Tu prueba consiste en escribir las instrucciones para la IA. Cuando estés listo, abre la terminal.',
       inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
@@ -353,7 +391,7 @@ const language = 'es';
 const { ui, missions } = CONTENT[language];
 let mission = missions[0];
 let criteria = CONTENT[language].criteria;
-const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), chatTimer:null, chatRevealed:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
+const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), chatTimer:null, chatRevealed:false, notificationTimer:null, notificationClosing:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
 const $ = id => document.getElementById(id);
 const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
 const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -461,7 +499,25 @@ function renderProgress() {
 }
 
 // Flujo de misión: correo, conversación, escritura y resultado en la terminal.
+function usesMobileClientFlow() {
+  return mission.id === 'menu-semanal' && !window.matchMedia('(min-width:768px)').matches;
+}
+function missionEntryScreen() { return usesMobileClientFlow() ? 'notification' : 'mail'; }
+function openClientMail() { setMissionScreen(usesMobileClientFlow() ? 'profile' : 'chat'); }
+function openNotification() {
+  if (state.notificationClosing) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setMissionScreen('mail'); return; }
+  state.notificationClosing = true;
+  $('mail-notification').classList.add('is-leaving');
+  state.notificationTimer = setTimeout(() => {
+    state.notificationTimer = null;
+    state.notificationClosing = false;
+    $('mail-notification').classList.remove('is-leaving');
+    setMissionScreen('mail');
+  }, 180);
+}
 function setMissionScreen(screen, focus = true) {
+  if ((screen === 'notification' || screen === 'profile') && !usesMobileClientFlow()) screen = 'mail';
   document.body.dataset.missionScreen = screen;
   if (document.body.classList.contains('in-game') && (screen === 'chat' || (screen === 'mail' && window.matchMedia('(min-width:768px)').matches))) prepareConversation();
   const results = screen === 'results';
@@ -471,7 +527,9 @@ function setMissionScreen(screen, focus = true) {
   $('result-actions').hidden = !results;
   renderHistory(results);
   if (!focus || !document.body.classList.contains('in-game')) return;
-  if (screen === 'mail') $('new-mail').focus({ preventScroll:true });
+  if (screen === 'notification') $('mail-notification').focus({ preventScroll:true });
+  else if (screen === 'profile') $('read-client').focus({ preventScroll:true });
+  else if (screen === 'mail') $('new-mail').focus({ preventScroll:true });
   else if (screen === 'chat') $('client-name').focus({ preventScroll:true });
   else if (results) $('terminal-scroll').focus({ preventScroll:true });
   else $('prompt').focus({ preventScroll:true });
@@ -544,6 +602,15 @@ function renderMission() {
   $('client-guide').hidden = true;
   const values = { ...mission, number:state.missionIndex + 1 };
   for (const name of ['level','missionTitle']) document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
+  if (state.notificationTimer) clearTimeout(state.notificationTimer);
+  state.notificationTimer = null;
+  state.notificationClosing = false;
+  $('mail-notification').classList.remove('is-leaving');
+  $('notification-sender').textContent = mission.client;
+  $('notification-subject').textContent = mission.mailSubject || mission.title;
+  $('profile-name').textContent = mission.client;
+  $('profile-heading').textContent = ui.clientShortNames[mission.id] || mission.client;
+  $('client-initials').textContent = ui.clientInitials[mission.id] || '';
   $('mail-sender').textContent = mission.client;
   $('mail-subject').textContent = mission.mailSubject || mission.title;
   $('mail-preview').textContent = mission.brief.slice(0, 60) + '…';
@@ -575,7 +642,7 @@ function renderMission() {
   renderProgress();
   renderCriteria();
   updateEditor();
-  setMissionScreen('mail', false);
+  setMissionScreen(missionEntryScreen(), false);
 }
 renderMission();
 
@@ -683,7 +750,10 @@ function renderWelcome() {
   $('welcome-next').textContent = state.welcomeIndex === 2 ? ui.startTrial : ui.next;
   guideAnimation.message();
 }
-for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () => setMissionScreen('chat'));
+for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', openClientMail);
+$('mail-notification').addEventListener('click', openNotification);
+$('read-client').addEventListener('click', () => setMissionScreen('chat'));
+$('back-profile').addEventListener('click', () => setMissionScreen('mail'));
 $('chat-scroll').addEventListener('click', revealConversation);
 $('chat-scroll').addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); revealConversation(); } });
 $('back-mail').addEventListener('click', () => setMissionScreen('mail'));
@@ -707,13 +777,13 @@ $('welcome-next').addEventListener('click', () => {
   guideAnimation.stop();
   $('welcome-screen').hidden = true;
   document.body.classList.add('in-game');
-  setMissionScreen('mail');
+  setMissionScreen(missionEntryScreen());
 });
 
 $('next-mission').addEventListener('click', () => {
   if (!selectMission(state.missionIndex + 1)) return;
   renderMission();
-  setMissionScreen('mail');
+  setMissionScreen(missionEntryScreen());
 });
 
 function renderPortfolio(graduation) {
