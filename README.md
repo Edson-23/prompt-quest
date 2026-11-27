@@ -2,6 +2,8 @@
 
 Juego web en español para aprender a escribir prompts mediante encargos de clientes y retroalimentación por criterio.
 
+🎮 [Jugar Prompt Quest en línea](https://prompt-quest.edson-rivera.workers.dev/)
+
 ## Cómo probarlo
 
 Abre `index.html` en el navegador para jugar con evaluación simulada. No requiere instalación, servidor, conexión a internet ni claves. La evaluación real con Gemini funciona al servir el juego mediante el Worker.
