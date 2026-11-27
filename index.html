@@ -318,6 +318,10 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 .mail-item strong { color: var(--title); }
 .mail-item .muted { font-size: .875rem; }
 .mail-note { margin-top: 1rem; padding: .75rem; border: 1px solid var(--border); }
+@media (max-width: 767px) {
+  [data-mission-screen="chat"] .editor-panel, [data-mission-screen="chat"] #desktop-results { display: none; }
+  [data-mission-screen="terminal"] .mission-panel { display: none; }
+}
 </style>
 </head>
 <body>
@@ -368,15 +372,17 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
   <div class="workspace">
     <div class="left">
       <section class="panel mission-panel" aria-labelledby="brief-title">
-        <div class="panel-bar"><h2 id="brief-title" data-copy="briefTitle"></h2><span class="tag" data-copy="clientTag"></span></div>
+        <div class="panel-bar"><button type="button" id="back-mail" aria-label="Volver al correo">←</button><h2 id="brief-title" data-copy="briefTitle"></h2><span class="tag" data-copy="clientTag"></span></div>
         <div class="panel-body">
           <div class="brief-heading">
-            <h3 id="client-name"></h3>
+            <h3 id="client-name" tabindex="-1"></h3>
             <button type="button" class="hint-button" id="hint-button" aria-controls="hint" aria-expanded="false"></button>
           </div>
           <div class="brief chat-message client-message"><p id="brief"></p></div>
+          <div class="chat-message guide-message"><p class="speaker">Epson_IA</p><p data-copy="chatGuide"></p></div><div id="chat-hints" aria-live="polite"></div>
           <div class="required-line"><p data-copy="requiredIntro"></p><ul class="chips" id="required-chips" role="list"></ul></div>
         </div>
+        <div class="panel-body"><button type="button" id="start-prompt" class="primary" data-copy="startPrompt"></button></div>
       </section>
       <section class="panel editor-panel" aria-labelledby="editor-title">
         <div class="panel-bar"><h2 id="editor-title" data-copy="editorTitle"></h2><span class="tag" id="criteria-count" aria-live="off"></span></div>
@@ -423,6 +429,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 const CONTENT = {
   es: {
     ui: {
+      startPrompt:'Iniciar prompt', chatGuide:'Tu prueba consiste en escribir las instrucciones para la IA. Cuando estés listo, abre la terminal.',
       inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
       welcomeTitle:'Tu primer día', back:'Atrás', next:'Siguiente', startTrial:'Empezar la prueba', welcomeProgress:'Bienvenida · {current} de 3',
@@ -786,6 +793,8 @@ for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () =>
   document.body.dataset.missionScreen = 'chat';
   $('client-name').focus();
 });
+$('back-mail').addEventListener('click', () => { document.body.dataset.missionScreen='mail'; $('new-mail').focus(); });
+$('start-prompt').addEventListener('click', () => { document.body.dataset.missionScreen='terminal'; $('prompt').focus(); });
 $('start-day').addEventListener('click', () => {
   $('cover-screen').hidden = true;
   $('welcome-screen').hidden = false;
@@ -861,14 +870,15 @@ $('hint-button').addEventListener('click', () => {
   if (state.hints >= mission.hints.length) return;
   const paragraph = document.createElement('p');
   paragraph.textContent = 'Epson_IA · ' + format(ui.hintNumber, { current:state.hints + 1 }) + ': ' + mission.hints[state.hints];
-  $('hint').append(paragraph);
+  const inChat = document.body.dataset.missionScreen === 'chat';
+  (inChat ? $('chat-hints') : $('hint')).append(paragraph);
   state.hints += 1;
   $('hint').hidden = false;
   $('results-content').scrollTop = 0;
   $('hint-button').setAttribute('aria-expanded','true');
   $('hint-button').textContent = state.hints === mission.hints.length ? ui.hintsDone : ui.nextHint;
   $('hint-button').disabled = state.hints === mission.hints.length;
-  openResults($('hint-button'));
+  if (!inChat) openResults($('hint-button'));
 });
 
 $('prompt').addEventListener('input', () => {
