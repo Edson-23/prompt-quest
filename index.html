@@ -129,6 +129,25 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
   .terminal-cursor { animation:cursor-blink 1s steps(2,start) infinite; }
   @keyframes cursor-blink { to { visibility:hidden; } }
 }
+/* Laptop: correo y conversación a la izquierda; terminal a la derecha. */
+@media (min-width:768px) {
+  .shell { width:min(1280px,calc(100% - 2rem)); }
+  header { padding-block:.75rem; }
+  .header-row { grid-template-columns:minmax(0,1fr) 14rem auto; gap:1rem; }
+  .header-row h1 { font-size:1rem; }
+  .header-row .portfolio-link { grid-column:3; grid-row:1; }
+  .progress-box { grid-column:2; grid-row:1; font-size:.75rem; }
+  body[data-mission-screen] .mission-desktop { display:grid; grid-template-columns:repeat(2,minmax(360px,1fr)); gap:.75rem; padding-block:.75rem; }
+  body[data-mission-screen] #inbox-window,body[data-mission-screen] #terminal-window,body[data-mission-screen] .conversation,body[data-mission-screen] .mail-bar { display:flex; }
+  body[data-mission-screen] .mail-list { display:block; flex:none; max-height:15rem; }
+  .mail-note { margin-top:.5rem; padding:.5rem .75rem; }
+  .mail-item { padding:.75rem; gap:.25rem; }
+  .mail-footer { display:none; }
+  .conversation { border-top:1px solid var(--border); }
+  #back-mail { display:none; }
+  .window-scroll { padding:1rem; }
+  .guide-image { width:min(240px,100%); }
+}
 </style>
 </head>
 <body>
