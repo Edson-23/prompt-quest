@@ -274,9 +274,25 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
   .result-toast, .result-toast.fallback-open, .sheet-close, .last-result { display: none; }
   .result-toast:popover-open { display: none; }
 }
+/* Entrada a la agencia: el editor solo aparece al terminar la bienvenida. */
+body:not(.in-game) { height: auto; }
+body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game) > .skip { display: none; }
+.story-screen { width: min(480px, calc(100% - 2rem)); min-height: 100vh; min-height: 100dvh; margin-inline: auto; padding: max(1.5rem, env(safe-area-inset-top)) 0 max(1rem, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 1.25rem; }
+.story-screen h1 { font-size: clamp(2.75rem, 12vw, 4rem); line-height: 1; color: var(--success); }
+.agency-label { font-size: .75rem; letter-spacing: .15em; color: var(--title); }
+.cover-content { margin-block: auto; padding-block: 2rem; }
+.cover-content > p:last-child { max-width: 28ch; margin-top: 1.5rem; font-size: 1.125rem; }
+.story-action { width: 100%; max-inline-size: none; min-height: 52px; flex: none; }
+.story-screen .story-footer { margin-top: auto; padding-top: 1rem; }
+.story-screen h2 { font-size: 1.4rem; color: var(--success); }
+.story-screen p { overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
+<section id="cover-screen" class="story-screen" aria-labelledby="cover-title">
+  <div class="cover-content"><p class="agency-label" data-copy="agencyLabel"></p><h1 id="cover-title" tabindex="-1">PROMPT<br>QUEST</h1><p data-copy="coverPitch"></p></div>
+  <div class="story-footer"><button id="start-day" class="primary story-action" type="button" data-copy="startDay"></button></div>
+</section>
 <a class="skip" href="#prompt" data-copy="skip"></a>
 <header>
   <div class="shell header-row">
@@ -350,6 +366,7 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
 const CONTENT = {
   es: {
     ui: {
+      agencyLabel:'AGENCIA DE IA', coverPitch:'Eres el nuevo integrante del equipo. Los clientes esperan. ¿Sabrás darles lo que necesitan?', startDay:'Empezar mi primer día',
       skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
       level:'Nivel {level} · Misión {number} de 3', missionNumber:'Nivel {level} · {skill}', missionTitle:'Misión {number} · {title}',
       intro:'Lee el encargo. Da instrucciones claras. Prueba y mejora.', briefTitle:'El encargo', clientTag:'Restaurante',
@@ -578,6 +595,12 @@ function renderMission() {
   updateEditor();
 }
 renderMission();
+
+$('start-day').addEventListener('click', () => {
+  $('cover-screen').hidden = true;
+  document.body.classList.add('in-game');
+  $('prompt').focus();
+});
 
 $('next-mission').addEventListener('click', () => {
   if (!selectMission(state.missionIndex + 1)) return;
