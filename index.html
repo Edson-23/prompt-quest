@@ -322,6 +322,17 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
   [data-mission-screen="chat"] .editor-panel, [data-mission-screen="chat"] #desktop-results { display: none; }
   [data-mission-screen="terminal"] .mission-panel { display: none; }
 }
+.editor-panel { background: #010409; }
+.terminal-context { color: var(--muted); font-size: .75rem; margin: .375rem 0; }
+.terminal-input { display: flex; gap: .25rem; align-items: flex-start; margin-top: .625rem; }
+.prompt-prefix { color: var(--success); flex: none; padding-top: .625rem; }
+.terminal-input textarea { min-width: 0; background: #010409; caret-color: var(--success); height: 9rem; min-height: 9rem; max-height: 9rem; }
+.terminal-cursor { display: inline-block; width: .4rem; height: 1rem; background: var(--success); vertical-align: middle; }
+.terminal-input:focus-within .terminal-cursor { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .terminal-cursor { animation: cursor-blink 1s steps(2, start) infinite; }
+  @keyframes cursor-blink { to { visibility: hidden; } }
+}
 </style>
 </head>
 <body>
@@ -385,10 +396,11 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
         <div class="panel-body"><button type="button" id="start-prompt" class="primary" data-copy="startPrompt"></button></div>
       </section>
       <section class="panel editor-panel" aria-labelledby="editor-title">
-        <div class="panel-bar"><h2 id="editor-title" data-copy="editorTitle"></h2><span class="tag" id="criteria-count" aria-live="off"></span></div>
+        <div class="panel-bar"><button type="button" id="back-chat" aria-label="Volver a la conversación">←</button><h2 id="editor-title" data-copy="editorTitle"></h2><span class="tag" id="criteria-count" aria-live="off"></span></div>
         <form id="prompt-form" class="panel-body" novalidate>
+          <p id="terminal-to" class="terminal-context"></p><p id="terminal-brief" class="terminal-context"></p>
           <label for="prompt" data-copy="promptLabel"></label>
-          <textarea id="prompt" name="prompt" rows="5" maxlength="1500" aria-required="true" aria-describedby="privacy-note editor-help input-error" spellcheck="true"></textarea>
+          <div class="terminal-input"><span class="prompt-prefix" aria-hidden="true">&gt; <span class="terminal-cursor"></span></span><textarea id="prompt" name="prompt" rows="5" maxlength="1500" aria-required="true" aria-describedby="privacy-note editor-help input-error" spellcheck="true"></textarea></div><p id="evaluating-line" class="terminal-context" role="status" hidden data-copy="evaluatingLine"></p>
           <p id="input-error" class="error small" role="alert" hidden></p>
           <div class="editor-bottom"><span class="small muted" id="character-count"></span><button class="primary" type="submit" data-copy="execute"></button></div>
           <button type="button" id="last-result" class="last-result" aria-controls="result-sheet" aria-expanded="false" hidden data-copy="lastResult"></button>
@@ -429,6 +441,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 const CONTENT = {
   es: {
     ui: {
+      terminalTitle:'terminal', evaluatingLine:'$ evaluando…', terminalTo:'$ para: {client}', terminalBrief:'$ encargo: {brief}',
       startPrompt:'Iniciar prompt', chatGuide:'Tu prueba consiste en escribir las instrucciones para la IA. Cuando estés listo, abre la terminal.',
       inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
@@ -437,13 +450,13 @@ const CONTENT = {
       skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
       level:'Nivel {level} · Misión {number} de 3', missionNumber:'Nivel {level} · {skill}', missionTitle:'Misión {number} · {title}',
       intro:'Lee el encargo. Da instrucciones claras. Prueba y mejora.', briefTitle:'Mensaje del cliente', clientTag:'Restaurante',
-      requiredIntro:'Obligatorios:', editorTitle:'Tu prompt', promptLabel:'Escribe tu prompt para la IA',
+      requiredIntro:'Obligatorios:', editorTitle:'terminal', promptLabel:'Escribe tu prompt para la IA',
       placeholder:'Escribe aquí las instrucciones para resolver el encargo…', execute:'Ejecutar',
       editorHelp:'Puedes editar y volver a ejecutar las veces que quieras. Máximo 1500 caracteres.', resultsTitle:'Resultados', simulationTag:'Simulación por reglas',
       waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
       pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
       hint:'Ver pista', nextHint:'Otra pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
-      characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'Reputación · {count} / 3',
+      characters:'{count} / 1500', counter:'{count} / 6 criterios detectados', progress:'Reputación · {count} / 3',
       empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
       success:'✓ Prompt aprobado. Cumples los {requiredCount} criterios obligatorios y {count} de los 6 criterios en total.',
       retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
@@ -657,6 +670,8 @@ function renderMission() {
   document.querySelector('[data-copy="clientTag"]').textContent = mission.clientTag;
   $('client-name').textContent = mission.client;
   $('brief').textContent = mission.brief;
+  $('terminal-to').textContent = format(ui.terminalTo, mission);
+  $('terminal-brief').textContent = format(ui.terminalBrief, mission);
   $('prompt').value = '';
   $('prompt').removeAttribute('aria-invalid');
   $('input-error').hidden = true;
@@ -793,6 +808,7 @@ for (const id of ['new-mail','open-mail']) $(id).addEventListener('click', () =>
   document.body.dataset.missionScreen = 'chat';
   $('client-name').focus();
 });
+$('back-chat').addEventListener('click', () => { document.body.dataset.missionScreen='chat'; $('client-name').focus(); });
 $('back-mail').addEventListener('click', () => { document.body.dataset.missionScreen='mail'; $('new-mail').focus(); });
 $('start-prompt').addEventListener('click', () => { document.body.dataset.missionScreen='terminal'; $('prompt').focus(); });
 $('start-day').addEventListener('click', () => {
@@ -907,6 +923,7 @@ $('prompt-form').addEventListener('submit', async event => {
     return;
   }
   state.busy = true;
+  $('evaluating-line').hidden = false;
   const revision = state.revision;
   const executeButton = $('prompt-form').querySelector('button[type="submit"]');
   executeButton.disabled = true;
@@ -917,6 +934,7 @@ $('prompt-form').addEventListener('submit', async event => {
     evaluation = await evaluateWithFallback(prompt);
   } finally {
     state.busy = false;
+    $('evaluating-line').hidden = true;
     executeButton.disabled = false;
     executeButton.textContent = ui.execute;
   }
