@@ -176,7 +176,9 @@ footer { color: var(--muted); font-size: .875rem; padding-block: .75rem; }
   .workspace { flex: none; }
   #desktop-results .results-panel { min-height: 12rem; max-height: 65dvh; }
 }
+@keyframes arrive { from { opacity: .35; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: no-preference) {
+  .completion:not([hidden]), #welcome-message, #graduation-message:not([hidden]) { animation: arrive 220ms ease-out; }
   button { transition: background .15s, border-color .15s; }
 }
 
@@ -285,6 +287,14 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 .story-action { width: 100%; max-inline-size: none; min-height: 52px; flex: none; }
 .story-screen .story-footer { margin-top: auto; padding-top: 1rem; }
 .story-screen h2 { font-size: 1.4rem; color: var(--success); }
+.intro { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.intro h1 { flex: 1; min-width: 0; }
+.intro .eyebrow, .intro > .muted { flex-basis: 100%; }
+.portfolio-link { flex: none; font-size: .75rem; color: var(--title); }
+.portfolio-screen { padding-bottom: 2rem; }
+.portfolio-work { border-block-start: 1px solid var(--border); padding-bottom: 1rem; }
+.portfolio-work h3 { margin-top: 1rem; color: var(--title); }
+.portfolio-work pre { font-size: .875rem; }
 .guide-image { display: block; width: min(200px, 100%); height: auto; align-self: center; border: 1px solid var(--success); border-radius: 6px; }
 .chat-message { border: 1px solid var(--border); border-left: 3px solid var(--title); border-radius: 4px; padding: .75rem; background: #10161e; }
 .speaker { margin: 0 0 .375rem; color: var(--title); font-size: .75rem; }
@@ -314,6 +324,15 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
   <div class="chat-message guide-message"><p class="speaker">Epson_IA</p><p id="welcome-message" aria-live="polite" aria-atomic="true"></p></div>
   <div class="story-footer welcome-actions"><button type="button" id="welcome-back" data-copy="back"></button><button type="button" id="welcome-next" class="primary"></button></div>
 </section>
+<section id="portfolio-screen" class="story-screen portfolio-screen" aria-labelledby="portfolio-title" hidden>
+  <p class="agency-label" data-copy="agencyLabel"></p>
+  <h2 id="portfolio-title" tabindex="-1"></h2>
+  <div id="graduation-message" class="chat-message guide-message" hidden><p class="speaker">Epson_IA</p><p data-copy="graduationMessage"></p></div>
+  <p id="portfolio-note" class="small muted" data-copy="portfolioNote"></p>
+  <p id="portfolio-empty" data-copy="portfolioEmpty"></p>
+  <div id="portfolio-items"></div>
+  <div class="story-footer"><button type="button" id="return-game" class="primary story-action" data-copy="returnGame"></button></div>
+</section>
 <a class="skip" href="#prompt" data-copy="skip"></a>
 <header>
   <div class="shell header-row">
@@ -327,7 +346,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 <main class="shell">
   <div class="intro">
     <p class="eyebrow" data-copy="missionNumber"></p>
-    <h1 data-copy="missionTitle"></h1>
+    <h1 data-copy="missionTitle"></h1><button id="open-portfolio" type="button" class="portfolio-link" data-copy="portfolioTitle"></button>
     <p class="muted" data-copy="intro"></p>
   </div>
   <div class="workspace">
@@ -367,7 +386,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
         <div id="hint" class="hint guide-message" role="status" hidden></div>
         <ul id="criteria" class="criteria" role="list"></ul>
         <div class="response" id="response" hidden><h3 id="response-title"></h3><p class="small muted" id="response-note"></p><pre id="response-text"></pre></div>
-        <div class="completion" id="completion" hidden><div class="chat-message"><p class="speaker" id="client-reaction-name"></p><p id="client-reaction"></p></div><p class="speaker">Epson_IA</p><p id="completion-text" role="status"></p><p id="next-client-preview" class="small"></p><button type="button" id="next-mission" hidden data-copy="nextMission"></button></div>
+        <div class="completion" id="completion" hidden><div class="chat-message"><p class="speaker" id="client-reaction-name"></p><p id="client-reaction"></p></div><p class="speaker">Epson_IA</p><p id="completion-text" role="status"></p><p id="next-client-preview" class="small"></p><button type="button" id="view-graduation" hidden data-copy="viewGraduation"></button><button type="button" id="next-mission" hidden data-copy="nextMission"></button></div>
         <p class="notice" id="evaluation-notice" data-copy="limitations"></p>
         <details class="help"><summary data-copy="helpTitle"></summary><p id="editor-help" class="notice" data-copy="editorHelp"></p><footer data-copy="footer"></footer></details>
       </div>
@@ -390,7 +409,7 @@ const CONTENT = {
     ui: {
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
       welcomeTitle:'Tu primer día', back:'Atrás', next:'Siguiente', startTrial:'Empezar la prueba', welcomeProgress:'Bienvenida · {current} de 3',
-      agencyLabel:'AGENCIA DE IA', coverPitch:'Eres el nuevo integrante del equipo. Los clientes esperan. ¿Sabrás darles lo que necesitan?', startDay:'Empezar mi primer día',
+      agencyLabel:'AGENCIA DE IA', coverPitch:'Tu primer día en una agencia de IA. Tres clientes. ¿Les darás lo que necesitan?', startDay:'Empezar mi primer día',
       skip:'Ir al editor', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
       level:'Nivel {level} · Misión {number} de 3', missionNumber:'Nivel {level} · {skill}', missionTitle:'Misión {number} · {title}',
       intro:'Lee el encargo. Da instrucciones claras. Prueba y mejora.', briefTitle:'Mensaje del cliente', clientTag:'Restaurante',
@@ -406,6 +425,7 @@ const CONTENT = {
       retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
       referenceTitle:'Respuesta de referencia desbloqueada', weakTitle:'Respuesta simulada de un prompt incompleto',
       referenceNote:'Este es un ejemplo fijo del encargo, no una respuesta generada a partir de tus instrucciones. Compara también los criterios opcionales.', weakNote:'Esta respuesta fija ilustra lo poco útil que puede ser una petición incompleta.',
+      portfolioTitle:'Mi portafolio', portfolioEmpty:'Tu portafolio empieza con el primer encargo aprobado.', portfolioNote:'Tus trabajos viven solo en esta sesión. Al recargar se pierden.', yourPrompt:'Tu prompt aprobado', fixedResponse:'Respuesta de referencia', graduationTitle:'Tu primer día, completado', graduationMessage:'Tres clientes atendidos. Ya sabes dar instrucciones con intención. Este portafolio es tu primera muestra de trabajo. Bienvenido al equipo.', viewGraduation:'Cerrar mi primer día', returnGame:'Volver a los encargos',
       nextMission:'Siguiente misión', nextClient:'Nuevo cliente: {client}',
       allCompleted:'✓ Completaste las 3 misiones. Has practicado claridad, contexto y formato: asignar un rol, explicar la situación, definir el objetivo, poner límites y guiar la respuesta con un formato y un ejemplo.',
       limitations:'Este evaluador reconoce palabras y patrones, no comprende el significado. Puede no reconocer otras expresiones correctas y no juzga la calidad creativa. Los criterios opcionales ayudan a resolver mejor el encargo.',
@@ -492,7 +512,7 @@ const language = 'es';
 const { ui, missions } = CONTENT[language];
 let mission = missions[0];
 let criteria = CONTENT[language].criteria;
-const state = { welcomeIndex:0, missionIndex:0, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
+const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), returnToSheet:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
 const $ = id => document.getElementById(id);
 const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
 const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
@@ -570,6 +590,14 @@ function updateEditor() {
   $('character-count').textContent = format(ui.characters, { count:$('prompt').value.length });
 }
 
+function recordWork(prompt, evaluation) {
+  if (!evaluation.passed) return;
+  state.portfolio.set(mission.id, {
+    title:mission.title, client:mission.client, prompt, response:mission.reference,
+    count:evaluation.results.filter(result => result.passed).length
+  });
+}
+
 function selectMission(index) {
   if (state.busy || index !== state.missionIndex + 1 || !missions[index]
     || !state.completed.has(mission.id)) return false;
@@ -613,6 +641,7 @@ function renderMission() {
   $('completion').hidden = true;
   $('guide-feedback').hidden = true;
   $('next-mission').hidden = true;
+  $('view-graduation').hidden = true;
   $('sheet-score').textContent = '0 / 6 criterios';
   $('required-chips').replaceChildren(...mission.required.map(id => {
     const chip = document.createElement('li');
@@ -656,6 +685,50 @@ $('next-mission').addEventListener('click', () => {
   $('results-content').scrollTop = 0;
   renderMission();
   $('prompt').focus();
+});
+
+function renderPortfolio(graduation) {
+  $('portfolio-title').textContent = graduation ? ui.graduationTitle : ui.portfolioTitle;
+  $('graduation-message').hidden = !graduation;
+  $('portfolio-empty').hidden = state.portfolio.size > 0;
+  const items = [];
+  for (const work of state.portfolio.values()) {
+    const item = document.createElement('details');
+    item.className = 'portfolio-work';
+    const summary = document.createElement('summary');
+    summary.textContent = work.title + ' · ' + work.count + ' / 6';
+    const client = document.createElement('p');
+    client.className = 'small muted';
+    client.textContent = work.client;
+    item.append(summary, client);
+    for (const [label, text] of [[ui.yourPrompt, work.prompt], [ui.fixedResponse, work.response]]) {
+      const heading = document.createElement('h3');
+      heading.textContent = label;
+      const content = document.createElement('pre');
+      content.textContent = text;
+      item.append(heading, content);
+    }
+    items.push(item);
+  }
+  $('portfolio-items').replaceChildren(...items);
+}
+function showPortfolio(graduation = false) {
+  if (graduation && state.completed.size !== missions.length) return;
+  state.returnToSheet = !desktopLayout.matches && isOverlayOpen($('result-sheet'));
+  closeResults();
+  hideOverlay($('result-toast'));
+  renderPortfolio(graduation);
+  document.body.classList.remove('in-game');
+  $('portfolio-screen').hidden = false;
+  $('portfolio-title').focus();
+}
+$('open-portfolio').addEventListener('click', () => showPortfolio());
+$('view-graduation').addEventListener('click', () => showPortfolio(true));
+$('return-game').addEventListener('click', () => {
+  $('portfolio-screen').hidden = true;
+  document.body.classList.add('in-game');
+  if (state.returnToSheet) openResults(document.querySelector('.primary[type="submit"]'));
+  else $('open-portfolio').focus();
 });
 
 $('hint-button').addEventListener('click', () => {
@@ -728,6 +801,8 @@ $('prompt-form').addEventListener('submit', async event => {
   $('response-text').textContent = evaluation.passed ? mission.reference : mission.weakResponse;
   $('completion').hidden = !evaluation.passed;
   if (evaluation.passed) state.completed.add(mission.id);
+  recordWork(prompt, evaluation);
+  $('view-graduation').hidden = !evaluation.passed || state.completed.size !== missions.length;
   $('completion-text').textContent = state.completed.size === missions.length ? ui.allCompleted : mission.completion;
   $('client-reaction-name').textContent = mission.client;
   $('client-reaction').textContent = mission.thanks;
@@ -766,7 +841,7 @@ function hideOverlay(element) {
 
 function positionResultOverlays() {
   if (desktopLayout.matches) return;
-  const button = document.querySelector('.primary').getBoundingClientRect();
+  const button = document.querySelector('#prompt-form .primary').getBoundingClientRect();
   const toastHeight = $('result-toast').getBoundingClientRect().height;
   const toastTop = Math.max(8, Math.min(button.bottom + 12, window.innerHeight - toastHeight - 12));
   $('result-toast').style.setProperty('--toast-top', toastTop + 'px');
@@ -783,7 +858,7 @@ function closeResults() {
   if (wasFocused) {
     const target = resultPresentation.opener === $('open-result') ? $('last-result') : resultPresentation.opener;
     if (target?.isConnected && !target.hidden && !target.disabled) target.focus({ preventScroll:true });
-    else document.querySelector('.primary').focus({ preventScroll:true });
+    else document.querySelector('#prompt-form .primary').focus({ preventScroll:true });
   }
 }
 
@@ -849,7 +924,7 @@ function syncResultLayout() {
     // Esperar al traslado del nodo para no perder el foco al cerrarse el Popover.
     requestAnimationFrame(() => {
       if (desktopLayout.matches) $('results-content').focus({ preventScroll:true });
-      else document.querySelector('.primary').focus({ preventScroll:true });
+      else document.querySelector('#prompt-form .primary').focus({ preventScroll:true });
     });
   }
   if (desktopLayout.matches) $('result-announcement').textContent = '';
