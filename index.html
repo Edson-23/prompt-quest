@@ -293,6 +293,8 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
 .guide-message .speaker { color: var(--success); }
 .client-message { margin-block: .625rem; }
 .hint p + p { border-top: 1px solid #a58b37; padding-top: .625rem; }
+.completion > .speaker { margin-top: .75rem; }
+.completion button { margin-top: .75rem; width: 100%; }
 #guide-feedback { margin-block: .75rem; }
 .welcome-actions { display: flex; justify-content: space-between; gap: .75rem; }
 .welcome-actions .primary { flex: 1; }
@@ -318,7 +320,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
     <div><p class="brand">&gt;_ <span>Prompt Quest</span></p><p class="subtitle" data-copy="tagline"></p></div>
     <div class="progress-box">
       <div class="progress-label"><span data-copy="level"></span><span id="progress-text"></span></div>
-      <progress id="progress" value="0" max="3" aria-label="Misiones completadas"></progress>
+      <progress id="progress" value="0" max="3" aria-label="Reputación de la agencia: misiones completadas"></progress>
     </div>
   </div>
 </header>
@@ -365,7 +367,7 @@ body:not(.in-game) > header, body:not(.in-game) > main.shell, body:not(.in-game)
         <div id="hint" class="hint guide-message" role="status" hidden></div>
         <ul id="criteria" class="criteria" role="list"></ul>
         <div class="response" id="response" hidden><h3 id="response-title"></h3><p class="small muted" id="response-note"></p><pre id="response-text"></pre></div>
-        <div class="completion" id="completion" hidden><p id="completion-text" role="status"></p><button type="button" id="next-mission" hidden data-copy="nextMission"></button></div>
+        <div class="completion" id="completion" hidden><div class="chat-message"><p class="speaker" id="client-reaction-name"></p><p id="client-reaction"></p></div><p class="speaker">Epson_IA</p><p id="completion-text" role="status"></p><p id="next-client-preview" class="small"></p><button type="button" id="next-mission" hidden data-copy="nextMission"></button></div>
         <p class="notice" id="evaluation-notice" data-copy="limitations"></p>
         <details class="help"><summary data-copy="helpTitle"></summary><p id="editor-help" class="notice" data-copy="editorHelp"></p><footer data-copy="footer"></footer></details>
       </div>
@@ -398,13 +400,13 @@ const CONTENT = {
       waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
       pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
       hint:'Ver pista', nextHint:'Otra pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
-      characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'{count} / 3 completadas',
+      characters:'{count} / 1500 caracteres', counter:'{count} / 6 criterios detectados', progress:'Reputación · {count} / 3',
       empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
       success:'✓ Prompt aprobado. Cumples los {requiredCount} criterios obligatorios y {count} de los 6 criterios en total.',
       retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
       referenceTitle:'Respuesta de referencia desbloqueada', weakTitle:'Respuesta simulada de un prompt incompleto',
       referenceNote:'Este es un ejemplo fijo del encargo, no una respuesta generada a partir de tus instrucciones. Compara también los criterios opcionales.', weakNote:'Esta respuesta fija ilustra lo poco útil que puede ser una petición incompleta.',
-      nextMission:'Siguiente misión',
+      nextMission:'Siguiente misión', nextClient:'Nuevo cliente: {client}',
       allCompleted:'✓ Completaste las 3 misiones. Has practicado claridad, contexto y formato: asignar un rol, explicar la situación, definir el objetivo, poner límites y guiar la respuesta con un formato y un ejemplo.',
       limitations:'Este evaluador reconoce palabras y patrones, no comprende el significado. Puede no reconocer otras expresiones correctas y no juzga la calidad creativa. Los criterios opcionales ayudan a resolver mejor el encargo.',
       footer:'El progreso se guarda solo en memoria y se pierde al recargar o cerrar esta página.',
@@ -430,6 +432,7 @@ const CONTENT = {
       { id:'ejemplo', label:'Ejemplo', patterns:[/\bpor ejemplo\s*[:,]?\s*\S+/, /\bejemplo\s*:\s*\S+/, /\bcomo muestra\s*[:,]?\s*\S+/], yes:'Has añadido una muestra para orientar la respuesta.', no:'Puedes dar una muestra: «Por ejemplo: Lunes | Arroz con frijoles». En esta misión es opcional.' }
     ],
     missions: [{
+      thanks:'Gracias. Ahora podemos organizar la semana y cuidar a nuestros clientes.',
       level:1, skill:'Claridad', title:'Menú semanal', clientTag:'Restaurante',
       completion:'✓ Misión 1 completada. Ya sabes indicar un rol, un objetivo y un formato. Has desbloqueado la misión 2.',
       id:'menu-semanal', client:'Restaurante «La Esquina»', brief:'Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día.',
@@ -442,6 +445,7 @@ const CONTENT = {
       weakResponse:'Aquí tienes algunas ideas de comida: pasta, pizza y ensalada. Puedes elegir lo que más te guste.',
       reference:'Menú semanal · La Esquina\n\nLunes     | Arroz con frijoles y ensalada\nMartes    | Tortilla de patatas con tomate\nMiércoles | Lentejas guisadas con verduras\nJueves    | Pollo con arroz y zanahoria\nViernes   | Ensalada de garbanzos y huevo\nSábado    | Sopa de verduras con patatas\nDomingo   | Tortillas de maíz con frijoles\n\nIngredientes sencillos y económicos. Usa tortillas de maíz y condimentos etiquetados sin gluten; evita la contaminación cruzada durante la preparación.'
     }, {
+      thanks:'Gracias por ayudarnos a responder con claridad y sin prometer de más.',
       id:'correos-tienda', level:2, skill:'Contexto', title:'Correos de una tienda de ropa', clientTag:'Tienda en línea', client:'Tienda de ropa en línea',
       brief:'Somos una tienda de ropa en línea. Llegan muchos correos preguntando por envíos y devoluciones. Necesitamos una respuesta amable, corta y que no prometa nada que no podamos cumplir.',
       required:['rol','contexto','restricciones'],
@@ -462,6 +466,7 @@ const CONTENT = {
         ejemplo:{ no:'Puedes orientar el tono con una muestra: «Por ejemplo: Gracias por escribirnos; revisaremos tu pedido».' }
       }
     }, {
+      thanks:'Ahora tengo una guía para repasar. Gracias por poner orden en mis apuntes.',
       id:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
       brief:'Eres estudiante y mañana tienes un examen de historia. Tienes tus apuntes de la Revolución Industrial, muy largos. Necesitas un resumen que te ayude a estudiar.',
       required:['contexto','objetivo','formato','ejemplo'],
@@ -724,6 +729,9 @@ $('prompt-form').addEventListener('submit', async event => {
   $('completion').hidden = !evaluation.passed;
   if (evaluation.passed) state.completed.add(mission.id);
   $('completion-text').textContent = state.completed.size === missions.length ? ui.allCompleted : mission.completion;
+  $('client-reaction-name').textContent = mission.client;
+  $('client-reaction').textContent = mission.thanks;
+  $('next-client-preview').textContent = missions[state.missionIndex + 1] ? format(ui.nextClient, { client:missions[state.missionIndex + 1].client }) : '';
   $('next-mission').hidden = !evaluation.passed || state.missionIndex === missions.length - 1;
   renderProgress();
   presentResult(count);
