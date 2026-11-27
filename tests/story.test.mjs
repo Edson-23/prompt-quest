@@ -34,6 +34,6 @@ test('portafolio usa texto literal y la imagen original está íntegra',async()=
   const render=script.slice(script.indexOf('function renderPortfolio'),script.indexOf('function showPortfolio'));
   assert.doesNotMatch(render,/innerHTML|insertAdjacentHTML/);
   assert.match(render,/content.textContent = text/);
-  const installed=await readFile(new URL('../assets/epson_ia_mapache.png',import.meta.url));
-  assert.equal(createHash('sha256').update(installed).digest('hex'), '8dd8e084c1ebde33a2ae363971c5e0b7bf169e36571f45d27fa35617121abe7b');
+  const installed=await readFile(new URL('../assets/originales/epson_ia_mapache.png',import.meta.url));
+  assert.equal(createHash('sha256').update(installed).digest('hex'), 'ce73e888e524bdcd9084ce19f1c2855a02cdd5eabd6228a14181d73dba532e9b');
 });

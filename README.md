@@ -10,7 +10,7 @@ El progreso dura únicamente mientras la página está abierta.
 
 ## Presentación y portafolio
 
-La portada abre el primer día en la agencia. Epson_IA da la bienvenida en tres mensajes y después aparecen los clientes, cada uno con su propia voz. El editor permanece oculto durante la portada y la bienvenida. La imagen original está en `assets/epson_ia_mapache.png`, sin recortar ni recolorear.
+La portada abre el primer día en la agencia. Epson_IA da la bienvenida en tres mensajes y después aparecen los clientes, cada uno con su propia voz. El editor permanece oculto durante la portada y la bienvenida. Los tres cuadros de Epson_IA están en `assets/`, optimizados a 480 × 268 px. Los originales generados se conservan en `assets/originales/`. El chaleco dice «Epson_IA». La bienvenida precarga los cuadros: saludo de 800 ms al cambiar de mensaje, reposo y parpadeo de 150 ms cada 3–5 segundos. Con movimiento reducido solo se muestra el reposo.
 
 «Mi portafolio» permite revisar el prompt aprobado y la respuesta de referencia de cada encargo, sin salir de la sesión. Los intentos fallidos no reemplazan trabajos aprobados. Tras el tercer encargo, «Cerrar mi primer día» abre la graduación y el portafolio final. Volver a los encargos conserva el progreso. Recargar reinicia también la bienvenida y vacía el portafolio.
 
@@ -46,7 +46,7 @@ Requiere Node.js 22 o posterior y Wrangler 4.36 o posterior (los comandos usan W
 4. Alternativa por CLI para la clave: `npx wrangler@4 secret put GEMINI_API_KEY`. El comando pide la clave de forma interactiva; nunca la escribas como argumento ni en archivos del repositorio. La clave no va en `vars` de Wrangler.
 5. Visita la URL del Worker y ejecuta un prompt. Debe indicar «Evaluación con Gemini» si la configuración es válida. Sin clave, modelo, cuota o conexión, debe mostrar «Evaluación sin IA por ahora» y continuar por reglas.
 
-`.assetsignore` publica únicamente `index.html` y `assets/epson_ia_mapache.png`, aunque el directorio de assets sea la raíz. Así no se sirven `.git`, `.dev.vars`, `.env`, código del servidor, pruebas ni documentación. Las rutas ajenas al endpoint se delegan a `env.ASSETS.fetch(request)`; un archivo inexistente devuelve 404. `keep_vars: true` conserva las variables configuradas en el panel, como `GEMINI_MODEL`, durante los siguientes despliegues.
+`.assetsignore` publica únicamente `index.html` y los tres cuadros PNG optimizados, excluyendo `assets/originales/`, aunque el directorio de assets sea la raíz. Así no se sirven `.git`, `.dev.vars`, `.env`, código del servidor, pruebas ni documentación. Las rutas ajenas al endpoint se delegan a `env.ASSETS.fetch(request)`; un archivo inexistente devuelve 404. `keep_vars: true` conserva las variables configuradas en el panel, como `GEMINI_MODEL`, durante los siguientes despliegues.
 
 El binding de límite usa `namespace_id: "1001"`; si la cuenta ya utiliza ese identificador para otro límite, asigna uno libre. Limita aproximadamente a 5 solicitudes por IP cada 60 segundos en cada ubicación de Cloudflare. Los usuarios de una misma red comparten el límite. La página también limita a 5 intentos por minuto y reutiliza hasta 50 evaluaciones exitosas en memoria; recargar borra esta caché. No constituye una cuota global estricta.
 
