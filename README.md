@@ -8,6 +8,7 @@ Juego web en español para aprender a escribir prompts mediante encargos de clie
 
 - [GAME_DESIGN.md](GAME_DESIGN.md): única fuente de verdad del diseño, mecánica, misiones y evaluación.
 - [MISIONES_NIVEL_1.txt](docs/specs/MISIONES_NIVEL_1.txt): encargos, pistas, referencias y detección exactos de 1.2 y 1.3.
+- [MISIONES_NIVEL_2.txt](docs/specs/MISIONES_NIVEL_2.txt): contenido de Contexto, definiciones y datos concretos para la retroalimentación.
 - [ONBOARDING.txt](docs/specs/ONBOARDING.txt): bienvenida, personaje y animación.
 - [MISION_FLUJO.txt](docs/specs/MISION_FLUJO.txt) y [LAPTOP_FLUJO.txt](docs/specs/LAPTOP_FLUJO.txt): detalles del recorrido móvil y las ventanas de laptop, subordinados al diseño principal.
 - [docs/review/](docs/review/): notas históricas de verificación, no especificaciones vigentes.
@@ -59,11 +60,11 @@ Mapa de tres niveles con tres espacios cada uno: **Claridad** (1.1, 1.2, 1.3), *
 
 Claridad está completo: menú semanal, resumen para el gerente y explicación de un error a otro equipo. La 1.2 exige rol, objetivo y formato; la 1.3 exige rol, audiencia, objetivo y formato. Contexto y restricciones son opcionales en ambas. Los criterios visibles y sus contadores se ajustan a cada misión (cinco en 1.2, seis en 1.3). La misión del restaurante conserva sus datos y criterios originales.
 
-Contexto se desbloquea solo al completar las tres misiones de Claridad. Se conserva la tienda de ropa como 2.1 y el resumen de examen como 3.3, sin cambiar su contenido. Las entradas 2.2, 2.3, 3.1 y 3.2 muestran «Próximamente» y no pueden abrirse. El nivel 3 permanece bloqueado hasta completar Contexto.
+Contexto se desbloquea solo al completar las tres misiones de Claridad. La tienda de ropa 2.1 se conserva sin cambios. Contexto está completo con Política de devoluciones (2.2) y Caso de soporte técnico (2.3). Ambas evalúan cinco criterios: 2.2 exige contexto, restricciones y objetivo; 2.3 también exige formato. La retroalimentación de contexto señala los datos ausentes. Las entradas 3.1, 3.2 y 3.3 muestran «Próximamente», sin encargo, y no pueden abrirse. El nivel 3 permanece bloqueado hasta completar Contexto; al habilitarse, sus misiones siguen pendientes de contenido. El resumen de examen anterior queda en el historial de Git y conserva su alias del servidor.
 
 Abre «Mi portafolio → Mapa de niveles» para ver el progreso y los candados. Al continuar tras completar un nivel, el mapa muestra el siguiente disponible. La graduación se reserva para las nueve misiones; mientras falten contenidos no se anuncia el curso completo. El progreso, el historial y las evaluaciones viven solo en memoria.
 
-Los ID nuevos son estables: `1.2`, `1.3`, `2.1` y `3.3`; la 1.1 conserva el ID técnico `menu-semanal`. El servidor admite también los alias anteriores `correos-tienda` y `resumen-examen` para conservar compatibilidad.
+Los ID nuevos son estables: `1.2`, `1.3`, `2.1`, `2.2` y `2.3`; la 1.1 conserva el ID técnico `menu-semanal`. El servidor admite también los alias anteriores `correos-tienda` y `resumen-examen` para conservar compatibilidad.
 
 La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `src/index.js`, reemplazando la carpeta prevista `functions/api/`. `index.html` conserva su ubicación en la raíz.
 
@@ -75,7 +76,9 @@ La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `s
 4. Continúa a 1.2. Prueba `Ayúdame.` y después `Actúa como analista. Prepara un resumen para la reunión con el director en tres puntos. No inventes cifras y usa solo con los datos de ventas del trimestre.`. Debe pasar de incompleto a aprobado.
 5. Continúa a 1.3. Prueba `Hola.` y después `Actúa como redactor técnico. Explica para el equipo de ventas qué pasó con los pagos con tarjeta desde ayer, el impacto y el siguiente paso. Usa tres secciones con títulos y lenguaje sencillo, sin jerga.`.
 6. Antes de aprobar 1.3, revisa el mapa: 2.1 sigue bloqueada. Después, pulsa Continuar: Contexto se habilita y puedes abrir 2.1. Las entradas próximas y todo Formato siguen bloqueados. La cabecera usa numeración como «Nivel 1 · Misión 1.2 de 3».
-7. Revisa pistas, reintentos, portafolio y regreso desde el mapa en celular y laptop. Las ventanas de misión conservan el diseño aprobado. Recarga: el progreso vuelve a cero.
+7. Completa 2.1 y comprueba que se desbloquea 2.2, pero no 2.3. En 2.2 prueba `Ayúdame` y después un prompt que incluya política de 30 días, compra hace 40 días, error del sistema de 45 días, respuesta para la clienta y nota interna sin inventar excepciones. En 2.3 incluye el síntoma, los equipos que sí ven la impresora, su pantalla operativa, accesos al router y al servidor de impresión, y una lista numerada para diagnosticar sin asumir ni cambiar la configuración sin verificar.
+8. Hasta aprobar las tres misiones de Contexto, Formato sigue bloqueado. Después se habilita el nivel, pero sus misiones «Próximamente» no se abren. La cabecera muestra «Nivel 2 · Misión 2.2 de 3» cuando corresponde.
+9. Revisa pistas, reintentos, portafolio y regreso desde el mapa en celular y laptop. Las ventanas de misión conservan el diseño aprobado. Recarga: el progreso vuelve a cero.
 
 La detección por reglas acepta varias expresiones, pero puede dar falsos positivos o no reconocer un prompt válido. Evalúa la estructura, no la calidad creativa ni el significado completo.
 

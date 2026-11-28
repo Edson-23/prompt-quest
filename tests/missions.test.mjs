@@ -7,7 +7,7 @@ import { prompts as good } from './helpers/prompts.mjs';
 import { createTestSession } from './helpers/session.mjs';
 const missionCases = CONTENT.es.missions.filter(m => m.available !== false);
 const missionIds = missionCases.map(m => m.id);
-const weak = ['Dame comida.','Ayúdame.','Hola.','Ayúdame.','Hola.','Arregla esto.','Dime algo.'];
+const weak = ['Dame comida.','Ayúdame.','Hola.','Ayúdame.','Hola.','Arregla esto.'];
 const required = missionCases.map(m => m.required);
 function setup(index = 0, { protocol = 'file:', fetch = () => { throw Error('Sin conexión'); } } = {}) {
   const { run, game } = createTestSession({ protocol, fetch });
@@ -58,10 +58,9 @@ test('cada criterio reconoce al menos tres expresiones españolas en cada misió
   const variants = [
     [ ['Actúa como chef','Eres un cocinero','Asume el papel de chef'], ['La Esquina','Restaurante pequeño','Negocio de comida'], ['Crea un menú','Elabora un menú','Prepara un menú'], ['Tabla','Lista','Columnas'], ['Sin gluten','Económico','Bajo costo'], ['Por ejemplo: arroz','Ejemplo: lunes','Como muestra: sopa'] ],
     [ ['Actúa como agente','Eres una asesora','Asume el rol de agente'], ['Tienda de ropa','Comercio electrónico','Vendemos ropa'], ['Redacta un correo','Contesta consultas','Necesito una respuesta'], ['Correo','Saludo y despedida','Párrafos'], ['Máximo 80 palabras','Sin inventar plazos','Evita promesas'], ['Por ejemplo: gracias','Ejemplo: hola','Como muestra: saludos'] ],
-    [ ['Actúa como profesor','Eres una tutora','Asume el papel de historiador'], ['Revolución Industrial','Examen de historia','Apuntes de historia'], ['Haz un resumen','Resume mis apuntes','Sintetiza el texto'], ['Viñetas','Tabla','Esquema'], ['Máximo 200 palabras','Sin añadir datos','Solo mis apuntes'], ['Por ejemplo: causas, carbón','Ejemplo: tecnología, vapor','Como muestra: cambios, fábricas'] ],
   ];
   variants.forEach((groups,index) => {
-    const actualIndex = [0,3,6][index];
+    const actualIndex = [0,3][index];
     const ids = getMissionCriteria(missionCases[actualIndex]).map(c=>c.id);
     const { run } = setup(actualIndex);
     groups.forEach((phrases,criterion) => phrases.forEach(phrase => {

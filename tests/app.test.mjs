@@ -19,6 +19,7 @@ for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Clari
     await click('new-mail');
     if (!desktop && index===0) await click('read-client');
     assert.equal($('brief').textContent,CONTENT.es.missions[index].brief);
+    if(index===4) assert.equal(dom.document.querySelector('[data-copy="level"]').textContent,'Nivel 2 · Misión 2.2 de 3');
     await click('start-prompt');
     if (index===0) {
       $('prompt').value='Dame comida'; await $('prompt').emit('input'); await $('prompt-form').emit('submit');

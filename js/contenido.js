@@ -589,27 +589,7 @@ export const CONTENT = {
       "no": "le dice a la IA qué papel tiene, por ejemplo técnico de soporte de redes."
     }
   }
-}, {id:'3.1',level:3,skill:'Formato',title:'Próximamente',available:false}, {id:'3.2',level:3,skill:'Formato',title:'Próximamente',available:false}, {
-      thanks:'Ahora tengo una guía para repasar. Gracias por poner orden en mis apuntes.',
-      id:'3.3', legacyId:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
-      brief:'Eres estudiante y mañana tienes un examen de historia. Tienes tus apuntes de la Revolución Industrial, muy largos. Necesitas un resumen que te ayude a estudiar.',
-      required:['contexto','objetivo','formato','ejemplo'],
-      hints:[
-        '¿Qué tipo de resumen necesitas y para qué? Explica tu situación y qué vas a estudiar.',
-        'Indica la extensión del resumen o cuánto tiempo tienes para repasarlo. Pide las ideas principales, causas, cambios y consecuencias de la Revolución Industrial.',
-        'Pide viñetas o una tabla y muestra cómo debe verse una parte. Por ejemplo: «Causas: mejoras agrícolas y nuevas máquinas». Añade tus apuntes si quieres que el resumen se base en ellos.'
-      ],
-      weakResponse:'La Revolución Industrial fue una época de muchos cambios. Hubo máquinas, fábricas y ciudades. Estudia todo lo que puedas.',
-      reference:'Revolución Industrial · Repaso para el examen\n\n• Inicio: comenzó en Gran Bretaña en el siglo XVIII y se extendió a otros países.\n• Causas: mejoras agrícolas, disponibilidad de carbón y capital para invertir.\n• Tecnología: la máquina de vapor y la mecanización textil aumentaron la producción.\n• Trabajo: la producción pasó de talleres y hogares a fábricas con trabajo asalariado.\n• Sociedad: crecieron las ciudades y la clase obrera; las condiciones de trabajo impulsaron demandas de derechos.\n• Consecuencias: aumentó la producción y el transporte, junto con desigualdades y contaminación.\n\nEjemplo de una sección resumida:\n• Tecnología → Máquina de vapor → Impulsó fábricas y transporte.\n\nEste ejemplo general no sustituye tus apuntes; comprueba las fechas y contenidos de tu examen.',
-      rules:{
-        rol:{ patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/], no:'Puedes asignar un papel: «Actúa como profesor de historia». En esta misión es opcional.' },
-        contexto:{ patterns:[/\brevolucion industrial\b/, /\bexamen de historia\b/, /\bapuntes de historia\b/, /\bestudiante\b[\s\S]{0,80}\b(?:historia|examen)\b/], yes:'Has explicado el tema o tu situación de estudio.', no:'Explica que tienes un examen de historia y apuntes largos sobre la Revolución Industrial.' },
-        objetivo:{ patterns:[/\b(?:haz|crea|elabora|prepara|escribe|dame|necesito|quiero)\b[\s\S]{0,80}\b(?:resumen|sintesis|repaso)\b/, /\bresume\b/, /\bsintetiza\b/, /\bextrae\b[\s\S]{0,40}\bideas principales\b/], yes:'Has pedido resumir o sintetizar el material para estudiar.', no:'Pide un resultado concreto: «Resume mis apuntes con las ideas principales para repasar el examen».' },
-        formato:{ patterns:[/\bvinetas\b/, /\btabla\b/, /\blista\b/, /\besquema\b/, /\b(?:apartados|columnas|pasos)\b/], no:'Pide una estructura concreta: viñetas por tema, una tabla o un esquema de causas y consecuencias.' },
-        restricciones:{ patterns:[/\b(?:maximo|hasta|menos de|no mas de)\b[\s\S]{0,25}\b(?:palabras|minutos|lineas)\b/, /\b(?:no|sin)\s+(?:inventar|inventes|anadir|anadas)\b/, /\b(?:solo|unicamente)\b[\s\S]{0,30}\b(?:apuntes|ideas principales)\b/, /\bbreve\b/], yes:'Has limitado la extensión o el contenido del repaso.', no:'Puedes limitarlo a 200 palabras o pedir que solo use tus apuntes, sin inventar datos.' },
-        ejemplo:{ yes:'Has incluido una muestra de cómo debe verse una parte del resumen.', no:'Añade una muestra concreta: «Por ejemplo: Causas → Mejoras agrícolas y nuevas máquinas». Aquí el ejemplo es obligatorio.' }
-      }
-    }]
+}, {id:'3.1',level:3,skill:'Formato',title:'Próximamente',available:false}, {id:'3.2',level:3,skill:'Formato',title:'Próximamente',available:false}, {id:'3.3',level:3,skill:'Formato',title:'Próximamente',available:false}]
   }
 };
 

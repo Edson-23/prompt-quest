@@ -86,11 +86,13 @@ El mapa tiene tres niveles y tres misiones por nivel:
 | 1 · Claridad | 1.2 · Resumen para el gerente | Implementada, cinco criterios | rol, objetivo, formato |
 | 1 · Claridad | 1.3 · Explicar un error a otro equipo | Implementada, seis criterios | rol, audiencia, objetivo, formato |
 | 2 · Contexto | 2.1 · Correos de una tienda de ropa | Contenido anterior conservado; alias `correos-tienda` | rol, contexto, restricciones |
-| 2 · Contexto | 2.2 y 2.3 | Bloqueadas, contenido por preparar | Por definir |
-| 3 · Formato | 3.1 y 3.2 | Bloqueadas, contenido por preparar | Por definir |
-| 3 · Formato | 3.3 · Resumen para examen | Contenido anterior conservado; alias `resumen-examen` | contexto, objetivo, formato, ejemplo |
+| 2 · Contexto | 2.2 · Política de devoluciones | Implementada, cinco criterios | contexto, restricciones, objetivo |
+| 2 · Contexto | 2.3 · Caso de soporte técnico | Implementada, cinco criterios | contexto, restricciones, objetivo, formato |
+| 3 · Formato | 3.1, 3.2 y 3.3 · Próximamente | Sin encargo; entradas bloqueadas | Por definir |
 
 Los textos, pistas, referencias y expresiones exactos de 1.2 y 1.3 se conservan en [MISIONES_NIVEL_1.txt](docs/specs/MISIONES_NIVEL_1.txt). Contexto y restricciones son opcionales en ambas. Los contadores y el portafolio muestran el total de criterios de cada misión. Todas las palabras de detección del documento se reconocen con la normalización del motor existente.
+
+El nivel 2 se detalla en [MISIONES_NIVEL_2.txt](docs/specs/MISIONES_NIVEL_2.txt). La misión 2.1 conserva íntegros sus textos y sus obligatorios. 2.2 y 2.3 incluyen definiciones por criterio y cinco criterios visibles; rol es opcional en ambas, formato también en 2.2. En el respaldo, Contexto requiere los datos concretos del caso y señala los que faltan. En 2.2 se comprueban los tres plazos y el error del sistema; en 2.3, el síntoma, los otros equipos, el estado de la impresora y ambos accesos disponibles. Se aceptan variantes con normalización de acentos y varias expresiones. Los demás criterios mantienen detección por palabras.
 
 Cada misión tiene:
 - Encargo del cliente (texto corto).
@@ -113,7 +115,7 @@ Niveles por habilidad, en este orden:
 5. Skills
 6. Flujos de trabajo
 
-Las misiones se desbloquean en orden dentro de cada nivel. La 1.2 requiere completar 1.1 y la 1.3 requiere completar 1.2. Un nivel se desbloquea únicamente cuando se completan las tres misiones del anterior: aprobar solo 1.1 y 1.2 no habilita Contexto. Las entradas sin contenido no se pueden abrir, aunque su nivel ya esté desbloqueado. Por eso 3.3 se conserva, pero no se salta 3.1 ni 3.2.
+Las misiones se desbloquean en orden dentro de cada nivel. La 1.2 requiere completar 1.1 y la 1.3 requiere completar 1.2. Un nivel se desbloquea únicamente cuando se completan las tres misiones del anterior: aprobar solo 1.1 y 1.2 no habilita Contexto. Las entradas sin contenido no se pueden abrir, aunque su nivel ya esté desbloqueado. 2.2 requiere aprobar 2.1 y 2.3 requiere aprobar 2.2; Formato permanece bloqueado hasta completar las tres de Contexto. Después se habilita el nivel, pero sus tres entradas siguen como «Próximamente», sin encargo ni posibilidad de abrirlas. El contenido anterior del resumen para examen ya no forma parte del catálogo jugable; se conserva en el historial de Git y su alias en el servidor por compatibilidad.
 
 El mapa se abre desde «Mi portafolio → Mapa de niveles» y al continuar después de completar un nivel. Muestra numeración, nombre, progreso de tres misiones y estados Disponible, Completada o Bloqueado con candado y motivo visible. Las acciones bloqueadas anuncian su estado y no se activan con ratón ni teclado. Se puede retomar la misión actual sin perder el borrador, o volver a una misión completada. La cabecera muestra, por ejemplo, «Nivel 1 · Misión 1.2 de 3». La graduación completa queda reservada para terminar las nueve misiones; no se muestra prematuramente al completar Claridad.
 
@@ -167,10 +169,10 @@ prompt-quest/
 
 ## 12. Alcance del MVP
 
-Estado de la implementación: Claridad contiene tres misiones completas con progresión en memoria, pistas, Gemini y respaldo. El mapa contiene nueve espacios; 2.1 y 3.3 conservan los contenidos previos y las otras cuatro entradas permanecen bloqueadas hasta prepararlas.
+Estado de la implementación: Claridad y Contexto contienen tres misiones completas cada uno con progresión en memoria, pistas, Gemini y respaldo. El mapa contiene nueve espacios; Formato permanece como tres entradas «Próximamente», sin encargo.
 
 Incluye:
-- Tres misiones de Claridad y un mapa de tres niveles con tres espacios cada uno.
+- Tres misiones de Claridad, tres de Contexto y un mapa de tres niveles con tres espacios cada uno.
 - Evaluación simulada con criterios propios de cada misión.
 - Pistas y retroalimentación.
 - Respuestas simuladas de referencia.
@@ -180,7 +182,7 @@ No incluye:
 - Módulo de agent skills.
 - Cuentas de usuario o guardado permanente.
 - Otros estilos de interfaz; se conserva la terminal con el personaje en pixel art.
-- Contenido nuevo para 2.2, 2.3, 3.1 y 3.2.
+- Contenido jugable para 3.1, 3.2 y 3.3.
 
 ## 13. Evaluación con IA real y respaldo
 
@@ -190,7 +192,7 @@ Flujo cuando el jugador pulsa "ejecutar":
 
 1. El navegador envía a `/api/evaluar` el prompt del jugador y los datos de la misión (encargo y criterios obligatorios). Nunca envía la clave.
 2. El Worker `src/index.js` valida el prompt (no vacío y máximo 1500 caracteres), reconoce la misión por su identificador y usa su propio encargo y criterios de confianza. Arma las instrucciones para Gemini y llama a la API con `env.GEMINI_API_KEY` y el modelo de `env.GEMINI_MODEL`.
-3. Gemini responde con un JSON: `{"criterios": {"rol": true, "contexto": false, ...}, "retroalimentacion": "texto corto en español", "comentarios": {"rol": "explicación por criterio", ...}}`. El Worker valida los booleanos y comentarios declarados por su misión de confianza. 1.1 conserva su contrato original de seis criterios; 1.2 usa cinco y 1.3 incluye Audiencia entre sus seis. Solo se amplían el catálogo y el contrato autorizado; proveedor, llamada, límites y respaldo se conservan.
+3. Gemini responde con un JSON: `{"criterios": {"rol": true, "contexto": false, ...}, "retroalimentacion": "texto corto en español", "comentarios": {"rol": "explicación por criterio", ...}}`. El Worker valida los booleanos y comentarios declarados por su misión de confianza. 1.1 conserva su contrato original de seis criterios; 1.2 usa cinco y 1.3 incluye Audiencia entre sus seis. 2.2 y 2.3 declaran cinco criterios y sus definiciones de confianza, incluido el dato concreto que debe señalarse cuando falta contexto. Solo se amplían el catálogo y el contrato autorizado; proveedor, llamada, límites y respaldo se conservan.
 4. La función devuelve ese JSON al navegador, que muestra los criterios con ✓ o ✗ y la retroalimentación.
 5. Si la función responde con error, si se agota la cuota de Gemini o si pasan más de unos segundos sin respuesta, el navegador ejecuta la evaluación simulada por reglas y muestra un aviso discreto como "evaluación sin IA por hoy".
 
