@@ -5,7 +5,7 @@ export function recordWork(game, prompt, evaluation) {
   if (!evaluation.passed) return;
   state.portfolio.set(mission.id, {
     title:mission.title, client:mission.client, prompt, response:mission.reference,
-    count:evaluation.results.filter(result => result.passed).length
+    total:evaluation.results.length, count:evaluation.results.filter(result => result.passed).length
   });
 }
 
@@ -22,7 +22,7 @@ export function createPortfolioController(game, { document, onReturn }) {
       const item = document.createElement('details');
       item.className = 'portfolio-work';
       const summary = document.createElement('summary');
-      summary.textContent = work.title + ' · ' + work.count + ' / 6';
+      summary.textContent = work.title + ' · ' + work.count + ' / ' + work.total;
       const client = document.createElement('p');
       client.className = 'small muted';
       client.textContent = work.client;

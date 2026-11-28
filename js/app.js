@@ -1,4 +1,4 @@
-import { CONTENT } from './contenido.js';
+import { CONTENT, getMissionCriteria } from './contenido.js';
 import { createEvaluator } from './evaluacion.js';
 import { createStoryController } from './historia.js';
 import { createMissionController } from './misiones.js';
@@ -7,7 +7,7 @@ import { createPortfolioController } from './portafolio.js';
 export function createGame(language = 'es') {
   const { ui, missions, criteria } = CONTENT[language];
   const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), chatTimer:null, chatRevealed:false, notificationTimer:null, notificationClosing:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
-  return { language, ui, missions, criteria, mission:missions[0], state };
+  return { language, ui, missions, criteria:getMissionCriteria(missions[0], language), mission:missions[0], state };
 }
 
 export function startApp({ document = globalThis.document, window = globalThis.window, fetch = globalThis.fetch } = {}) {

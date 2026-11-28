@@ -1,0 +1,94 @@
+PROMPT QUEST - CONTENIDO DE MISIONES 1.2 Y 1.3 (NIVEL CLARIDAD)
+================================================================
+
+Documento para revisión y para Codex. Estas misiones van en js/contenido.js, dentro de CONTENT.es.missions. Público: adultos mayores de 18 años, estudiantes o programadores junior que trabajan con IA. Tono profesional, sin lenguaje infantil.
+
+Misión 1.1 (Menú semanal) ya existe y no cambia.
+
+
+MISIÓN 1.2 · RESUMEN PARA EL GERENTE
+-----------------------------------
+
+Nivel: 1 · Claridad
+Habilidad: dar un rol, un objetivo y un formato claros.
+
+Cliente: Gerente de ventas (cliente interno de una tienda de ropa).
+
+Encargo (texto que ve el jugador):
+"Tengo el reporte de ventas del trimestre, de 40 páginas. El lunes solo tengo cinco minutos en la reunión con el director. Estos son los datos clave: las ventas bajaron 12 % frente al trimestre anterior, la caída más fuerte fue en abrigos, y el inventario de temporada llegó tarde en octubre. ¿Me ayudas a preparar un resumen para la reunión?"
+
+Criterios obligatorios: rol, objetivo, formato.
+Criterios opcionales: contexto, restricciones.
+
+Definición de cada criterio:
+- Rol: le dice a la IA qué papel tiene (por ejemplo, analista o asistente de un gerente).
+- Objetivo: dice qué debe producir (un resumen para una reunión de cinco minutos, que responda qué pasó, por qué y qué hacer).
+- Formato: pide una forma concreta de respuesta (tres puntos, viñetas, máximo de palabras por punto).
+- Contexto (opcional): menciona la reunión, el público o los datos del encargo.
+- Restricciones (opcional): pone límites, como no inventar cifras o no superar cierta longitud.
+
+Pistas (tres niveles, de la más general a la más específica):
+1. ¿Quién debe escribir el resumen y para quién es?
+2. ¿Qué tres preguntas debe responder el resumen?
+3. ¿Cuántos puntos quieres y cuánto debe medir cada uno?
+
+Respuesta de referencia (se desbloquea al aprobar):
+"• Qué pasó: las ventas bajaron 12 % frente al trimestre anterior, con la mayor caída en abrigos.
+• Por qué: el inventario de temporada llegó tarde en octubre.
+• Qué hacer: adelantar el pedido de temporada y revisar el calendario de promociones antes del próximo mes."
+
+Palabras de detección (al menos tres formas por criterio, en español):
+- Rol: "actúa como", "eres un", "eres una", "como analista", "como asistente", "compórtate como".
+- Objetivo: "resumen", "resume", "para la reunión", "qué pasó", "por qué", "qué hacer", "prepara".
+- Formato: "tres puntos", "3 puntos", "viñetas", "lista", "máximo", "palabras", "en puntos".
+- Contexto: "reunión", "director", "trimestre", "ventas", "inventario", "lunes".
+- Restricciones: "no inventes", "no uses", "solo con los datos", "máximo", "no superes".
+
+
+MISIÓN 1.3 · EXPLICAR UN ERROR A OTRO EQUIPO
+--------------------------------------------
+
+Nivel: 1 · Claridad
+Habilidad: dar una audiencia y una estructura claras, sin jerga.
+
+Cliente: Coordinadora de ventas (compañera de otro equipo, sin conocimientos técnicos).
+
+Encargo (texto que ve el jugador):
+"Desde ayer a las 3 p. m. los clientes no pueden pagar con tarjeta en la tienda en línea. En mi equipo nadie entiende qué pasó con el servicio de pagos. Necesito explicarle al equipo de ventas qué pasó, cómo nos afecta y qué esperamos. ¿Me ayudas a redactarlo?"
+
+Criterios obligatorios: rol, audiencia, objetivo, formato.
+Criterios opcionales: contexto, restricciones.
+
+Definición de cada criterio:
+- Rol: le dice a la IA qué papel tiene (por ejemplo, redactor técnico o encargado de comunicación interna).
+- Audiencia: dice para quién es la explicación (el equipo de ventas, sin conocimientos técnicos).
+- Objetivo: dice qué debe lograr el texto (explicar la causa, el impacto y el siguiente paso).
+- Formato: pide una estructura concreta (tres secciones con título: qué pasó, impacto y siguiente paso).
+- Contexto (opcional): menciona la hora, el servicio o el canal afectado.
+- Restricciones (opcional): pide evitar jerga, o explicar cualquier término técnico que aparezca.
+
+Pistas:
+1. ¿Quién va a explicar y a quién le está explicando?
+2. ¿Qué debe entender alguien que no sabe de sistemas? Pide que el texto no use jerga.
+3. ¿Cómo quieres que se organice el texto? Pide secciones con título.
+
+Respuesta de referencia (se desbloquea al aprobar):
+"Qué pasó: desde ayer a las 3 p. m. el sistema que procesa los pagos con tarjeta dejó de responder, por una falla en su conexión con el proveedor.
+Impacto: las compras con tarjeta no se completaron durante ese tiempo. Los pagos en efectivo y por transferencia siguieron funcionando.
+Siguiente paso: el equipo técnico trabaja en restablecer el servicio y en revisar las compras pendientes, para avisar a los clientes afectados."
+
+Palabras de detección (al menos tres formas por criterio, en español):
+- Rol: "actúa como", "eres un", "eres una", "como redactor", "como encargado", "compórtate como".
+- Audiencia: "para el equipo de ventas", "sin conocimientos técnicos", "para personas que no", "para alguien que no", "sin jerga", "para mi equipo".
+- Objetivo: "explicar", "explica", "qué pasó", "impacto", "siguiente paso", "qué esperamos", "redacta".
+- Formato: "tres secciones", "con títulos", "qué pasó", "impacto", "siguiente paso", "en secciones", "encabezados".
+- Contexto: "pagos", "tarjeta", "tienda en línea", "3 p. m.", "ayer", "proveedor".
+- Restricciones: "sin jerga", "evita", "no uses", "explica cualquier término", "lenguaje sencillo".
+
+
+NOTAS PARA REVISIÓN
+-------------------
+
+- Los datos de los encargos (12 %, 3 p. m., proveedor) son ficticios y sirven solo como ejemplo para la práctica.
+- La retroalimentación de cada criterio debe explicar qué falta y dar una pista concreta, en el mismo tono profesional de la misión 1.1.
+- Cuando estas misiones estén en el juego, el jugador completa el nivel 1 solo si aprueba 1.2 y 1.3, y la 1.3 se desbloquea después de la 1.2.

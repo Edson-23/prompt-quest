@@ -5,7 +5,7 @@ export const CONTENT = {
       taskTerminal:'Terminal', desktopComplete:'Encargo completado. Puedes continuar tu trabajo en la agencia.',
       terminalTitle:'terminal', evaluatingLine:'$ evaluando…', terminalTo:'$ para: {client}', terminalBrief:'$ encargo: {brief}',
       notificationLabel:'Correo · 1 nuevo', tapNotification:'toca la notificación', tapMail:'toca el correo del cliente', clientWrote:'Te escribió un encargo', tapProfile:'toca para leer el encargo', mobileChatGuide:'Cuando estés listo, abre la terminal.', clientShortNames:{'menu-semanal':'La Esquina'}, clientInitials:{'menu-semanal':'LE'},
-      clientLabel:'Cliente', resultsLine:'$ resultados', score:'{count} / 6 criterios', historyTitle:'Historial de prompts', retryPrompt:'Volver a intentar', continue:'Continuar', missionLabel:'Misión {number}',
+      clientLabel:'Cliente', resultsLine:'$ resultados', score:'{count} / {total} criterios', historyTitle:'Historial de prompts', retryPrompt:'Volver a intentar', continue:'Continuar', missionLabel:'Misión {number}',
       startPrompt:'Iniciar prompt', chatGuide:'Tu prueba consiste en escribir las instrucciones para la IA. Cuando estés listo, abre la terminal.',
       inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
       mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
@@ -20,15 +20,15 @@ export const CONTENT = {
       waiting:'Esperando tu primer intento. Escribe un prompt y pulsa Ejecutar.', edited:'Has editado el prompt. Ejecútalo para actualizar la retroalimentación.',
       pending:'Aún sin evaluar.', required:'Obligatorio', optional:'Opcional', fulfilled:'Cumplido', undetected:'No detectado', pendingLabel:'Pendiente',
       hint:'Pedir pista', nextHint:'Pedir pista', hintsDone:'Pistas: 3', hintNumber:'Pista {current} de 3',
-      characters:'{count} / 1500', counter:'{count} / 6 criterios detectados', progress:'Reputación · {count} / 3',
+      characters:'{count} / 1500', counter:'{count} / 6 criterios detectados', progress:'Reputación · {count} / {total}',
       empty:'Escribe un prompt antes de ejecutarlo.', tooLong:'Usa un máximo de 1500 caracteres.',
-      success:'✓ Prompt aprobado. Cumples los {requiredCount} criterios obligatorios y {count} de los 6 criterios en total.',
-      retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los 6 criterios. Ajusta tu prompt y vuelve a probar.',
+      success:'✓ Prompt aprobado. Cumples los {requiredCount} criterios obligatorios y {count} de los {total} criterios en total.',
+      retry:'Todavía faltan criterios obligatorios: {missing}. Cumples {count} de los {total} criterios. Ajusta tu prompt y vuelve a probar.',
       referenceTitle:'Respuesta de referencia desbloqueada', weakTitle:'Respuesta simulada de un prompt incompleto',
       referenceNote:'Este es un ejemplo fijo del encargo, no una respuesta generada a partir de tus instrucciones. Compara también los criterios opcionales.', weakNote:'Esta respuesta fija ilustra lo poco útil que puede ser una petición incompleta.',
       portfolioTitle:'Mi portafolio', portfolioEmpty:'Tu portafolio empieza con el primer encargo aprobado.', portfolioNote:'Tus trabajos viven solo en esta sesión. Al recargar se pierden.', yourPrompt:'Tu prompt aprobado', fixedResponse:'Respuesta de referencia', graduationTitle:'Tu primer día, completado', graduationMessage:'Tres clientes atendidos. Ya sabes dar instrucciones con intención. Bienvenido al equipo.', viewGraduation:'Cerrar mi primer día', returnGame:'Volver a los encargos',
       nextMission:'Siguiente misión', nextClient:'Nuevo cliente: {client}',
-      allCompleted:'✓ Completaste las 3 misiones. Has practicado claridad, contexto y formato: asignar un rol, explicar la situación, definir el objetivo, poner límites y guiar la respuesta con un formato y un ejemplo.',
+      allCompleted:'✓ Completaste las {total} misiones. Has practicado claridad, contexto y formato: asignar un rol, explicar la situación, definir el objetivo, poner límites y guiar la respuesta con un formato y un ejemplo.',
       limitations:'Este evaluador reconoce palabras y patrones, no comprende el significado. Puede no reconocer otras expresiones correctas y no juzga la calidad creativa. Los criterios opcionales ayudan a resolver mejor el encargo.',
       footer:'El progreso se guarda solo en memoria y se pierde al recargar o cerrar esta página.',
       pendingMode:'IA con respaldo por reglas', aiMode:'Evaluación con Gemini', cachedMode:'Evaluación con Gemini · Reutilizada',
@@ -36,12 +36,12 @@ export const CONTENT = {
       evaluatingSummary:'Revisando tu prompt. Si la IA no responde, usaremos las reglas del juego.',
       aiLimitations:'La IA puede equivocarse. Revisa la retroalimentación; la respuesta de referencia sigue siendo un ejemplo fijo.',
       privacy:'En la versión web, al ejecutar se envía tu prompt a Gemini. Evita incluir datos personales. Sin conexión o al abrir el archivo local se usan reglas.',
-      liveCounter:'{count} / 6 por reglas',
+      liveCounter:'{count} / {total} por reglas',
       privacyShort:'Al ejecutar, tu prompt se envía a Gemini.',
       scrollHint:'Desplaza esta zona para ver el detalle.',
       helpTitle:'Ayuda y privacidad',
       viewResult:'Ver resultado', lastResult:'Ver último resultado', closeResults:'×', closeToast:'Cerrar',
-      resultCount:'{count} de 6 criterios cumplidos', resultReady:'{count} de 6 criterios cumplidos. Resultado disponible.'
+      resultCount:'{count} de 6 criterios cumplidos', resultReady:'{count} de {total} criterios cumplidos. Resultado disponible.'
     },
     welcome:['Bienvenido al equipo. Aquí resolvemos encargos de clientes que necesitan una respuesta útil.', 'Tu trabajo: escribir instrucciones claras para que la IA ayude a cada cliente.', 'Primero, una prueba sencilla. Si la pasas, te presento al siguiente cliente.'],
     criteria: [
@@ -66,8 +66,229 @@ export const CONTENT = {
       weakResponse:'Aquí tienes algunas ideas de comida: pasta, pizza y ensalada. Puedes elegir lo que más te guste.',
       reference:'Menú semanal · La Esquina\n\nLunes     | Arroz con frijoles y ensalada\nMartes    | Tortilla de patatas con tomate\nMiércoles | Lentejas guisadas con verduras\nJueves    | Pollo con arroz y zanahoria\nViernes   | Ensalada de garbanzos y huevo\nSábado    | Sopa de verduras con patatas\nDomingo   | Tortillas de maíz con frijoles\n\nIngredientes sencillos y económicos. Usa tortillas de maíz y condimentos etiquetados sin gluten; evita la contaminación cruzada durante la preparación.'
     }, {
+  "id": "1.2",
+  "level": 1,
+  "skill": "Claridad",
+  "title": "Resumen para el gerente",
+  "clientTag": "Cliente interno",
+  "client": "Gerente de ventas",
+  "brief": "Tengo el reporte de ventas del trimestre, de 40 páginas. El lunes solo tengo cinco minutos en la reunión con el director. Estos son los datos clave: las ventas bajaron 12 % frente al trimestre anterior, la caída más fuerte fue en abrigos, y el inventario de temporada llegó tarde en octubre. ¿Me ayudas a preparar un resumen para la reunión?",
+  "criterionIds": [
+    "rol",
+    "objetivo",
+    "formato",
+    "contexto",
+    "restricciones"
+  ],
+  "required": [
+    "rol",
+    "objetivo",
+    "formato"
+  ],
+  "optional": [
+    "contexto",
+    "restricciones"
+  ],
+  "hints": [
+    "¿Quién debe escribir el resumen y para quién es?",
+    "¿Qué tres preguntas debe responder el resumen?",
+    "¿Cuántos puntos quieres y cuánto debe medir cada uno?"
+  ],
+  "reference": "• Qué pasó: las ventas bajaron 12 % frente al trimestre anterior, con la mayor caída en abrigos.\n• Por qué: el inventario de temporada llegó tarde en octubre.\n• Qué hacer: adelantar el pedido de temporada y revisar el calendario de promociones antes del próximo mes.",
+  "detectionWords": {
+    "rol": [
+      "actúa como",
+      "eres un",
+      "eres una",
+      "como analista",
+      "como asistente",
+      "compórtate como"
+    ],
+    "objetivo": [
+      "resumen",
+      "resume",
+      "para la reunión",
+      "qué pasó",
+      "por qué",
+      "qué hacer",
+      "prepara"
+    ],
+    "formato": [
+      "tres puntos",
+      "3 puntos",
+      "viñetas",
+      "lista",
+      "máximo",
+      "palabras",
+      "en puntos"
+    ],
+    "contexto": [
+      "reunión",
+      "director",
+      "trimestre",
+      "ventas",
+      "inventario",
+      "lunes"
+    ],
+    "restricciones": [
+      "no inventes",
+      "no uses",
+      "solo con los datos",
+      "máximo",
+      "no superes"
+    ]
+  },
+  "weakResponse": "El reporte contiene información de ventas. Conviene revisarlo antes de la reunión.",
+  "thanks": "Gracias. Ahora puedo presentar los datos con claridad en la reunión.",
+  "completion": "✓ Misión 1.2 completada. Has practicado instrucciones claras.",
+  "rules": {
+    "rol": {
+      "patterns": [],
+      "yes": "Has indicado el papel de quien escribe.",
+      "no": "Asigna un papel concreto a la IA, por ejemplo analista, asistente o redactor técnico."
+    },
+    "objetivo": {
+      "patterns": [],
+      "yes": "Has indicado qué debe producir la IA.",
+      "no": "Pide un resumen para la reunión que responda qué pasó, por qué y qué hacer."
+    },
+    "formato": {
+      "patterns": [],
+      "yes": "Has indicado una estructura para la respuesta.",
+      "no": "Pide tres puntos o viñetas y la longitud de cada punto."
+    },
+    "contexto": {
+      "patterns": [],
+      "yes": "Has incluido datos de la situación del cliente.",
+      "no": "Menciona la reunión con el director o los datos de ventas del trimestre."
+    },
+    "restricciones": {
+      "patterns": [],
+      "yes": "Has puesto límites a la respuesta.",
+      "no": "Pide usar solo los datos del encargo y no inventar cifras."
+    }
+  }
+}, {
+  "id": "1.3",
+  "level": 1,
+  "skill": "Claridad",
+  "title": "Explicar un error a otro equipo",
+  "clientTag": "Equipo de ventas",
+  "client": "Coordinadora de ventas",
+  "brief": "Desde ayer a las 3 p. m. los clientes no pueden pagar con tarjeta en la tienda en línea. En mi equipo nadie entiende qué pasó con el servicio de pagos. Necesito explicarle al equipo de ventas qué pasó, cómo nos afecta y qué esperamos. ¿Me ayudas a redactarlo?",
+  "criterionIds": [
+    "rol",
+    "audiencia",
+    "objetivo",
+    "formato",
+    "contexto",
+    "restricciones"
+  ],
+  "required": [
+    "rol",
+    "audiencia",
+    "objetivo",
+    "formato"
+  ],
+  "optional": [
+    "contexto",
+    "restricciones"
+  ],
+  "hints": [
+    "¿Quién va a explicar y a quién le está explicando?",
+    "¿Qué debe entender alguien que no sabe de sistemas? Pide que el texto no use jerga.",
+    "¿Cómo quieres que se organice el texto? Pide secciones con título."
+  ],
+  "reference": "Qué pasó: desde ayer a las 3 p. m. el sistema que procesa los pagos con tarjeta dejó de responder, por una falla en su conexión con el proveedor.\nImpacto: las compras con tarjeta no se completaron durante ese tiempo. Los pagos en efectivo y por transferencia siguieron funcionando.\nSiguiente paso: el equipo técnico trabaja en restablecer el servicio y en revisar las compras pendientes, para avisar a los clientes afectados.",
+  "detectionWords": {
+    "rol": [
+      "actúa como",
+      "eres un",
+      "eres una",
+      "como redactor",
+      "como encargado",
+      "compórtate como"
+    ],
+    "audiencia": [
+      "para el equipo de ventas",
+      "sin conocimientos técnicos",
+      "para personas que no",
+      "para alguien que no",
+      "sin jerga",
+      "para mi equipo"
+    ],
+    "objetivo": [
+      "explicar",
+      "explica",
+      "qué pasó",
+      "impacto",
+      "siguiente paso",
+      "qué esperamos",
+      "redacta"
+    ],
+    "formato": [
+      "tres secciones",
+      "con títulos",
+      "qué pasó",
+      "impacto",
+      "siguiente paso",
+      "en secciones",
+      "encabezados"
+    ],
+    "contexto": [
+      "pagos",
+      "tarjeta",
+      "tienda en línea",
+      "3 p. m.",
+      "ayer",
+      "proveedor"
+    ],
+    "restricciones": [
+      "sin jerga",
+      "evita",
+      "no uses",
+      "explica cualquier término",
+      "lenguaje sencillo"
+    ]
+  },
+  "weakResponse": "El servicio presentó un problema. El equipo debe revisarlo.",
+  "thanks": "Gracias. Ahora el equipo puede entender el incidente y el siguiente paso.",
+  "completion": "✓ Misión 1.3 completada. Has practicado instrucciones claras.",
+  "rules": {
+    "rol": {
+      "patterns": [],
+      "yes": "Has indicado el papel de quien escribe.",
+      "no": "Asigna un papel concreto a la IA, por ejemplo analista, asistente o redactor técnico."
+    },
+    "audiencia": {
+      "patterns": [],
+      "yes": "Has indicado a quién va dirigida la explicación.",
+      "no": "Indica que escribes para el equipo de ventas, sin conocimientos técnicos."
+    },
+    "objetivo": {
+      "patterns": [],
+      "yes": "Has indicado qué debe producir la IA.",
+      "no": "Pide explicar qué pasó, cómo afecta al equipo y cuál es el siguiente paso."
+    },
+    "formato": {
+      "patterns": [],
+      "yes": "Has indicado una estructura para la respuesta.",
+      "no": "Pide tres secciones con título: qué pasó, impacto y siguiente paso."
+    },
+    "contexto": {
+      "patterns": [],
+      "yes": "Has incluido datos de la situación del cliente.",
+      "no": "Menciona los pagos con tarjeta, la tienda en línea o la hora del incidente."
+    },
+    "restricciones": {
+      "patterns": [],
+      "yes": "Has puesto límites a la respuesta.",
+      "no": "Pide lenguaje sencillo, sin jerga, y explicar cualquier término técnico."
+    }
+  }
+}, {
       thanks:'Gracias por ayudarnos a responder con claridad y sin prometer de más.',
-      id:'correos-tienda', level:2, skill:'Contexto', title:'Correos de una tienda de ropa', clientTag:'Tienda en línea', client:'Tienda de ropa en línea',
+      id:'2.1', legacyId:'correos-tienda', level:2, skill:'Contexto', title:'Correos de una tienda de ropa', clientTag:'Tienda en línea', client:'Tienda de ropa en línea',
       brief:'Somos una tienda de ropa en línea. Llegan muchos correos preguntando por envíos y devoluciones. Necesitamos una respuesta amable, corta y que no prometa nada que no podamos cumplir.',
       required:['rol','contexto','restricciones'],
       completion:'✓ Misión 2 completada. Has explicado el contexto y puesto límites a una respuesta al cliente. Has desbloqueado la misión 3.',
@@ -88,7 +309,7 @@ export const CONTENT = {
       }
     }, {
       thanks:'Ahora tengo una guía para repasar. Gracias por poner orden en mis apuntes.',
-      id:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
+      id:'3.3', legacyId:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
       brief:'Eres estudiante y mañana tienes un examen de historia. Tienes tus apuntes de la Revolución Industrial, muy largos. Necesitas un resumen que te ayude a estudiar.',
       required:['contexto','objetivo','formato','ejemplo'],
       hints:[
@@ -111,3 +332,24 @@ export const CONTENT = {
 };
 
 export const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);
+
+// Criterios propios sin alterar los seis criterios originales de la misión 1.1.
+export const ADDITIONAL_CRITERIA = {
+  audiencia:{ id:'audiencia', label:'Audiencia', patterns:[], yes:'Has indicado para quién escribes.', no:'Indica a quién va dirigida la respuesta.' }
+};
+export const missionNumber = mission => mission.id === 'menu-semanal' ? '1.1' : mission.id;
+export function getMissionCriteria(mission, language = 'es') {
+  const base = CONTENT[language].criteria;
+  const ids = mission.criterionIds || base.map(criterion => criterion.id);
+  return ids.map(id => ({ ...(base.find(criterion => criterion.id === id) || ADDITIONAL_CRITERIA[id]), ...mission.rules?.[id] }));
+}
+for (const mission of CONTENT.es.missions) {
+  if (!mission.detectionWords) continue;
+  for (const [id, words] of Object.entries(mission.detectionWords)) {
+    mission.rules[id].patterns = words.map(word => {
+      const normalized = word.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp('\\b' + escaped + (/\w$/.test(normalized) ? '\\b' : '(?=\\s|$)'));
+    });
+  }
+}

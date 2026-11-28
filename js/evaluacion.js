@@ -1,8 +1,8 @@
-import { CONTENT } from './contenido.js';
+import { CONTENT, getMissionCriteria } from './contenido.js';
 
 export const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
 
-export function evaluatePrompt(prompt, mission = CONTENT.es.missions[0], criteria = CONTENT.es.criteria) {
+export function evaluatePrompt(prompt, mission = CONTENT.es.missions[0], criteria = getMissionCriteria(mission)) {
   const normalized = normalize(prompt);
   const results = criteria.map(criterion => ({ ...criterion, passed:criterion.patterns.some(pattern => pattern.test(normalized)) }));
   return { results, passed:mission.required.every(id => results.find(result => result.id === id).passed) };

@@ -1,4 +1,4 @@
-import { CONTENT, format } from './contenido.js';
+import { CONTENT, format, getMissionCriteria, missionNumber } from './contenido.js';
 import { evaluatePrompt as evaluateRules, createEvaluator } from './evaluacion.js';
 import { recordWork as saveWork } from './portafolio.js';
 
@@ -8,7 +8,7 @@ export function selectMission(game, index) {
     || !state.completed.has(mission.id)) return false;
   state.missionIndex = index;
   game.mission = missions[index];
-  game.criteria = CONTENT[language].criteria.map(criterion => ({ ...criterion, ...game.mission.rules?.[criterion.id] }));
+  game.criteria = getMissionCriteria(game.mission, language);
   state.hints = 0;
   state.revision += 1;
   return true;
@@ -52,13 +52,14 @@ export function createMissionController(game, {
 
   function updateEditor() {
     const count = evaluatePrompt($('prompt').value).results.filter(result => result.passed).length;
-    $('criteria-count').textContent = format(ui.liveCounter, { count });
+    $('criteria-count').textContent = format(ui.liveCounter, { count, total:game.criteria.length });
     $('character-count').textContent = format(ui.characters, { count:$('prompt').value.length });
   }
 
   function renderProgress() {
+    $('progress').max = missions.length;
     $('progress').value = state.completed.size;
-    $('progress-text').textContent = format(ui.progress, { count:state.completed.size });
+    $('progress-text').textContent = format(ui.progress, { count:state.completed.size, total:missions.length });
   }
 
   // Flujo de misión: correo, conversación, escritura y resultado en la terminal.
@@ -198,7 +199,7 @@ export function createMissionController(game, {
       const item = document.createElement('article');
       const score = document.createElement('p');
       score.className = 'tag';
-      score.textContent = format(ui.score, { count:attempt.count });
+      score.textContent = format(ui.score, { count:attempt.count, total:attempt.total || game.criteria.length });
       const prompt = document.createElement('pre');
       prompt.textContent = '> ' + attempt.prompt;
       item.append(score, prompt);
@@ -232,11 +233,11 @@ export function createMissionController(game, {
   function presentResult(count) {
     const { mission } = game;
     const attempts = state.history.get(mission.id) || [];
-    attempts.push({ prompt:$('prompt').value, count });
+    attempts.push({ prompt:$('prompt').value, count, total:game.criteria.length });
     state.history.set(mission.id, attempts);
     $('submitted-prompt').textContent = '> ' + $('prompt').value;
-    $('sheet-score').textContent = format(ui.score, { count });
-    $('result-announcement').textContent = format(ui.resultReady, { count });
+    $('sheet-score').textContent = format(ui.score, { count, total:game.criteria.length });
+    $('result-announcement').textContent = format(ui.resultReady, { count, total:game.criteria.length });
     setMissionScreen('results');
     $('terminal-scroll').scrollTop = 0;
   }
@@ -253,7 +254,7 @@ export function createMissionController(game, {
     state.chatTimer = null;
     state.chatRevealed = false;
     $('client-guide').hidden = true;
-    const values = { ...mission, number:state.missionIndex + 1 };
+    const values = { ...mission, number:missionNumber(mission) };
     for (const name of ['level','missionTitle']) document.querySelector(`[data-copy="${name}"]`).textContent = format(ui[name], values);
     if (state.notificationTimer) clearTimeout(state.notificationTimer);
     state.notificationTimer = null;
@@ -428,7 +429,7 @@ export function createMissionController(game, {
       $('guide-feedback-text').textContent = firstMissing ? ui.mentorTips[firstMissing.id] : '';
       const count = evaluation.results.filter(result => result.passed).length;
       const missing = evaluation.results.filter(result => mission.required.includes(result.id) && !result.passed).map(result => result.label).join(', ');
-      $('result-summary').textContent = format(evaluation.passed ? ui.success : ui.retry, { count, missing, requiredCount:mission.required.length }) + (evaluation.feedback ? ' ' + evaluation.feedback : '');
+      $('result-summary').textContent = format(evaluation.passed ? ui.success : ui.retry, { count, missing, requiredCount:mission.required.length, total:game.criteria.length }) + (evaluation.feedback ? ' ' + evaluation.feedback : '');
       $('response').hidden = false;
       $('response-title').textContent = evaluation.passed ? ui.referenceTitle : ui.weakTitle;
       $('response-note').textContent = evaluation.passed ? ui.referenceNote : ui.weakNote;
@@ -437,7 +438,7 @@ export function createMissionController(game, {
       if (evaluation.passed) state.completed.add(mission.id);
       recordWork(prompt, evaluation);
       $('view-graduation').hidden = !evaluation.passed || state.completed.size !== missions.length;
-      $('completion-text').textContent = state.completed.size === missions.length ? ui.allCompleted : mission.completion;
+      $('completion-text').textContent = state.completed.size === missions.length ? format(ui.allCompleted, { total:missions.length }) : mission.completion;
       $('client-reaction-name').textContent = mission.client;
       $('client-reaction').textContent = mission.thanks;
       $('next-client-preview').textContent = missions[state.missionIndex + 1] ? format(ui.nextClient, { client:missions[state.missionIndex + 1].client }) : '';
