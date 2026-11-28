@@ -1,5 +1,7 @@
 # Verificación de misiones y progresión
 
+> Revisión histórica: documenta una versión anterior y no define el diseño vigente. Consultar [GAME_DESIGN.md](../../GAME_DESIGN.md). Las referencias a hojas de resultados, columnas o imágenes anteriores son evidencia de esa revisión, no requisitos actuales.
+
 Fecha: 2026-11-25.
 
 Antes de editar, las 24 pruebas existentes pasaron. El endpoint publicado de la misión 1 devolvió una evaluación real de Gemini: rol, contexto, objetivo, formato y restricciones aprobados, ejemplo opcional no detectado.

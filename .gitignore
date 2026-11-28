@@ -4,3 +4,6 @@ node_modules/
 .wrangler/
 # Consulta auxiliar local; las tres skills solicitadas sí se versionan.
 .agents/skills/modern-web-guidance/
+
+# Los originales se conservan localmente fuera del repositorio.
+assets/originales/

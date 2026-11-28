@@ -1,4 +1,6 @@
-# Publicar solo el juego y la imagen aprobada.
+# Publicar solo index.html y los tres cuadros optimizados.
+# La lista cerrada excluye tests/, docs/, src/, .agents/, node_modules/,
+# GAME_DESIGN.md, README.md, wrangler.jsonc, package.json y package-lock.json.
 *
 !index.html
 !assets/

@@ -1,0 +1,96 @@
+PROMPT QUEST - FLUJO DE MISIÓN EN LAPTOP
+=========================================
+
+Detalle laptop subordinado a GAME_DESIGN.md, única fuente de verdad del diseño y la mecánica. Consolida el reemplazo de la antigua sección 8 de MISION_FLUJO.txt. La versión de celular aprobada NO cambia.
+
+IMPORTANTE: el orden del flujo es el mismo en celular y en laptop. Primero llega el correo, después el jugador lo abre y lee la solicitud, y al final abre la terminal. NO mostrar todas las ventanas al mismo tiempo. Lo que cambia en laptop es el escenario visual: las pantallas se ven como ventanas sobre un escritorio.
+
+
+1. CUÁNDO SE ACTIVA
+-------------------
+
+- La versión laptop se activa solo con pantallas de 768 px de ancho o más (media query min-width: 768px).
+- Por debajo de 768 px se mantiene exactamente la versión de celular aprobada. No tocar sus estilos ni su comportamiento.
+- Escribir primero los estilos de celular y después los de laptop dentro de la media query, para no afectar el celular.
+
+
+2. ESCENARIO DE ESCRITORIO
+--------------------------
+
+- Fondo general del juego: el mismo color oscuro de la sección 4 de GAME_DESIGN.md (#0d1117), como si fuera el escritorio.
+- Barra inferior tipo sistema operativo, de 28 px de alto, color #161b22, con borde superior #30363d. Contiene:
+  - A la izquierda: un indicador de la misión activa, "Misión 1 · Menú semanal".
+  - A la derecha: el botón "Mi portafolio".
+  - En el centro: un ícono o texto por cada ventana abierta (Correo, Terminal). La ventana activa se resalta con borde verde (#7ee787).
+- Las ventanas tienen barra de título (#161b22), botón de cerrar a la derecha (X, con área de 24 px mínimo) y borde #30363d.
+- Ancho máximo de cada ventana: 60 % del ancho de la pantalla. Alto mínimo: 300 px.
+
+
+3. SECUENCIA (MISMO ORDEN QUE CELULAR)
+--------------------------------------
+
+Paso 1 - Llega el correo:
+- Aparece una notificación en la esquina superior derecha, con la misma información que en celular: "Correo · 1 nuevo", "Restaurante «La Esquina»", "Menú de 7 días sin gluten".
+- No se abre ninguna ventana todavía.
+- Al hacer clic en la notificación, desaparece y se abre la ventana de Correo.
+
+Paso 2 - Se abre el correo:
+- Aparece la ventana "Correo" en el centro, con la lista de correos.
+- El correo del restaurante aparece resaltado con borde azul (#79c0ff).
+- El mensaje de Epson_IA ("Hay un cliente esperando.") aparece de solo lectura debajo.
+- Al hacer clic en el correo del restaurante, se abre la solicitud dentro de la misma ventana. La lista se reemplaza por el encargo (no se abre una ventana nueva).
+
+Paso 3 - Se lee la solicitud:
+- Dentro de la ventana Correo aparece el hilo del restaurante con:
+  - El encargo: "Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día."
+  - El mensaje de Epson_IA en amarillo (#e3b341): "Cuando estés listo, abre la terminal."
+- Botón "Iniciar prompt" en la parte inferior de la ventana.
+- Un botón "← Correo" arriba permite volver a la lista. Área táctil de 24 px mínimo.
+
+Paso 4 - Se abre la terminal:
+- Al hacer clic en "Iniciar prompt", se abre una ventana nueva llamada "terminal", encima de la ventana de Correo.
+- La ventana de Correo NO se cierra. Queda detrás, con opacidad reducida (0.5), y se puede volver a ella desde la barra inferior.
+- La terminal tiene el mismo contenido que en celular: líneas de contexto ("$ para", "$ encargo"), campo de texto con el prompt, contador de caracteres y botón "ejecutar".
+- Al ejecutar, los resultados aparecen dentro de la terminal, igual que en celular: resumen grande, criterios ✓ y ✗, retroalimentación, y los botones "Volver a intentar" y "Pedir pista" al pie de la ventana.
+
+
+4. REGLAS DE LA VENTANA
+-----------------------
+
+- Solo una ventana está activa a la vez. Al hacer clic en otra, pasa al frente.
+- Al cerrar la terminal con la X, se regresa a la ventana de Correo, en el mismo punto donde estaba.
+- Al cerrar la ventana de Correo, se vuelve a la notificación inicial solo si la misión no se ha completado. Si ya se completó, no hay notificación.
+- Las ventanas se pueden arrastrar por la barra de título, pero se mantienen dentro de la pantalla.
+- Animación de aparición de cada ventana: escalado suave de 0.96 a 1 con opacidad, unos 200 ms. Respetar prefers-reduced-motion: sin animación.
+
+
+5. DATOS QUE NO CAMBIAN
+-----------------------
+
+- Misión 1: Restaurante "La Esquina", criterios obligatorios rol, objetivo y formato, según GAME_DESIGN.md.
+- Textos del encargo, la pista y los mensajes de Epson_IA: los mismos de MISION_FLUJO.txt.
+- La lógica de evaluación, la función de Gemini (src/index.js) y el respaldo simulado no cambian.
+- Epson_IA tiene el chaleco con el texto "Epson_IA".
+- No usar localStorage ni sessionStorage.
+
+
+6. VERIFICACIÓN
+---------------
+
+- Probar en 1366 × 768 y 1440 × 900.
+- Confirmar que el orden es: notificación, luego correo, luego encargo, luego terminal. Ninguna ventana debe aparecer antes de su paso.
+- Confirmar que el botón "Iniciar prompt" abre la terminal y que la ventana de Correo queda detrás.
+- Confirmar que en 390 × 844 la versión de celular sigue igual que antes.
+- Sin desbordamiento horizontal ni texto cortado.
+
+
+7. ORDEN DE IMPLEMENTACIÓN
+--------------------------
+
+1. Media query de 768 px y barra inferior del escritorio.
+2. Notificación y ventana de Correo, con el paso de la lista al encargo.
+3. Ventana de terminal encima del correo, con su contenido y resultados.
+4. Cierre de ventanas y regreso a la ventana anterior.
+5. Animaciones opcionales de aparición.
+
+Después de cada paso, hacer commit con un mensaje claro y avisar qué se cambió.

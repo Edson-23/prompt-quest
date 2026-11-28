@@ -1,5 +1,7 @@
 # Revisión de la hoja móvil de Prompt Quest
 
+> Revisión histórica: documenta una versión anterior y no define el diseño vigente. Consultar [GAME_DESIGN.md](../../GAME_DESIGN.md). Las referencias a hojas de resultados, columnas o imágenes anteriores son evidencia de esa revisión, no requisitos actuales.
+
 Fecha: 2026-11-25.
 
 ## Skills y criterio de diseño

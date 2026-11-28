@@ -1,0 +1,194 @@
+PROMPT QUEST - FLUJO DE MISIÓN ESTILO COMPUTADORA
+==================================================
+
+Detalle del flujo de misión subordinado a GAME_DESIGN.md, única fuente de verdad del diseño y la mecánica. La sección 8 remite al detalle laptop actualizado. No se usa la antigua hoja de resultados.
+
+
+1. OBJETIVO
+-----------
+
+Reemplazar la vista actual de misión (cuadros de encargo, editor y resultados en una sola página) por un flujo de cuatro pantallas que simula trabajar en una computadora. La inspiración es Hacknet: el jugador siente que usa herramientas de trabajo, no un formulario.
+
+Flujo completo:
+1. Correo nuevo del cliente.
+2. Conversación con el cliente y botón "Iniciar prompt".
+3. Terminal donde el jugador escribe su prompt.
+4. Resultados dentro de la misma terminal.
+
+El diseño se hace primero para celular (mobile first) y después se adapta a laptop (sección 8).
+
+
+2. PRINCIPIOS
+-------------
+
+- La pantalla se siente como una computadora de trabajo, con barra superior y ventanas.
+- Solo una acción principal por pantalla. Siempre hay un botón claro para avanzar.
+- El jugador nunca ve el editor y los resultados juntos en celular. Primero el encargo, después la terminal.
+- El texto del cliente y de Epson_IA se muestra como mensajes de chat, con el estilo de burbuja de ONBOARDING.txt.
+- Todo el texto va en español y se guarda en un objeto separado, para la traducción posterior.
+- No hay inicio de sesión ni cuentas. No usar localStorage ni sessionStorage.
+
+
+3. PANTALLA 1: NOTIFICACIÓN, BANDEJA Y FICHA DEL CLIENTE
+--------------------------------------------------------
+
+Secuencia de cuatro pasos, en orden. El jugador avanza tocando cada elemento.
+
+Paso 1 - Notificación:
+- Al abrir la misión, baja desde arriba un aviso tipo notificación de celular, en unos 400 ms.
+- Contenido: "Correo · 1 nuevo", "Restaurante «La Esquina»", "Menú de 7 días sin gluten".
+- Pie de la notificación: "toca la notificación" en gris, pequeño.
+- Al tocarla, el aviso se desliza hacia arriba y desaparece.
+
+Paso 2 - Bandeja:
+- Se abre la bandeja del correo, con el título "Correo" y el indicador "1 nuevo" a la derecha.
+- Dos correos en la lista:
+  a) Correo nuevo, resaltado con borde azul (#79c0ff): "Restaurante «La Esquina»" y "Menú de 7 días sin gluten".
+  b) Mensaje de Epson_IA, de solo lectura: "Hay un cliente esperando."
+- Pie: "toca el correo del cliente" en gris.
+
+Paso 3 - Ficha del cliente:
+- Al tocar el correo del cliente, se muestra una ficha con un círculo de iniciales "LE" en borde azul, el nombre "Restaurante «La Esquina»" y el texto "Te escribió un encargo".
+- Barra superior con "← La Esquina" a la izquierda y "Cliente" a la derecha.
+- Pie: "toca para leer el encargo" en gris.
+
+Paso 4 - Encargo:
+- Al tocar la ficha, se muestra el texto que pide el cliente, en una burbuja de mensaje: "Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día."
+- Debajo, un mensaje de Epson_IA en amarillo: "Cuando estés listo, abre la terminal."
+- El único botón de la pantalla es "Iniciar prompt".
+
+Este flujo reemplaza la pantalla de correo que aparecía antes, con dos correos visibles desde el inicio.
+
+4. PANTALLA 2: CONVERSACIÓN CON EL CLIENTE
+------------------------------------------
+
+Objetivo: que el jugador lea el encargo como si fuera una conversación real.
+
+Barra superior: "La Esquina" a la izquierda y "Cliente" a la derecha. Botón de regreso "←" a la pantalla de correo, con área táctil de 44 px.
+
+Mensajes, uno por uno, con el mismo estilo de la bienvenida:
+- Restaurante «La Esquina»: "Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día."
+- Epson_IA: "Cuando estés listo, abre la terminal."
+
+Los mensajes aparecen con un retraso corto entre uno y otro (unos 600 ms). El jugador puede tocar la pantalla para mostrar todos de inmediato.
+
+Botón inferior: "Iniciar prompt". Al tocarlo, se pasa a la pantalla 3.
+
+En esta pantalla NO debe haber botón "Pedir pista". La pista solo aparece dentro de la terminal (sección 6). La barra inferior de esta pantalla tiene un único botón: "Iniciar prompt".
+
+
+5. PANTALLA 3: TERMINAL
+-----------------------
+
+Objetivo: que el jugador escriba su prompt dentro de una terminal.
+
+Barra superior: "terminal" a la izquierda y "Misión 1" a la derecha.
+
+Contenido del área de terminal:
+- Fondo negro (#010409), con borde gris (#30363d).
+- Líneas de contexto en gris, al inicio:
+  "$ para: restaurante La Esquina"
+  "$ encargo: menú de 7 días, sin gluten"
+- Una línea de entrada con el prompt "> " seguido del texto del jugador y un cursor parpadeante verde (#7ee787).
+- Área de texto real, alineada con la línea de entrada, con altura de 5 a 6 líneas. Debe ser un textarea, para que el teclado del celular funcione bien.
+- Contador de caracteres abajo a la derecha: "0 / 1500".
+
+Botón inferior: "ejecutar" (verde #7ee787).
+
+Restricciones:
+- El campo de texto debe tener al menos 16 px de letra, para que el celular no haga zoom al escribir.
+- El botón "ejecutar" debe quedar visible sin scroll en 390 × 844.
+- Mientras la evaluación está en curso, mostrar en la terminal la línea "$ evaluando..." con un indicador simple. No bloquear la pantalla completa.
+
+Animación opcional de encendido: al entrar a la terminal, las líneas de contexto aparecen una por una, con un retraso de 200 ms cada una. Respetar prefers-reduced-motion.
+
+
+6. PANTALLA 4: RESULTADOS EN LA TERMINAL
+----------------------------------------
+
+Objetivo: mostrar la evaluación dentro de la misma terminal, sin cambiar de pantalla.
+
+Después de ejecutar, la terminal muestra debajo del prompt del jugador:
+- Una línea de estado: "$ resultados" en gris.
+- Un resumen grande: "3 / 6 criterios" en amarillo (#e3b341).
+- La lista de criterios, con ✓ en verde (#7ee787) para los cumplidos y ✗ en rojo (#f85149) para los que faltan. Cada criterio es una línea.
+- La retroalimentación de cada criterio que falta, en una línea debajo de su nombre, con el texto actual de la evaluación.
+- Si el jugador cumplió todos los obligatorios: mensaje de Epson_IA con el éxito, y botón "Continuar" que lleva a la misión 2 (cuando exista) o a la pantalla de graduación.
+
+Botones inferiores, en este orden:
+- "Volver a intentar": regresa al campo de texto con el prompt anterior precargado, para que el jugador pueda corregirlo.
+- "Pedir pista": muestra la pista como mensaje de Epson_IA dentro de la terminal.
+
+Restricciones:
+- La terminal tiene scroll interno si el contenido es largo. La página completa no debe hacer scroll en celular.
+- Los resultados nuevos reemplazan a los anteriores, pero el prompt anterior queda en el historial de la terminal para comparar.
+- La lógica de evaluación (criterios obligatorios, evaluación simulada y función de Gemini en src/index.js) no cambia. Solo cambia dónde se muestra el resultado.
+- Si Gemini falla, el resultado usa la evaluación simulada, sin mostrar errores técnicos. Puede aparecer el aviso discreto "evaluación sin IA por hoy", como antes.
+
+
+7. DATOS QUE NO CAMBIAN
+-----------------------
+
+- Misión 1: Restaurante "La Esquina", criterios obligatorios rol, objetivo y formato, según GAME_DESIGN.md.
+- Textos de encargo, pistas y respuestas de referencia: los mismos de GAME_DESIGN.md y ONBOARDING.txt.
+- Epson_IA tiene el chaleco con el texto "Epson_IA" (ver ONBOARDING.txt, sección 11).
+- El botón "Mi portafolio" de la cabecera se mantiene.
+
+
+8. VERSIÓN LAPTOP (768 PX O MÁS)
+--------------------------------
+
+Consultar LAPTOP_FLUJO.txt: notificación, correo, encargo y terminal se abren en orden. Reemplaza la propuesta antigua de ventanas simultáneas en columnas. GAME_DESIGN.md, sección 10, define el comportamiento vigente.
+
+
+9. ORDEN DE IMPLEMENTACIÓN
+--------------------------
+
+1. Pantalla 1 (correo) y navegación entre pantallas, en celular.
+2. Pantalla 2 (conversación) con el botón "Iniciar prompt".
+3. Pantalla 3 (terminal) con el textarea y el botón ejecutar.
+4. Pantalla 4 (resultados dentro de la terminal), usando la evaluación actual.
+5. Versión laptop con ventanas secuenciales (LAPTOP_FLUJO.txt).
+6. Animaciones opcionales (entrada del correo, encendido de la terminal, mensajes uno por uno).
+
+Después de cada paso, hacer commit con un mensaje claro y avisar qué se cambió.
+
+
+10. QUÉ NO HACER
+----------------
+
+- No mostrar el editor y los resultados juntos en celular.
+- No cambiar la lógica de evaluación ni la función de Gemini.
+- No agregar más clientes ni misiones en este cambio. Solo la misión 1.
+- No usar lenguaje técnico en los textos del jugador. Los textos de la terminal son de trabajo, no de código.
+- No agregar inicio de sesión ni cuentas.
+- No usar localStorage ni sessionStorage.
+
+
+11. REGISTRO DE IMPLEMENTACIÓN CONSOLIDADO
+-----------------------------------------
+
+Se fusionaron MISSION_COMPUTER_FLOW.md y MOBILE_NOTIFICATION_FLOW.md. El flujo vigente está descrito arriba; estos datos son evidencia histórica, no instrucciones de diseño. Las comprobaciones de laptop con columnas fueron reemplazadas por el flujo secuencial.
+
+- Los prompts e historial se insertan como textContent. Las misiones 2 y 3 preexistentes se conservaron.
+- El editor mantiene unos 152 px de altura y 16 px de letra. El envío es la única acción deshabilitada durante la evaluación.
+- La comparación original con b2b985a confirmó que normalize, evaluatePrompt, evaluateWithFallback y src/index.js no cambiaron.
+
+## Verificación automatizada
+
+46 pruebas aprobadas: evaluación, API, errores, cuota, animación de Epson_IA, progresión, portafolio y nuevo flujo. Las pruebas de la antigua hoja se sustituyeron por navegación de etapas, foco, conservación y separación del historial, pistas compartidas, resultados durante la consulta del portafolio y revelado inmediato de conversación.
+
+Comparación con b2b985a: normalize, evaluatePrompt, evaluateWithFallback y src/index.js permanecen sin cambios. El servidor real está en src/index.js; functions/api/evaluar.js no existe en esta arquitectura. Solo se modificó la presentación del resultado y la retroalimentación visible, sin cambiar la decisión de aprobación.
+
+
+## Verificación histórica de notificación y ficha
+
+
+50 pruebas aprobadas con node --test tests/*.test.mjs. Se agregaron casos de orden de etapas, foco, doble toque de notificación, movimiento reducido, entrada de laptop y navegación de misiones siguientes.
+
+Comparación con b9bcfe4: el bloque CSS de laptop, normalize, evaluatePrompt, evaluateWithFallback y src/index.js son idénticos. No se agregaron claves ni almacenamiento persistente.
+
+En navegador se recorrió por controles reales la secuencia completa en 360 × 740 y 390 × 844. Se observaron la notificación, bandeja, círculo LE, encargo y terminal. La duración computada de la entrada es 0.4s. Se verificaron cero botones Pedir pista visibles en conversación, el mensaje corto amarillo e Iniciar prompt abriendo el textarea. En 360 × 740, Ejecutar termina en y=721, dentro de pantalla; el documento mide 360 × 740. En 390 × 844, el documento mide 390 × 844.
+
+En 390 × 844 se ejecutó un prompt flojo (1/6) con el respaldo local y se pidió una pista desde la terminal. Los resultados conservaron los botones Volver a intentar y Pedir pista. No hubo desbordamiento horizontal ni scroll de página.
+

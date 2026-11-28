@@ -1,5 +1,7 @@
 # Prompt Quest: documento de diseño (MVP)
 
+Este archivo es la única fuente de verdad del diseño y la mecánica. Los detalles de `docs/specs/` lo complementan sin reemplazarlo; las notas de `docs/review/` son evidencia histórica y no requisitos vigentes.
+
 ## 1. Resumen
 
 Prompt Quest es un juego web para aprender a escribir prompts y a entender cuándo conviene una agent skill. El jugador asume el rol de aprendiz en una agencia que resuelve encargos de clientes usando IA. Cada misión es un cliente con una necesidad real, y el jugador debe escribir un prompt que la resuelva. El juego evalúa el prompt con criterios claros y explica qué faltó y por qué.
@@ -57,7 +59,7 @@ Paleta sugerida (modo oscuro):
 
 ## 6. Evaluación simulada (MVP)
 
-La evaluación no usa IA. Funciona con reglas sencillas:
+El respaldo simulado no usa IA. Se utiliza al abrir el HTML como archivo o si Gemini falla (sección 13). Funciona con reglas sencillas:
 
 - **Detección por palabras clave y patrones.** Por ejemplo, el criterio "Rol" se cumple si el texto contiene frases como "actúa como", "eres un" o "eres una".
 - **Cada misión define sus criterios obligatorios.** La misión del restaurante exige rol, objetivo y formato; contexto, restricciones y ejemplo también se evalúan como mejoras opcionales.
@@ -105,22 +107,25 @@ Para el MVP solo se incluyen los niveles 1 a 3, con una misión por nivel. Al co
 
 ## 10. Pantallas del MVP
 
-La misión se presenta como herramientas de una computadora:
+La misión se presenta como herramientas de una computadora. El orden es secuencial tanto en celular como en laptop; ninguna ventana se abre antes de su paso.
 
-1. Correo nuevo del cliente y acción Abrir encargo.
-2. Conversación con el cliente, pistas de Epson_IA y acción Iniciar prompt.
-3. Terminal con textarea real de seis líneas y botón Ejecutar.
-4. Resultados en la misma terminal, sustituyendo al editor en celular. Volver a intentar recupera el prompt y el historial conserva los intentos previos en memoria.
+**Celular (menos de 768 px):** la misión 1 sigue notificación → bandeja → ficha del cliente «LE» → encargo → terminal. La notificación baja en 400 ms y, al tocarla, sale en 180 ms y abre la bandeja. El correo del restaurante se resalta en azul y la nota de Epson_IA es de solo lectura. La ficha abre el encargo aprobado: «Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día». Epson_IA añade «Cuando estés listo, abre la terminal». El único botón dentro del encargo es «Iniciar prompt». Las misiones 2 y 3 conservan su entrada por bandeja y conversación. Se muestra una etapa a la vez, sin scroll de página; el contenido largo tiene scroll interno.
 
-En móvil se muestra una etapa a la vez. Desde 768 px se muestran correo/conversación a la izquierda y terminal a la derecha. No se usa la antigua hoja inferior ni un panel independiente de resultados. La evaluación y los datos de las misiones no cambian.
+**Laptop (desde 768 px):** escritorio oscuro y barra inferior de 28 px con misión, accesos a las ventanas abiertas y «Mi portafolio». Primero aparece la notificación arriba a la derecha, sin ventanas abiertas. Al tocarla se abre Correo centrado; tocar el restaurante sustituye la lista por el encargo en esa misma ventana. «Iniciar prompt» abre la terminal encima del correo, que permanece detrás con opacidad 0.5. Solo una ventana está activa; los accesos inferiores o el clic en una ventana la traen al frente. La X de la terminal recupera el correo en el mismo punto. Cerrar todas las ventanas devuelve la notificación solo si la misión está pendiente; si ya se completó, permite continuar. Las ventanas tienen ancho máximo de 60 %, alto mínimo de 300 px y cierre de al menos 24 px. Se arrastran por la barra de título sin salir del escritorio; también se pueden mover con flechas del teclado. Aparecen con escala de 0.96 a 1 en 200 ms.
 
-Al completar una misión aparece Continuar; tras la última abre la graduación y el portafolio final.
+**Terminal y resultados:** textarea real de unas seis líneas, texto de al menos 16 px, contador de 1500 caracteres y botón Ejecutar fuera del scroll. Mientras evalúa se muestra «$ evaluando…» sin bloquear toda la pantalla. El resultado sustituye al editor dentro de la misma terminal: prompt enviado, «$ resultados», resumen amarillo, seis criterios con ✓ verde o ✗ rojo y retroalimentación de los faltantes. «Volver a intentar» recupera el texto; el historial conserva los prompts anteriores solo en memoria. «Pedir pista» está disponible únicamente en los resultados, con tres niveles por misión. Ya no se usa la hoja inferior, un panel separado de resultados ni las columnas simultáneas.
+
+Los mensajes del cliente y Epson_IA usan burbujas. El segundo mensaje aparece tras 600 ms y se puede revelar inmediatamente tocando la conversación o pulsando Enter/Espacio. El avance nunca espera la animación. Todas las animaciones respetan `prefers-reduced-motion`. Las acciones móviles tienen al menos 44 px y el área de juego usa 100dvh. No hay desbordamiento horizontal.
+
+Al completar una misión aparece Continuar; tras la última abre la graduación y el portafolio final. La evaluación y los datos de las misiones permanecen según las secciones 6, 7 y 13.
+
+Detalles consolidados: [flujo de misión](docs/specs/MISION_FLUJO.txt) y [ventanas de laptop](docs/specs/LAPTOP_FLUJO.txt).
 
 ## 11. Tecnología
 
 - **Frontend:** un solo archivo `index.html` con HTML, CSS y JavaScript. Sin frameworks ni pasos de compilación.
 - **Backend:** un Worker de módulo ES en `src/index.js`. Su manejador `fetch(request, env)` atiende `POST /api/evaluar` y delega las demás rutas a `env.ASSETS.fetch(request)`.
-- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar solo `index.html` y la imagen del personaje. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npx wrangler@4 deploy`, sin compilación.
+- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar solo `index.html` y los tres cuadros optimizados del personaje. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npm run deploy` (Wrangler 4 como dependencia de desarrollo), sin compilación.
 - **Proveedor de IA:** Google Gemini (Google AI Studio). El nombre exacto de un modelo compatible con `generateContent` y salida JSON debe copiarse desde AI Studio a la variable `GEMINI_MODEL`, porque cambia con el tiempo. Revisar su disponibilidad y cuota gratuita en la cuenta.
 - **Respaldo:** la evaluación simulada por reglas, que corre en el navegador cuando Gemini falla o se agota la cuota.
 - **Secretos:** la clave de Gemini se guarda como variable de entorno en el panel de Cloudflare, con el nombre `GEMINI_API_KEY`. Nunca se escribe en el código ni se sube a GitHub.
@@ -130,16 +135,20 @@ Estructura de archivos del proyecto:
 
 ```
 prompt-quest/
-├── index.html              (juego completo: pantalla, misiones, evaluación simulada)
-├── assets/epson_ia_mapache.png (personaje original de bienvenida)
-├── src/
-│   └── index.js            (Worker: API de evaluación y acceso a ASSETS)
-├── wrangler.jsonc          (entrada del Worker, assets y límite de solicitudes)
-├── .assetsignore           (solo index.html se publica como asset)
+├── index.html              (juego completo, sin compilación)
+├── assets/                 (solo los tres PNG optimizados de Epson_IA)
+├── src/index.js            (Worker: evaluación y acceso a ASSETS)
+├── tests/                  (node:test, sin claves ni llamadas reales)
+├── docs/
+│   ├── specs/              (ONBOARDING.txt, MISION_FLUJO.txt, LAPTOP_FLUJO.txt)
+│   └── review/             (notas históricas de revisión)
+├── package.json            (npm test, npm run dev, npm run deploy)
+├── package-lock.json       (instalación reproducible con npm ci)
+├── wrangler.jsonc
+├── .assetsignore           (solo juego y tres PNG públicos)
 ├── .gitignore
-├── tests/                  (pruebas sin claves ni llamadas reales a Gemini)
 ├── README.md
-└── GAME_DESIGN.md          (este documento)
+└── GAME_DESIGN.md          (única fuente de verdad)
 ```
 
 ## 12. Alcance del MVP
@@ -147,7 +156,7 @@ prompt-quest/
 Estado de la implementación: las tres misiones están disponibles con progresión secuencial en memoria, pistas, evaluación con Gemini y respaldo por reglas. Cada misión se desbloquea al completar la anterior.
 
 Incluye:
-- Una pantalla con tres misiones.
+- Tres misiones con flujo de correo y terminal.
 - Evaluación simulada con seis criterios.
 - Pistas y retroalimentación.
 - Respuestas simuladas de referencia.
@@ -156,7 +165,7 @@ Incluye:
 No incluye:
 - Módulo de agent skills.
 - Cuentas de usuario o guardado permanente.
-- Pixel art u otros estilos.
+- Otros estilos de interfaz; se conserva la terminal con el personaje en pixel art.
 - Más de tres misiones.
 
 ## 13. Evaluación con IA real y respaldo
@@ -211,3 +220,19 @@ Al empezar a construir:
 La entrada sigue portada → bienvenida de Epson_IA → encargos. Epson_IA es el personaje de bienvenida y guía de pistas; cada cliente tiene su propia voz y una reacción al completar su encargo. No se reemplaza el encargo aprobado del restaurante.
 
 Una barra representa la reputación mediante misiones completadas. El portafolio conserva en memoria el último prompt aprobado por misión y su respuesta de referencia fija; los intentos fallidos no lo modifican. Al finalizar las tres misiones hay un cierre de historia y acceso al portafolio final. No se añaden cuentas, almacenamiento persistente ni cambios en la evaluación.
+
+
+## 17. Bienvenida, personaje y documentación de apoyo
+
+Epson_IA es quien da la bienvenida; los clientes son personajes distintos y conservan su voz. Portada y bienvenida preceden al editor. La portada tiene una sola acción y la bienvenida avanza por tres mensajes con Atrás/Siguiente; el último inicia la prueba. No hay cuentas ni sonido automático.
+
+Los tres cuadros de Epson_IA mantienen estilo, encuadre, fondo y chaleco con «Epson_IA»: saludo, mano abajo (reposo) y ojos cerrados (parpadeo). Los PNG web miden 480 × 268 px. Se precargan desde la portada; cada mensaje inicia un saludo de 800 ms, seguido de reposo. El parpadeo dura 150 ms cada 3–5 segundos. Los mensajes avanzan sin esperar la animación. Con movimiento reducido se mantiene el reposo; una imagen fallida también usa reposo, con copia de emergencia incluida en el HTML. Al ocultar la pestaña o terminar la bienvenida se detienen los cambios automáticos. Los originales se conservan solo en la carpeta local `../prompt-quest-originales/`, fuera de Git y del despliegue.
+
+Documentación subordinada, una versión por tema:
+
+- [ONBOARDING.txt](docs/specs/ONBOARDING.txt): presentación, incentivos y registro de imágenes/animación, fusionado con EPSON_ANIMATION.md.
+- [MISION_FLUJO.txt](docs/specs/MISION_FLUJO.txt): recorrido de misión y registro consolidado de MISSION_COMPUTER_FLOW.md y MOBILE_NOTIFICATION_FLOW.md. Su antigua sección 8 se reemplazó por el flujo secuencial laptop descrito en la sección 10 de este documento.
+- [LAPTOP_FLUJO.txt](docs/specs/LAPTOP_FLUJO.txt): detalle de ventanas secuenciales desde 768 px.
+- [Revisión de misiones](docs/review/MISSIONS_REVIEW.md), [revisión móvil](docs/review/MOBILE_REVIEW.md) y [revisión de presentación](docs/review/ONBOARDING_REVIEW.md): evidencia histórica. Sus cantidades de pruebas, hojas de resultados o composiciones anteriores no definen el estado actual.
+
+Los textos exactos actualmente visibles permanecen en `CONTENT.es` dentro de index.html. Esta reorganización no modifica el juego, la evaluación ni el servidor.

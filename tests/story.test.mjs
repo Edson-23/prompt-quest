@@ -30,10 +30,10 @@ test('el portafolio conserva solo trabajos aprobados, sin duplicar ni reemplazar
   assert.equal(setup()('state.portfolio.size'),0);
 });
 
-test('portafolio usa texto literal y la imagen original está íntegra',async()=>{
+test('portafolio usa texto literal y la imagen web está íntegra',async()=>{
   const render=script.slice(script.indexOf('function renderPortfolio'),script.indexOf('function showPortfolio'));
   assert.doesNotMatch(render,/innerHTML|insertAdjacentHTML/);
   assert.match(render,/content.textContent = text/);
-  const installed=await readFile(new URL('../assets/originales/epson_ia_mapache.png',import.meta.url));
-  assert.equal(createHash('sha256').update(installed).digest('hex'), 'ce73e888e524bdcd9084ce19f1c2855a02cdd5eabd6228a14181d73dba532e9b');
+  const installed=await readFile(new URL('../assets/epson_ia_mapache.png',import.meta.url));
+  assert.equal(createHash('sha256').update(installed).digest('hex'), '2e7897fec8c56ef35ca3be3243c10f9cd7889989e08c4ac8e397a706617ffa12');
 });

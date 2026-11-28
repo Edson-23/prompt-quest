@@ -64,7 +64,5 @@ test('los tres cuadros web tienen el mismo tamaño y pesan menos de 300 KB',asyn
   const data=await readFile(new URL(`../assets/${name}.png`,import.meta.url));
   assert.equal(data.readUInt32BE(16),480);assert.equal(data.readUInt32BE(20),268);
   assert.ok(data.length<300000);
-  const original=await readFile(new URL(`../assets/originales/${name}.png`,import.meta.url));
-  assert.ok(original.length>data.length*4);
  }
 });

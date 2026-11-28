@@ -4,6 +4,14 @@ Juego web en español para aprender a escribir prompts mediante encargos de clie
 
 🎮 [Jugar Prompt Quest en línea](https://prompt-quest.edson-rivera.workers.dev/)
 
+## Qué archivo leer
+
+- [GAME_DESIGN.md](GAME_DESIGN.md): única fuente de verdad del diseño, mecánica, misiones y evaluación.
+- [ONBOARDING.txt](docs/specs/ONBOARDING.txt): bienvenida, personaje y animación.
+- [MISION_FLUJO.txt](docs/specs/MISION_FLUJO.txt) y [LAPTOP_FLUJO.txt](docs/specs/LAPTOP_FLUJO.txt): detalles del recorrido móvil y las ventanas de laptop, subordinados al diseño principal.
+- [docs/review/](docs/review/): notas históricas de verificación, no especificaciones vigentes.
+- [wrangler.jsonc](wrangler.jsonc): configuración de despliegue; [src/index.js](src/index.js): servidor; [tests/](tests/): comprobaciones automatizadas.
+
 ## Cómo probarlo
 
 Abre `index.html` en el navegador para jugar con evaluación simulada. No requiere instalación, servidor, conexión a internet ni claves. La evaluación real con Gemini funciona al servir el juego mediante el Worker.
@@ -12,7 +20,7 @@ El progreso dura únicamente mientras la página está abierta.
 
 ## Presentación y portafolio
 
-La portada abre el primer día en la agencia. Epson_IA da la bienvenida en tres mensajes y después aparecen los clientes, cada uno con su propia voz. El editor permanece oculto durante la portada y la bienvenida. Los tres cuadros de Epson_IA están en `assets/`, optimizados a 480 × 268 px. Los originales generados se conservan en `assets/originales/`. El chaleco dice «Epson_IA». La bienvenida precarga los cuadros: saludo de 800 ms al cambiar de mensaje, reposo y parpadeo de 150 ms cada 3–5 segundos. Con movimiento reducido solo se muestra el reposo.
+La portada abre el primer día en la agencia. Epson_IA da la bienvenida en tres mensajes y después aparecen los clientes, cada uno con su propia voz. El editor permanece oculto durante la portada y la bienvenida. Los tres cuadros de Epson_IA están en `assets/`, optimizados a 480 × 268 px. Los originales se conservan localmente en `../prompt-quest-originales/`, fuera del repositorio y del despliegue. El chaleco dice «Epson_IA». La bienvenida precarga los cuadros: saludo de 800 ms al cambiar de mensaje, reposo y parpadeo de 150 ms cada 3–5 segundos. Con movimiento reducido solo se muestra el reposo.
 
 «Mi portafolio» permite revisar el prompt aprobado y la respuesta de referencia de cada encargo, sin salir de la sesión. Los intentos fallidos no reemplazan trabajos aprobados. Tras el tercer encargo, «Cerrar mi primer día» abre la graduación y el portafolio final. Volver a los encargos conserva el progreso. Recargar reinicia también la bienvenida y vacía el portafolio.
 
@@ -48,9 +56,9 @@ La detección por reglas acepta varias expresiones, pero puede dar falsos positi
 
 ## Cloudflare Workers
 
-Requiere Node.js 22 o posterior y Wrangler 4.36 o posterior (los comandos usan Wrangler 4).
+Requiere Node.js 22 o posterior. Instala las dependencias de desarrollo con `npm ci`; el proyecto fija Wrangler 4 mediante package-lock.json.
 
-1. En el proyecto de Workers conectado a GitHub, usa como directorio raíz el del repositorio, sin comando de compilación. El comando de despliegue debe ser `npx wrangler@4 deploy`. Sustituye cualquier comando anterior que suba únicamente assets. El nombre del Worker existente debe coincidir con `name` en `wrangler.jsonc` (`prompt-quest`); si es distinto, ajusta ese campo antes de desplegar.
+1. En el proyecto de Workers conectado a GitHub, usa como directorio raíz el del repositorio, sin comando de compilación. El comando de despliegue debe ser `npm run deploy`. Sustituye cualquier comando anterior que suba únicamente assets. El nombre del Worker existente debe coincidir con `name` en `wrangler.jsonc` (`prompt-quest`); si es distinto, ajusta ese campo antes de desplegar.
 2. Despliega el código del Worker. La configuración declara `main: "src/index.js"`, el directorio de assets `"."`, el binding `ASSETS` y prioridad del servidor para `/api/*`. No requiere mover ni compilar `index.html`.
 3. En **Workers & Pages → prompt-quest → Settings → Variables and Secrets**, agrega `GEMINI_API_KEY` de tipo **Secret** y `GEMINI_MODEL` de tipo texto. Copia de AI Studio el identificador exacto de un modelo con soporte para `generateContent` y salida JSON. Guarda y despliega los cambios.
 4. Alternativa por CLI para la clave: `npx wrangler@4 secret put GEMINI_API_KEY`. El comando pide la clave de forma interactiva; nunca la escribas como argumento ni en archivos del repositorio. La clave no va en `vars` de Wrangler.
@@ -65,7 +73,8 @@ El binding de límite usa `namespace_id: "1001"`; si la cuenta ya utiliza ese id
 Para probar solo las reglas, abre `index.html`. Para probar el servidor, crea manualmente un archivo **ignorado** `.dev.vars` junto a `wrangler.jsonc` con tus valores de `GEMINI_API_KEY` y `GEMINI_MODEL`, y ejecuta:
 
 ```sh
-npx wrangler@4 dev
+npm ci
+npm run dev
 ```
 
 Sin `.dev.vars`, el Worker también permite jugar usando el respaldo. No subas ese archivo. No incluyas datos personales en los prompts: al utilizar la evaluación real se envían a Google. Revisa las condiciones vigentes y la cuota del modelo en tu cuenta antes de habilitarlo para otros jugadores.
@@ -73,8 +82,8 @@ Sin `.dev.vars`, el Worker también permite jugar usando el respaldo. No subas e
 Las pruebas usan respuestas simuladas del proveedor, sin secretos ni consumo de cuota:
 
 ```sh
-node --test tests/*.test.mjs
-npx wrangler@4 deploy --dry-run
+npm test
+npm run deploy -- --dry-run
 ```
 
 Comprueba también la interfaz con Gemini deshabilitado, errores del proveedor y edición mientras se está evaluando. El Worker acepta solo JSON, prompts no vacíos de hasta 1500 caracteres y uno de los tres identificadores de misión conocidos. No confía en el encargo o la lista de obligatorios enviados por el cliente.

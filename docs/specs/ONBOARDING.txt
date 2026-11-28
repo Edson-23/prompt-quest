@@ -1,0 +1,236 @@
+PROMPT QUEST - ESPECIFICACIÓN DE ONBOARDING Y PRESENTACIÓN
+===========================================================
+
+Detalle de presentación subordinado a GAME_DESIGN.md, única fuente de verdad del diseño y la mecánica. Se conserva la especificación recibida con las aclaraciones aprobadas; no autoriza cambios del juego.
+
+
+1. PROBLEMA A RESOLVER
+----------------------
+
+La versión actual se siente como un formulario o una lista de ejercicios. Tiene pocos elementos que hagan sentir al jugador que está entrando a un juego. Falta:
+
+- Una primera impresión que parezca un juego, no una herramienta.
+- Una razón clara para empezar: qué soy en el juego, para qué sirve lo que aprenderé y por qué debo seguir.
+- Un onboarding que enganche en los primeros 30 segundos. El onboarding es lo que decide si el usuario se queda.
+- Incentivos visibles para continuar.
+- Una interfaz con más personalidad, más aire entre bloques y textos con tono de juego.
+
+Objetivo: que una persona nueva entienda en menos de un minuto qué es el juego, por qué le conviene jugarlo y cómo empezar.
+
+
+2. PRINCIPIOS GENERALES
+-----------------------
+
+- El juego se presenta como una historia, no como instrucciones técnicas.
+- No hay inicio de sesión, cuentas ni registro. El jugador entra y juega directamente.
+- Nunca mostrar el editor de prompt en la primera pantalla. Primero se presenta la historia y después la primera tarea.
+- Cada texto debe ser corto. Máximo 2 o 3 líneas por mensaje en celular.
+- Todo el texto va en español y se guarda en un objeto separado al inicio del archivo, para facilitar la traducción al inglés después.
+- Tono: cálido, con humor ligero, sin tecnicismos. Se habla de "clientes", "encargos" y "la agencia", nunca de "parámetros" ni "tokens".
+
+
+3. PANTALLA 1: PORTADA
+----------------------
+
+Objetivo: vender la experiencia en una sola mirada.
+
+Contenido:
+- Una etiqueta pequeña arriba: "AGENCIA DE IA".
+- El nombre del juego en grande: "PROMPT QUEST" (en dos líneas si hace falta).
+- Una frase corta debajo: "Eres el nuevo integrante del equipo. Los clientes esperan. ¿Sabrás darles lo que necesitan?"
+- Un único botón grande: "Empezar mi primer día".
+
+Restricciones:
+- NO incluir botón de "Ya tengo cuenta", "Iniciar sesión", "Registrarse" ni ningún elemento de cuentas.
+- Solo un botón de acción. No mostrar menús adicionales en esta pantalla.
+- El botón va en la parte inferior de la pantalla en celular, con al menos 44 px de alto.
+- Estilo: terminal oscuro de la sección 4 de GAME_DESIGN.md, con el título en verde (#7ee787).
+
+Al tocar "Empezar mi primer día", se pasa a la pantalla 2.
+
+
+4. PANTALLA 2: BIENVENIDA CON PERSONAJE
+---------------------------------------
+
+Objetivo: explicar quién es el jugador y para qué sirve el juego, en forma de conversación.
+
+Personaje: Epson_IA, encargado de dar la bienvenida y guía de pistas. Los clientes de los escenarios son personajes distintos, con voz propia. Aparece como mensajes tipo chat, con su nombre encima de cada mensaje.
+
+Imagen del personaje:
+- Archivo: assets/epson_ia_mapache.png (ya está en el repositorio). Es un mapache en pixel art, saludando, con chaleco azul y lentes de color.
+- Se muestra arriba de la conversación, centrada, con un ancho máximo de 200 px en celular y 240 px en escritorio.
+- No recortar ni recolorear la imagen. Si el fondo de la imagen choca con el estilo terminal, colocarla dentro de un marco con borde verde (#7ee787), no cambiar el fondo.
+- Mientras la imagen carga, mostrar la conversación sin esperar a la imagen.
+- El texto del chaleco debe decir "Epson_IA" (ver sección 11).
+
+Mensajes de Epson_IA: se muestran debajo de la imagen, uno por uno, con el mismo estilo de burbuja de chat de la sección 3.
+
+Animación de Epson_IA (nivel 2: gestos y parpadeo con cuadros):
+- Cuadros necesarios, todos del mismo tamaño, encuadre y fondo:
+  1. epson_ia_mapache.png: saludando con la mano arriba (ya existe). Es el cuadro principal.
+  2. epson_ia_mano_abajo.png: la misma pose, con la mano derecha baja, a un costado. Es el cuadro de reposo.
+  3. epson_ia_ojos_cerrados.png: la misma pose del cuadro 2, con los ojos cerrados. Es el cuadro del parpadeo.
+- Secuencia en reposo: mano abajo, y cada 3 a 5 segundos un parpadeo corto (ojos cerrados durante unos 150 ms).
+- Secuencia al aparecer un mensaje nuevo: saludo (mano arriba) durante unos 800 ms, y después vuelve a mano abajo.
+- Al terminar la bienvenida, el personaje se queda en reposo.
+- Los cambios de cuadro se hacen cambiando la imagen de origen, sin animar píxeles con CSS.
+- Optimizar las imágenes para web antes de usarlas: tamaño máximo de 480 px de ancho, formato WebP o PNG comprimido. La imagen original pesa 1.1 MB y es demasiado para celular.
+- Precargar los tres cuadros al abrir la portada para que no parpadee la imagen.
+- Si las imágenes no cargan, mostrar el cuadro de reposo fijo, sin errores visibles para el jugador.
+- Respetar la preferencia de movimiento reducido del sistema operativo (prefers-reduced-motion): en ese caso, no hay parpadeo ni cambios automáticos, solo el cuadro de reposo.
+- Las animaciones no deben bloquear el avance de los mensajes. El jugador puede tocar "Siguiente" en cualquier momento.
+
+Secuencia de mensajes (se avanza con un toque por mensaje, "Siguiente"):
+
+Mensaje 1 de Epson_IA:
+"Bienvenido al equipo. Aquí no escribimos prompts por escribir. Resolvemos encargos reales de clientes que necesitan una respuesta útil."
+
+Mensaje 2 de Epson_IA:
+"Cada cliente tiene un problema. Tu trabajo es escribir las instrucciones que hagan que la IA lo resuelva bien."
+
+Mensaje 3 de Epson_IA:
+"Empieza con una prueba sencilla. Si la pasas, te dejo tu primer cliente."
+
+Indicador de progreso arriba: "Bienvenida · 1 de 3", con una barra que avanza.
+
+Al terminar el mensaje 3, el botón cambia a "Empezar la prueba" y lleva a la pantalla 3.
+
+Notas:
+- El jugador no escribe nada en esta pantalla.
+- Permitir volver al mensaje anterior con un botón pequeño "Atrás", opcional.
+
+
+5. PANTALLA 3: PRIMERA MISIÓN COMO PRUEBA DE INGRESO
+----------------------------------------------------
+
+Objetivo: que el jugador sienta un logro desde el inicio, aprendiendo haciendo.
+
+La misión se presenta como un chat con el cliente, no como un formulario.
+
+Contenido de la misión (cliente: Restaurante "La Esquina"):
+- Mensaje del cliente: "Necesitamos un menú de 7 días con platos económicos y sin gluten, organizado para consultarlo cada día."
+- El editor se abre después de leer el encargo y tocar "Iniciar prompt", según MISION_FLUJO.txt y LAPTOP_FLUJO.txt.
+- Botón "Ejecutar".
+
+Flujo recomendado:
+1. El jugador escribe un prompt flojo, por ejemplo "Dame un menú de comida".
+2. Epson_IA responde con una pista corta: "Buen intento. Dile a la IA quién debe ser. Así el resultado será más útil."
+3. El jugador mejora su prompt y lo vuelve a ejecutar.
+4. Al pasar los criterios, aparece el mensaje de éxito de Epson_IA y se desbloquea la misión 2.
+
+Notas:
+- Es la misma misión 1 de GAME_DESIGN.md, presentada como chat. La lógica de evaluación no cambia.
+- Las pistas se muestran como mensajes de Epson_IA, con el mismo estilo de la bienvenida.
+- Los resultados sustituyen al editor dentro de la terminal; la antigua hoja de resultados fue reemplazada (GAME_DESIGN.md, sección 10).
+
+
+6. INCENTIVOS PARA CONTINUAR
+----------------------------
+
+Además del avance de misiones, cada logro debe verse en pantalla:
+
+- Reacción del cliente al completar una misión: un mensaje de agradecimiento del cliente y de Epson_IA.
+- Reputación de la agencia: una barra visible que sube con cada misión completada. Es un indicador simple, no un sistema complejo.
+- Nuevo cliente desbloqueado: al completar una misión, aparece el siguiente cliente con su encargo.
+- Portafolio: cada misión completada agrega una pieza al portafolio, con el prompt que escribió el jugador y el resultado. El jugador puede revisar sus trabajos en cualquier momento.
+- Graduación: al completar la última misión, aparece una pantalla de cierre con el portafolio final y un mensaje de Epson_IA que cierra la historia.
+
+Prioridad de implementación: portafolio y graduación primero. La reputación puede ser una barra simple.
+
+
+7. INTERFAZ
+-----------
+
+- Identidad visual coherente con el estilo terminal de la sección 4 de GAME_DESIGN.md.
+- Animaciones suaves al completar una misión y al mostrar mensajes de Epson_IA. Deben ser breves (menos de 400 ms) y no bloquear el juego.
+- Sonidos opcionales, con un botón para silenciarlos. Por defecto, el sonido inicia apagado.
+- Más espacio entre bloques en celular, para que la pantalla no se sienta apretada.
+- Mantener el diseño móvil y de escritorio ya aprobado. En escritorio, la portada y la bienvenida se centran en la pantalla con un ancho máximo de 480 px.
+
+
+8. RESTRICCIONES TÉCNICAS
+-------------------------
+
+- No usar localStorage ni sessionStorage. El progreso vive solo en memoria durante la sesión.
+- No agregar inicio de sesión, cuentas ni registro, ni ahora ni en versiones futuras sin consultarlo primero.
+- No poner ninguna clave en el código.
+- Mantener la función de evaluación con Gemini y el respaldo simulado sin cambios.
+
+
+9. ORDEN DE IMPLEMENTACIÓN
+--------------------------
+
+1. Portada (pantalla 1), con un solo botón.
+2. Bienvenida de Epson_IA (pantalla 2), con los tres mensajes.
+3. Primera misión como chat (pantalla 3), usando la misión 1 existente.
+4. Reacción del cliente, reputación simple y desbloqueo de la misión 2.
+5. Portafolio y pantalla de graduación.
+6. Animaciones y sonidos opcionales.
+
+Después de cada paso, hacer commit con un mensaje claro y avisar qué se cambió.
+
+
+10. QUÉ NO HACER
+----------------
+
+- No mostrar el editor de prompt antes de la bienvenida.
+- No agregar botón de "Ya tengo cuenta", "Iniciar sesión" ni registro.
+- No usar textos largos. Si un mensaje pasa de 3 líneas en celular, dividirlo en dos.
+- No usar lenguaje técnico en los textos del jugador.
+- No agregar más personajes en esta versión. Solo Epson_IA y los clientes de cada misión.
+
+
+11. TEXTO DEL CHALECO
+---------------------
+
+El chaleco de Epson_IA debe decir "Epson_IA" en las tres imágenes (saludo, mano abajo y ojos cerrados). Esto reemplaza el texto anterior "EPSON", para evitar confusión con una marca registrada de otra empresa.
+
+Si la generación de imágenes produce un texto distinto o ilegible en el chaleco, repetir la generación hasta que diga "Epson_IA" y coincida con el resto del personaje.
+
+
+12. REGISTRO DE IMÁGENES Y ANIMACIÓN CONSOLIDADO
+------------------------------------------------
+
+Registro técnico procedente de EPSON_ANIMATION.md. Las verificaciones describen el momento de esa implementación, no la batería actual.
+
+## Imágenes y revisión
+
+Se leyó ONBOARDING.txt del ZIP actualizado, incluidas las secciones 4 y 11. Se aplican las instrucciones del usuario: reposo como respaldo y como cuadro fijo con movimiento reducido.
+
+Herramienta: image_gen integrada, aplicada mediante la skill imagegen. No se instalaron herramientas, librerías ni servicios, ni se usaron claves. Se generó primero el saludo corrigiendo el chaleco; el reposo se editó a partir de ese saludo y el parpadeo a partir del reposo.
+
+Los tres originales se inspeccionaron por separado, comparando contorno, rostro, torso, posición de cabeza y pies, fondo, paleta y texto. «Epson_IA» se lee en los tres cuadros. La mano que estaba alzada en el lado derecho de la imagen se baja en el reposo; el parpadeo conserva esa pose. Se revisaron también las tres versiones finales de 480 px. No se recortó el fondo.
+
+El generador devolvió una diferencia de un píxel de ancho entre originales. Las tres versiones de juego se normalizaron al mismo lienzo de 480 × 268, conservando el encuadre. Los originales generados se conservan sin alterar fuera del repositorio, en ../prompt-quest-originales/.
+
+## Optimización
+
+Se utilizó System.Drawing de Windows para reducir con vecino más cercano, preservando el estilo pixel art; después se recomprimieron los bloques IDAT de PNG con zlib nivel 9, sin pérdida adicional de píxeles. No se requirió instalar software.
+
+| Archivo | Original generado | Peso original | Tamaño web | Peso web |
+| --- | --- | --- | --- | --- |
+| epson_ia_mapache.png | 1679 × 937 | 1 518 772 B | 480 × 268 | 254 019 B |
+| epson_ia_mano_abajo.png | 1678 × 937 | 1 613 364 B | 480 × 268 | 262 550 B |
+| epson_ia_ojos_cerrados.png | 1678 × 937 | 1 662 369 B | 480 × 268 | 274 778 B |
+
+Frente a los 1 099 391 bytes de la imagen anterior, cada cuadro web pesa entre un 75 % y un 77 % menos. El juego referencia exclusivamente las versiones optimizadas. Los originales no se publican como assets.
+
+## Respaldo y ciclo de vida
+
+La pestaña oculta pausa la animación. Si falla el reposo se usa la copia de emergencia de 160 × 89 incluida en el HTML; si tampoco se decodifica, solo se oculta la imagen y los mensajes siguen disponibles.
+
+## Verificación
+
+45 pruebas aprobadas con node --test tests/*.test.mjs. Pruebas nuevas: precarga, tiempos exactos con reloj simulado, avance rápido, salida de bienvenida, reducción de movimiento, cambios de preferencia, errores de cuadro/reposo, carga lenta, pestaña oculta, dimensiones y pesos web; la comparación con originales fue una comprobación histórica local.
+
+En navegador, 390 × 844: saludo al abrir y al cambiar de mensaje; reposo; parpadeos observados de 149 y 154 ms, separados por aproximadamente 3,5 segundos de reposo; dos pulsaciones consecutivas avanzan hasta el tercer mensaje sin esperar. Sin overflow horizontal.
+
+En 1366 × 768: se observó el cambio de saludo a reposo, imagen de 240 px y ancho de documento de 1366 px. Se inspeccionó una captura de bienvenida. Al salir, src queda en epson_ia_mano_abajo.png y se muestra el editor inmediatamente. Sin cambios en composición ni desbordamientos horizontales.
+
+La preferencia de movimiento reducido y los errores se verificaron mediante pruebas automatizadas con dependencias controladas; no se cambió la configuración del sistema del usuario. No se probó en teléfono físico.
+
+## Prompts de generación
+
+1. Editar la imagen actual; mantener fondo, pose, encuadre, identidad, pixel art y contorno cian. Cambiar solo «EPSON» por el texto exacto y sensible a mayúsculas «Epson_IA», con guion bajo visible y tipografía de píxeles cian. Sin otros textos.
+2. Editar el cuadro de saludo generado: bajar únicamente el brazo que aparece a la derecha del espectador, dejando la mano junto a la cadera. Mantener cabeza, ojos abiertos, torso, cola, pies, chaleco, texto «Epson_IA», fondo y encuadre. Reconstruir el fondo donde estaba el brazo elevado.
+3. Editar el cuadro de reposo: cambiar únicamente los dos ojos por líneas de párpados cerrados para un parpadeo suave. Mantener ambos brazos, cara salvo los párpados, contorno, postura, fondo, encuadre y texto exacto «Epson_IA».
