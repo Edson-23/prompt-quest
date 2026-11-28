@@ -55,6 +55,56 @@ MISSIONS["1.3"] = {
 MISSIONS['2.1'] = { ...MISSIONS['correos-tienda'], id:'2.1' };
 MISSIONS['3.3'] = { ...MISSIONS['resumen-examen'], id:'3.3' };
 
+MISSIONS["2.2"] = {
+  "id": "2.2",
+  "encargo": "Una clienta pide devolver un vestido que compró hace 40 días. Nuestra política es de 30 días desde la compra. Pero el sistema de devoluciones muestra 45 días, porque hay un error de configuración que todavía no se corrige. Necesito responderle hoy. ¿Me ayudas a preparar la respuesta y una nota interna para el equipo?",
+  "obligatorios": [
+    "contexto",
+    "restricciones",
+    "objetivo"
+  ],
+  "criterios": [
+    "contexto",
+    "restricciones",
+    "objetivo",
+    "rol",
+    "formato"
+  ],
+  "definiciones": {
+    "contexto": "incluye los datos del caso: la política de 30 días, la compra hace 40 días y el error de 45 días en el sistema.",
+    "restricciones": "pide que la respuesta se base solo en la política, sin inventar excepciones ni plazos.",
+    "objetivo": "dice qué debe producir: una respuesta para la clienta y una nota interna para el equipo.",
+    "rol": "le dice a la IA qué papel tiene, por ejemplo agente de atención al cliente.",
+    "formato": "pide una forma concreta, como dos bloques separados."
+  },
+  "comentarios_contexto": "Cuando falte contexto, indica qué dato concreto del encargo falta; no basta decir que falta contexto."
+};
+MISSIONS["2.3"] = {
+  "id": "2.3",
+  "encargo": "Un usuario reporta que la impresora de su área no aparece en la red desde esta mañana. Otros equipos del mismo piso sí la ven, y la impresora enciende y muestra su pantalla sin errores. Tenemos acceso al router y al servidor de impresión. ¿Qué pasos propones para diagnosticar? No quiero que asumas que el problema está en la impresora.",
+  "obligatorios": [
+    "contexto",
+    "restricciones",
+    "objetivo",
+    "formato"
+  ],
+  "criterios": [
+    "contexto",
+    "restricciones",
+    "objetivo",
+    "formato",
+    "rol"
+  ],
+  "definiciones": {
+    "contexto": "incluye los síntomas (no aparece en la red, otros equipos sí la ven, la pantalla funciona) y los accesos disponibles (router y servidor de impresión).",
+    "restricciones": "pide no asumir la causa, y no proponer cambios de configuración sin verificar antes.",
+    "objetivo": "pide un diagnóstico paso a paso, de lo más simple a lo más complejo.",
+    "formato": "pide una lista numerada de pasos.",
+    "rol": "le dice a la IA qué papel tiene, por ejemplo técnico de soporte de redes."
+  },
+  "comentarios_contexto": "Cuando falte contexto, indica qué dato concreto del encargo falta; no basta decir que falta contexto."
+};
+
 const MAX_BODY_BYTES = 8192;
 const GEMINI_TIMEOUT_MS = 7000;
 

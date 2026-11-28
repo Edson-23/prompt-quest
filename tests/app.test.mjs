@@ -4,7 +4,7 @@ import { startApp } from '../js/app.js';
 import { CONTENT } from '../js/contenido.js';
 import { createDocument } from './helpers/dom.mjs';
 import { prompts } from './helpers/prompts.mjs';
-for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Claridad completo, mapa y portafolio (${desktop ? 'laptop' : 'celular'})`,async()=>{
+for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Claridad y Contexto completos, mapa y portafolio (${desktop ? 'laptop' : 'celular'})`,async()=>{
   const dom = createDocument({ desktop });
   let calls = 0;
   const app = startApp({ ...dom, fetch:async()=>{ calls++; return new Response('',{status:503}); } });
@@ -14,7 +14,7 @@ for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Clari
     assert.equal($('welcome-message').textContent,message); await click('welcome-next');
   }
   assert.equal(dom.document.body.classList.contains('in-game'),true);
-  for (let index=0;index<4;index++) {
+  for (let index=0;index<6;index++) {
     if (desktop || index===0) await click('mail-notification');
     await click('new-mail');
     if (!desktop && index===0) await click('read-client');
@@ -32,7 +32,7 @@ for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Clari
     assert.equal(dom.document.body.dataset.missionScreen,'results');
     await click('open-portfolio'); assert.equal($('portfolio-items').children.length,index+1);
     await click('return-game'); assert.equal(dom.document.body.dataset.missionScreen,'results');
-    if (index<3) {
+    if (index<5) {
       await click('next-mission');
       if (index===2) {
         assert.equal($('level-map-screen').hidden,false);
@@ -41,10 +41,10 @@ for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Clari
     }
   }
   assert.equal($('view-graduation').hidden,true);
-  assert.equal($('next-mission').hidden,true);
+  assert.equal($('next-mission').hidden,false);
   await click('open-portfolio'); await click('open-map');
   assert.equal($('level-map-screen').hidden,false);
-  assert.equal(app.mapa.openMission(4),false);
+  assert.equal(app.mapa.openMission(6),false);
   assert.equal(app.mapa.openMission(8),false);
   await click('map-back'); assert.equal($('portfolio-screen').hidden,false);
   assert.equal(calls,5);

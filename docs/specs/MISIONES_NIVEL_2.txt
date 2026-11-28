@@ -1,0 +1,109 @@
+PROMPT QUEST - CONTENIDO DEL NIVEL 2 (CONTEXTO)
+================================================
+
+Documento para revisión y para Codex. Estas misiones van en js/contenido.js, dentro de CONTENT.es.missions. Público: adultos mayores de 18 años, estudiantes o programadores junior que trabajan con IA. Tono profesional.
+
+Objetivo del nivel: enseñar a dar a la IA la información que necesita sobre tu caso (quién eres, qué pasó, qué datos existen y qué no debe suponer).
+
+Desbloqueo: 2.1 se abre al completar el nivel 1. 2.2 se abre al completar 2.1. 2.3 se abre al completar 2.2. El nivel 3 se abre al completar las tres misiones del nivel 2.
+
+
+MISIÓN 2.1 · RESPUESTA A UN CLIENTE
+----------------------------------
+
+Estado: ya existe en el juego. Se documenta aquí para tenerla junto al resto del nivel. No requiere cambios.
+
+Nivel: 2 · Contexto.
+Cliente: Tienda en línea de ropa.
+Criterios obligatorios: rol, contexto, restricciones.
+Habilidad: explicar la situación del negocio antes de pedir la respuesta.
+
+
+MISIÓN 2.2 · POLÍTICA DE DEVOLUCIONES
+-------------------------------------
+
+Nivel: 2 · Contexto.
+Habilidad: dar datos concretos y pedir que la respuesta se base solo en ellos.
+
+Cliente: Gerente de atención al cliente de una tienda de ropa.
+
+Encargo (texto que ve el jugador):
+"Una clienta pide devolver un vestido que compró hace 40 días. Nuestra política es de 30 días desde la compra. Pero el sistema de devoluciones muestra 45 días, porque hay un error de configuración que todavía no se corrige. Necesito responderle hoy. ¿Me ayudas a preparar la respuesta y una nota interna para el equipo?"
+
+Criterios obligatorios: contexto, restricciones, objetivo.
+Criterios opcionales: rol, formato.
+
+Definición de cada criterio:
+- Contexto: incluye los datos del caso: la política de 30 días, la compra hace 40 días y el error de 45 días en el sistema.
+- Restricciones: pide que la respuesta se base solo en la política, sin inventar excepciones ni plazos.
+- Objetivo: dice qué debe producir: una respuesta para la clienta y una nota interna para el equipo.
+- Rol (opcional): le dice a la IA qué papel tiene, por ejemplo agente de atención al cliente.
+- Formato (opcional): pide una forma concreta, como dos bloques separados.
+
+Pistas (tres niveles, de la más general a la más específica):
+1. ¿Qué información necesita saber la IA para responder bien? Piensa en la política y en la fecha de compra.
+2. ¿Qué no debe suponer? Por ejemplo, excepciones o plazos que no estén en tus datos.
+3. Pide dos resultados por separado: una respuesta para la clienta y una nota interna sobre el error del sistema.
+
+Respuesta de referencia (se desbloquea al aprobar):
+"Respuesta para la clienta:
+Gracias por escribirnos. Nuestra política permite devoluciones hasta 30 días después de la compra. Como tu compra fue hace 40 días, no podemos aceptar la devolución en este caso. Si tienes dudas sobre tu compra, con gusto te ayudamos.
+
+Nota interna:
+El sistema de devoluciones muestra 45 días por un error de configuración. Revisar antes de responder otros casos similares, y mantener la política de 30 días mientras se corrige."
+
+Palabras de detección (al menos tres formas por criterio, en español):
+- Contexto: "política", "30 días", "40 días", "45 días", "compró", "compra", "sistema", "error de configuración".
+- Restricciones: "no inventes", "no supongas", "solo con", "basado en", "sin excepciones", "no uses otros plazos".
+- Objetivo: "responde", "respuesta para", "nota interna", "prepara", "redacta", "necesito responder".
+- Rol: "actúa como", "eres un", "eres una", "como agente", "como encargado de atención".
+- Formato: "dos bloques", "por separado", "respuesta y nota", "en dos partes", "secciones".
+
+
+MISIÓN 2.3 · CASO DE SOPORTE TÉCNICO
+------------------------------------
+
+Nivel: 2 · Contexto.
+Habilidad: dar síntomas, datos disponibles y límites, para que la IA proponga pasos ordenados sin asumir la causa.
+
+Cliente: Jefe de soporte de una oficina con red interna.
+
+Encargo (texto que ve el jugador):
+"Un usuario reporta que la impresora de su área no aparece en la red desde esta mañana. Otros equipos del mismo piso sí la ven, y la impresora enciende y muestra su pantalla sin errores. Tenemos acceso al router y al servidor de impresión. ¿Qué pasos propones para diagnosticar? No quiero que asumas que el problema está en la impresora."
+
+Criterios obligatorios: contexto, restricciones, objetivo, formato.
+Criterios opcionales: rol.
+
+Definición de cada criterio:
+- Contexto: incluye los síntomas (no aparece en la red, otros equipos sí la ven, la pantalla funciona) y los accesos disponibles (router y servidor de impresión).
+- Restricciones: pide no asumir la causa, y no proponer cambios de configuración sin verificar antes.
+- Objetivo: pide un diagnóstico paso a paso, de lo más simple a lo más complejo.
+- Formato: pide una lista numerada de pasos.
+- Rol (opcional): le dice a la IA qué papel tiene, por ejemplo técnico de soporte de redes.
+
+Pistas:
+1. ¿Qué síntomas y qué datos disponibles tiene la IA? Incluye lo que sí funciona, no solo lo que falla.
+2. ¿Qué no debe asumir? Por ejemplo, que la impresora está dañada o que hay que reiniciar el router sin verificar.
+3. Pide una lista numerada, ordenada de lo más simple a lo más complejo.
+
+Respuesta de referencia (se desbloquea al aprobar):
+"1. Desde el equipo afectado, prueba si responde la IP de la impresora. Repite la prueba desde otro equipo que sí la ve. Si solo falla en el primero, el problema está en ese equipo.
+2. Revisa en el servidor DHCP si la impresora tiene una IP reservada, y si esa IP cambió desde esta mañana.
+3. Compara el segmento de red del equipo afectado con el de la impresora, para confirmar que están en la misma red o con ruta entre ellas.
+4. Revisa los registros del servidor de impresión para ver si la impresora se desconectó o cambió de dirección.
+5. Solo si todo lo anterior falla, planea reiniciar el router, avisando antes a los usuarios afectados."
+
+Palabras de detección (al menos tres formas por criterio, en español):
+- Contexto: "no aparece", "no la ven", "otros equipos", "desde esta mañana", "la pantalla", "router", "servidor de impresión".
+- Restricciones: "no asumas", "no supongas", "sin verificar", "no reinicies", "antes de cambiar", "no des por hecho".
+- Objetivo: "diagnosticar", "diagnóstico", "pasos", "qué revisar", "cómo verificar", "qué hacer".
+- Formato: "lista numerada", "numerada", "paso a paso", "en pasos", "1.", "ordenados".
+- Rol: "actúa como", "eres un técnico", "eres una técnica", "como soporte de redes", "como administrador".
+
+
+NOTAS PARA REVISIÓN
+-------------------
+
+- Los datos de los encargos (40 días, 45 días, la IP y el router) son ficticios y sirven para practicar el contexto.
+- Como el nivel 2 usa más datos, la retroalimentación debe mencionar qué dato falta, no solo que falta "contexto". Ejemplo: "Falta mencionar que la compra fue hace 40 días".
+- Las pistas no deben dar la respuesta completa. Si una pista dice "menciona la política de 30 días", ya no es una pista, es la respuesta. Ajusta la tercera pista si queda demasiado directa.

@@ -313,7 +313,283 @@ export const CONTENT = {
         restricciones:{ patterns:[/\b(?:maximo|hasta|menos de|no mas de)\b[\s\S]{0,25}\bpalabras\b/, /\b(?:no|sin)\s+(?:inventar|inventes|prometer|prometas)\b/, /\bevitar?\b[\s\S]{0,30}\b(?:promesas|plazos|inventar)\b/, /\b(?:breve|cort[oa]|amable)\b/], yes:'Has puesto límites de tono, longitud o promesas. Incluye también que no invente plazos ni condiciones.', no:'Pon límites: «Máximo 80 palabras, tono amable y sin prometer plazos ni devoluciones no confirmados».' },
         ejemplo:{ no:'Puedes orientar el tono con una muestra: «Por ejemplo: Gracias por escribirnos; revisaremos tu pedido».' }
       }
-    }, {id:'2.2',level:2,skill:'Contexto',title:'Próximamente',available:false}, {id:'2.3',level:2,skill:'Contexto',title:'Próximamente',available:false}, {id:'3.1',level:3,skill:'Formato',title:'Próximamente',available:false}, {id:'3.2',level:3,skill:'Formato',title:'Próximamente',available:false}, {
+    }, {
+  "id": "2.2",
+  "level": 2,
+  "skill": "Contexto",
+  "title": "Política de devoluciones",
+  "clientTag": "Cliente interno",
+  "client": "Gerente de atención al cliente de una tienda de ropa",
+  "brief": "Una clienta pide devolver un vestido que compró hace 40 días. Nuestra política es de 30 días desde la compra. Pero el sistema de devoluciones muestra 45 días, porque hay un error de configuración que todavía no se corrige. Necesito responderle hoy. ¿Me ayudas a preparar la respuesta y una nota interna para el equipo?",
+  "criterionIds": [
+    "contexto",
+    "restricciones",
+    "objetivo",
+    "rol",
+    "formato"
+  ],
+  "required": [
+    "contexto",
+    "restricciones",
+    "objetivo"
+  ],
+  "optional": [
+    "rol",
+    "formato"
+  ],
+  "definitions": {
+    "contexto": "incluye los datos del caso: la política de 30 días, la compra hace 40 días y el error de 45 días en el sistema.",
+    "restricciones": "pide que la respuesta se base solo en la política, sin inventar excepciones ni plazos.",
+    "objetivo": "dice qué debe producir: una respuesta para la clienta y una nota interna para el equipo.",
+    "rol": "le dice a la IA qué papel tiene, por ejemplo agente de atención al cliente.",
+    "formato": "pide una forma concreta, como dos bloques separados."
+  },
+  "hints": [
+    "¿Qué información necesita saber la IA para responder bien? Piensa en la política y en la fecha de compra.",
+    "¿Qué no debe suponer? Por ejemplo, excepciones o plazos que no estén en tus datos.",
+    "Pide dos resultados por separado: una respuesta para la clienta y una nota interna sobre el error del sistema."
+  ],
+  "reference": "Respuesta para la clienta:\nGracias por escribirnos. Nuestra política permite devoluciones hasta 30 días después de la compra. Como tu compra fue hace 40 días, no podemos aceptar la devolución en este caso. Si tienes dudas sobre tu compra, con gusto te ayudamos.\n\nNota interna:\nEl sistema de devoluciones muestra 45 días por un error de configuración. Revisar antes de responder otros casos similares, y mantener la política de 30 días mientras se corrige.",
+  "detectionWords": {
+    "contexto": [
+      "política",
+      "30 días",
+      "40 días",
+      "45 días",
+      "compró",
+      "compra",
+      "sistema",
+      "error de configuración"
+    ],
+    "restricciones": [
+      "no inventes",
+      "no supongas",
+      "solo con",
+      "basado en",
+      "sin excepciones",
+      "no uses otros plazos"
+    ],
+    "objetivo": [
+      "responde",
+      "respuesta para",
+      "nota interna",
+      "prepara",
+      "redacta",
+      "necesito responder"
+    ],
+    "rol": [
+      "actúa como",
+      "eres un",
+      "eres una",
+      "como agente",
+      "como encargado de atención"
+    ],
+    "formato": [
+      "dos bloques",
+      "por separado",
+      "respuesta y nota",
+      "en dos partes",
+      "secciones"
+    ]
+  },
+  "weakResponse": "Podemos aceptar la devolución y ampliar el plazo si hace falta.",
+  "thanks": "Gracias. Ya puedo responder con los datos del caso y avisar al equipo.",
+  "completion": "✓ Misión 2.2 completada. Has practicado el contexto.",
+  "rules": {
+    "contexto": {
+      "patterns": [],
+      "yes": "Has incluido los datos concretos del caso.",
+      "no": "incluye los datos del caso: la política de 30 días, la compra hace 40 días y el error de 45 días en el sistema.",
+      "details": [
+        {
+          "patterns": [
+            "\\b(?:30|treinta) dias\\b"
+          ],
+          "missing": "Falta mencionar la política de 30 días."
+        },
+        {
+          "patterns": [
+            "\\b(?:40|cuarenta) dias\\b"
+          ],
+          "missing": "Falta mencionar que la compra fue hace 40 días."
+        },
+        {
+          "patterns": [
+            "\\b(?:45|cuarenta y cinco) dias\\b"
+          ],
+          "missing": "Falta mencionar que el sistema muestra 45 días."
+        },
+        {
+          "patterns": [
+            "\\b(?:error|fallo|problema|equivocacion|incorrect[oa]|mal configurad[oa])\\b"
+          ],
+          "missing": "Falta mencionar el error de configuración del sistema."
+        }
+      ]
+    },
+    "restricciones": {
+      "patterns": [],
+      "yes": "Has indicado qué no debe suponer la IA.",
+      "no": "pide que la respuesta se base solo en la política, sin inventar excepciones ni plazos."
+    },
+    "objetivo": {
+      "patterns": [],
+      "yes": "Has pedido el resultado que necesita el cliente.",
+      "no": "dice qué debe producir: una respuesta para la clienta y una nota interna para el equipo."
+    },
+    "rol": {
+      "patterns": [],
+      "yes": "Has indicado una especialidad para la IA.",
+      "no": "le dice a la IA qué papel tiene, por ejemplo agente de atención al cliente."
+    },
+    "formato": {
+      "patterns": [],
+      "yes": "Has indicado cómo organizar la respuesta.",
+      "no": "pide una forma concreta, como dos bloques separados."
+    }
+  }
+}, {
+  "id": "2.3",
+  "level": 2,
+  "skill": "Contexto",
+  "title": "Caso de soporte técnico",
+  "clientTag": "Cliente interno",
+  "client": "Jefe de soporte de una oficina con red interna",
+  "brief": "Un usuario reporta que la impresora de su área no aparece en la red desde esta mañana. Otros equipos del mismo piso sí la ven, y la impresora enciende y muestra su pantalla sin errores. Tenemos acceso al router y al servidor de impresión. ¿Qué pasos propones para diagnosticar? No quiero que asumas que el problema está en la impresora.",
+  "criterionIds": [
+    "contexto",
+    "restricciones",
+    "objetivo",
+    "formato",
+    "rol"
+  ],
+  "required": [
+    "contexto",
+    "restricciones",
+    "objetivo",
+    "formato"
+  ],
+  "optional": [
+    "rol"
+  ],
+  "definitions": {
+    "contexto": "incluye los síntomas (no aparece en la red, otros equipos sí la ven, la pantalla funciona) y los accesos disponibles (router y servidor de impresión).",
+    "restricciones": "pide no asumir la causa, y no proponer cambios de configuración sin verificar antes.",
+    "objetivo": "pide un diagnóstico paso a paso, de lo más simple a lo más complejo.",
+    "formato": "pide una lista numerada de pasos.",
+    "rol": "le dice a la IA qué papel tiene, por ejemplo técnico de soporte de redes."
+  },
+  "hints": [
+    "¿Qué síntomas y qué datos disponibles tiene la IA? Incluye lo que sí funciona, no solo lo que falla.",
+    "¿Qué no debe asumir? Por ejemplo, que la impresora está dañada o que hay que reiniciar el router sin verificar.",
+    "Pide una lista numerada, ordenada de lo más simple a lo más complejo."
+  ],
+  "reference": "1. Desde el equipo afectado, prueba si responde la IP de la impresora. Repite la prueba desde otro equipo que sí la ve. Si solo falla en el primero, el problema está en ese equipo.\n2. Revisa en el servidor DHCP si la impresora tiene una IP reservada, y si esa IP cambió desde esta mañana.\n3. Compara el segmento de red del equipo afectado con el de la impresora, para confirmar que están en la misma red o con ruta entre ellas.\n4. Revisa los registros del servidor de impresión para ver si la impresora se desconectó o cambió de dirección.\n5. Solo si todo lo anterior falla, planea reiniciar el router, avisando antes a los usuarios afectados.",
+  "detectionWords": {
+    "contexto": [
+      "no aparece",
+      "no la ven",
+      "otros equipos",
+      "desde esta mañana",
+      "la pantalla",
+      "router",
+      "servidor de impresión"
+    ],
+    "restricciones": [
+      "no asumas",
+      "no supongas",
+      "sin verificar",
+      "no reinicies",
+      "antes de cambiar",
+      "no des por hecho"
+    ],
+    "objetivo": [
+      "diagnosticar",
+      "diagnóstico",
+      "pasos",
+      "qué revisar",
+      "cómo verificar",
+      "qué hacer"
+    ],
+    "formato": [
+      "lista numerada",
+      "numerada",
+      "paso a paso",
+      "en pasos",
+      "1.",
+      "ordenados"
+    ],
+    "rol": [
+      "actúa como",
+      "eres un técnico",
+      "eres una técnica",
+      "como soporte de redes",
+      "como administrador"
+    ]
+  },
+  "weakResponse": "Reinicia el router y cambia la configuración de la impresora.",
+  "thanks": "Gracias. Ahora tenemos un orden para diagnosticar sin asumir la causa.",
+  "completion": "✓ Misión 2.3 completada. Has practicado el contexto.",
+  "rules": {
+    "contexto": {
+      "patterns": [],
+      "yes": "Has incluido los datos concretos del caso.",
+      "no": "incluye los síntomas (no aparece en la red, otros equipos sí la ven, la pantalla funciona) y los accesos disponibles (router y servidor de impresión).",
+      "details": [
+        {
+          "patterns": [
+            "\\b(?:no aparece|no la ven|no (?:la )?(?:ve|detecta|encuentra)|no (?:puede|puedo) (?:ver|encontrar|detectar))\\b"
+          ],
+          "missing": "Falta mencionar que el equipo afectado no ve la impresora en la red."
+        },
+        {
+          "patterns": [
+            "\\b(?:otros equipos|otras computadoras|otros ordenadores|resto de (?:equipos|computadoras))\\b[\\s\\S]{0,90}\\b(?:si|ven|detectan|encuentran)\\b"
+          ],
+          "missing": "Falta mencionar que otros equipos sí ven la impresora."
+        },
+        {
+          "patterns": [
+            "\\b(?:pantalla|enciende|encendida|sin errores)\\b"
+          ],
+          "missing": "Falta mencionar que la impresora enciende y su pantalla no muestra errores."
+        },
+        {
+          "patterns": [
+            "\\b(?:router|enrutador|ruteador)\\b"
+          ],
+          "missing": "Falta mencionar el acceso al router."
+        },
+        {
+          "patterns": [
+            "\\b(?:servidor de impresion|servidor de impresora|servidor que gestiona la impresion)\\b"
+          ],
+          "missing": "Falta mencionar el acceso al servidor de impresión."
+        }
+      ]
+    },
+    "restricciones": {
+      "patterns": [],
+      "yes": "Has indicado qué no debe suponer la IA.",
+      "no": "pide no asumir la causa, y no proponer cambios de configuración sin verificar antes."
+    },
+    "objetivo": {
+      "patterns": [],
+      "yes": "Has pedido el resultado que necesita el cliente.",
+      "no": "pide un diagnóstico paso a paso, de lo más simple a lo más complejo."
+    },
+    "formato": {
+      "patterns": [],
+      "yes": "Has indicado cómo organizar la respuesta.",
+      "no": "pide una lista numerada de pasos."
+    },
+    "rol": {
+      "patterns": [],
+      "yes": "Has indicado una especialidad para la IA.",
+      "no": "le dice a la IA qué papel tiene, por ejemplo técnico de soporte de redes."
+    }
+  }
+}, {id:'3.1',level:3,skill:'Formato',title:'Próximamente',available:false}, {id:'3.2',level:3,skill:'Formato',title:'Próximamente',available:false}, {
       thanks:'Ahora tengo una guía para repasar. Gracias por poner orden en mis apuntes.',
       id:'3.3', legacyId:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
       brief:'Eres estudiante y mañana tienes un examen de historia. Tienes tus apuntes de la Revolución Industrial, muy largos. Necesitas un resumen que te ayude a estudiar.',
@@ -357,5 +633,11 @@ for (const mission of CONTENT.es.missions) {
       const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return new RegExp('\\b' + escaped + (/\w$/.test(normalized) ? '\\b' : '(?=\\s|$)'));
     });
+  }
+}
+
+for (const mission of CONTENT.es.missions) {
+  for (const rule of Object.values(mission.rules || {})) {
+    for (const detail of rule.details || []) detail.patterns = detail.patterns.map(pattern => new RegExp(pattern));
   }
 }

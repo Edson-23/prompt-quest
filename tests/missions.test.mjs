@@ -7,7 +7,7 @@ import { prompts as good } from './helpers/prompts.mjs';
 import { createTestSession } from './helpers/session.mjs';
 const missionCases = CONTENT.es.missions.filter(m => m.available !== false);
 const missionIds = missionCases.map(m => m.id);
-const weak = ['Dame comida.','Ayúdame.','Hola.','Ayúdame.','Dime algo.'];
+const weak = ['Dame comida.','Ayúdame.','Hola.','Ayúdame.','Hola.','Arregla esto.','Dime algo.'];
 const required = missionCases.map(m => m.required);
 function setup(index = 0, { protocol = 'file:', fetch = () => { throw Error('Sin conexión'); } } = {}) {
   const { run, game } = createTestSession({ protocol, fetch });
@@ -61,7 +61,7 @@ test('cada criterio reconoce al menos tres expresiones españolas en cada misió
     [ ['Actúa como profesor','Eres una tutora','Asume el papel de historiador'], ['Revolución Industrial','Examen de historia','Apuntes de historia'], ['Haz un resumen','Resume mis apuntes','Sintetiza el texto'], ['Viñetas','Tabla','Esquema'], ['Máximo 200 palabras','Sin añadir datos','Solo mis apuntes'], ['Por ejemplo: causas, carbón','Ejemplo: tecnología, vapor','Como muestra: cambios, fábricas'] ],
   ];
   variants.forEach((groups,index) => {
-    const actualIndex = [0,3,4][index];
+    const actualIndex = [0,3,6][index];
     const ids = getMissionCriteria(missionCases[actualIndex]).map(c=>c.id);
     const { run } = setup(actualIndex);
     groups.forEach((phrases,criterion) => phrases.forEach(phrase => {
@@ -110,13 +110,13 @@ test('Worker usa el encargo de confianza de cada misión y mantiene el contrato 
   }
 });
 
-test('las palabras de detección de 1.2 y 1.3 reconocen al menos tres expresiones por criterio',()=>{
- for(const index of [1,2]) {
+test('las palabras de detección de 1.2, 1.3, 2.2 y 2.3 reconocen al menos tres expresiones por criterio',()=>{
+ for(const index of [1,2,4,5]) {
   const { run }=setup(index);
   const mission=missionCases[index];
   for(const [id,words] of Object.entries(mission.detectionWords)) {
    assert.ok(words.length>=3,id);
-   for(const phrase of words) assert.equal(run(`evaluatePrompt(${JSON.stringify(phrase)}).results.find(c=>c.id===${JSON.stringify(id)}).passed`),true,`${mission.id}: ${id}: ${phrase}`);
+   for(const phrase of words) assert.equal(getMissionCriteria(mission).find(c=>c.id===id).patterns.some(pattern=>pattern.test(phrase.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())),true,`${mission.id}: ${id}: ${phrase}`);
   }
  }
 });

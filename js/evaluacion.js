@@ -4,7 +4,11 @@ export const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/
 
 export function evaluatePrompt(prompt, mission = CONTENT.es.missions[0], criteria = getMissionCriteria(mission)) {
   const normalized = normalize(prompt);
-  const results = criteria.map(criterion => ({ ...criterion, passed:criterion.patterns.some(pattern => pattern.test(normalized)) }));
+  const results = criteria.map(criterion => {
+    const missing = criterion.details?.filter(detail => !detail.patterns.some(pattern => pattern.test(normalized)));
+    const passed = missing ? missing.length === 0 : criterion.patterns.some(pattern => pattern.test(normalized));
+    return { ...criterion, passed, ...(missing?.length ? { feedback:missing.map(detail => detail.missing).join(' ') } : {}) };
+  });
   return { results, passed:mission.required.every(id => results.find(result => result.id === id).passed) };
 }
 

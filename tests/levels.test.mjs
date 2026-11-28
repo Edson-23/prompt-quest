@@ -8,7 +8,7 @@ test('el mapa contiene tres niveles de tres misiones con identificadores estable
  const game=createGame();
  assert.equal(game.levels.length,3);
  assert.deepEqual(game.levels.flatMap(level=>level.missionIds).map(id=>missionNumber(game.missions.find(m=>m.id===id))),['1.1','1.2','1.3','2.1','2.2','2.3','3.1','3.2','3.3']);
- for(const id of ['2.2','2.3','3.1','3.2']) {
+ for(const id of ['3.1','3.2']) {
   const mission=game.missions.find(m=>m.id===id); assert.equal(mission.available,false); assert.equal(mission.brief,undefined);
  }
 });
