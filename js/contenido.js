@@ -2,13 +2,14 @@
 export const CONTENT = {
   es: {
     ui: {
+      mapTitle:'Mapa de niveles', mapIntro:'Completa las misiones en orden para desbloquear el siguiente nivel.', mapBack:'Volver', mapLevel:'Nivel {level} · {title}', mapProgress:'{count} / 3 completadas', mapLocked:'Bloqueado', mapAvailable:'Disponible', mapCompleted:'Completada', mapSoon:'Contenido por preparar.', mapPrevious:'Completa la misión anterior.', mapPreviousLevel:'Completa el nivel anterior.', levelCompleted:'✓ Nivel {level} · {skill} completado. El siguiente nivel está disponible en el mapa.', missionCompleted:'✓ Misión {number} completada.',
       taskTerminal:'Terminal', desktopComplete:'Encargo completado. Puedes continuar tu trabajo en la agencia.',
       terminalTitle:'terminal', evaluatingLine:'$ evaluando…', terminalTo:'$ para: {client}', terminalBrief:'$ encargo: {brief}',
       notificationLabel:'Correo · 1 nuevo', tapNotification:'toca la notificación', tapMail:'toca el correo del cliente', clientWrote:'Te escribió un encargo', tapProfile:'toca para leer el encargo', mobileChatGuide:'Cuando estés listo, abre la terminal.', clientShortNames:{'menu-semanal':'La Esquina'}, clientInitials:{'menu-semanal':'LE'},
       clientLabel:'Cliente', resultsLine:'$ resultados', score:'{count} / {total} criterios', historyTitle:'Historial de prompts', retryPrompt:'Volver a intentar', continue:'Continuar', missionLabel:'Misión {number}',
       startPrompt:'Iniciar prompt', chatGuide:'Tu prueba consiste en escribir las instrucciones para la IA. Cuando estés listo, abre la terminal.',
       inbox:'Correo', unread:'1 nuevo', openMail:'Abrir encargo', mailGuide:'Hay un cliente esperando.',
-      mentorTips:{rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
+      mentorTips:{audiencia:'Indica para quién escribes y qué conocimientos tiene ese equipo.',rol:'Buen intento. Dile a la IA quién debe ser para ayudarte.', contexto:'Cuéntale a la IA quién es el cliente y qué necesita.', objetivo:'Dile qué debe crear. Cuanto más claro, mejor.', formato:'Pide cómo quieres la respuesta: una tabla, una lista o viñetas.', restricciones:'Marca los límites: qué debe evitar o cuánto puede escribir.', ejemplo:'Añade una muestra de cómo quieres que se vea la respuesta.'},
       welcomeTitle:'Tu primer día', back:'Atrás', next:'Siguiente', startTrial:'Empezar la prueba', welcomeProgress:'Bienvenida · {current} de 3',
       agencyLabel:'AGENCIA DE IA', coverPitch:'Tu primer día en una agencia de IA. Tres clientes. ¿Les darás lo que necesitan?', startDay:'Empezar mi primer día',
       skip:'Ir al área de trabajo', tagline:'Aprende a conversar con la IA, un encargo a la vez.',
@@ -43,6 +44,11 @@ export const CONTENT = {
       viewResult:'Ver resultado', lastResult:'Ver último resultado', closeResults:'×', closeToast:'Cerrar',
       resultCount:'{count} de 6 criterios cumplidos', resultReady:'{count} de {total} criterios cumplidos. Resultado disponible.'
     },
+    levels:[
+      {id:1,title:'Claridad',missionIds:['menu-semanal','1.2','1.3']},
+      {id:2,title:'Contexto',missionIds:['2.1','2.2','2.3']},
+      {id:3,title:'Formato',missionIds:['3.1','3.2','3.3']}
+    ],
     welcome:['Bienvenido al equipo. Aquí resolvemos encargos de clientes que necesitan una respuesta útil.', 'Tu trabajo: escribir instrucciones claras para que la IA ayude a cada cliente.', 'Primero, una prueba sencilla. Si la pasas, te presento al siguiente cliente.'],
     criteria: [
       { id:'rol', label:'Rol', patterns:[/\bactua como\b/, /\beres (?:un|una)\b/, /\basume (?:el )?(?:rol|papel)\b/, /\bcomportate como\b/, /\bcomo (?:chef|cocinero|cocinera|nutricionista)\b/], yes:'Has indicado qué papel debe asumir la IA.', no:'Dale una especialidad: «Actúa como chef». Un rol orienta el tipo de respuesta.' },
@@ -307,7 +313,7 @@ export const CONTENT = {
         restricciones:{ patterns:[/\b(?:maximo|hasta|menos de|no mas de)\b[\s\S]{0,25}\bpalabras\b/, /\b(?:no|sin)\s+(?:inventar|inventes|prometer|prometas)\b/, /\bevitar?\b[\s\S]{0,30}\b(?:promesas|plazos|inventar)\b/, /\b(?:breve|cort[oa]|amable)\b/], yes:'Has puesto límites de tono, longitud o promesas. Incluye también que no invente plazos ni condiciones.', no:'Pon límites: «Máximo 80 palabras, tono amable y sin prometer plazos ni devoluciones no confirmados».' },
         ejemplo:{ no:'Puedes orientar el tono con una muestra: «Por ejemplo: Gracias por escribirnos; revisaremos tu pedido».' }
       }
-    }, {
+    }, {id:'2.2',level:2,skill:'Contexto',title:'Próximamente',available:false}, {id:'2.3',level:2,skill:'Contexto',title:'Próximamente',available:false}, {id:'3.1',level:3,skill:'Formato',title:'Próximamente',available:false}, {id:'3.2',level:3,skill:'Formato',title:'Próximamente',available:false}, {
       thanks:'Ahora tengo una guía para repasar. Gracias por poner orden en mis apuntes.',
       id:'3.3', legacyId:'resumen-examen', level:3, skill:'Formato', title:'Resumen para examen', clientTag:'Estudiante', client:'Estudiante de historia',
       brief:'Eres estudiante y mañana tienes un examen de historia. Tienes tus apuntes de la Revolución Industrial, muy largos. Necesitas un resumen que te ayude a estudiar.',

@@ -7,6 +7,7 @@ Juego web en español para aprender a escribir prompts mediante encargos de clie
 ## Qué archivo leer
 
 - [GAME_DESIGN.md](GAME_DESIGN.md): única fuente de verdad del diseño, mecánica, misiones y evaluación.
+- [MISIONES_NIVEL_1.txt](docs/specs/MISIONES_NIVEL_1.txt): encargos, pistas, referencias y detección exactos de 1.2 y 1.3.
 - [ONBOARDING.txt](docs/specs/ONBOARDING.txt): bienvenida, personaje y animación.
 - [MISION_FLUJO.txt](docs/specs/MISION_FLUJO.txt) y [LAPTOP_FLUJO.txt](docs/specs/LAPTOP_FLUJO.txt): detalles del recorrido móvil y las ventanas de laptop, subordinados al diseño principal.
 - [docs/review/](docs/review/): notas históricas de verificación, no especificaciones vigentes.
@@ -31,6 +32,7 @@ Cada controlador recibe la sesión y las dependencias que necesita; no comparte 
 | [`js/historia.js`](js/historia.js) | `createGuideAnimation`, `clearTimers`, `later`, `show`, `rest`, `canMove`, `queueBlink`, `message`, `stop`, `degrade`, `createStoryController`, `renderWelcome`, `bindEvents` |
 | [`js/misiones.js`](js/misiones.js) | `selectMission`, `createMissionController`, `renderCriteria`, `updateEditor`, `renderProgress`, `usesLaptopMissionFlow`, `laptopWindows`, `renderLaptopWindows`, `setLaptopMissionScreen`, `activateLaptopWindow`, `closeLaptopWindow`, `boundedWindowPosition`, `positionLaptopWindow`, `usesMobileClientFlow`, `missionEntryScreen`, `openClientMail`, `openNotification`, `setMissionScreen`, `revealConversation`, `prepareConversation`, `renderHistory`, `updateHintButtons`, `requestHint`, `presentResult`, `renderMission`, `advanceMission`, `bindEvents`, `updateLaptopTitlebars` |
 | [`js/portafolio.js`](js/portafolio.js) | `recordWork`, `createPortfolioController`, `renderPortfolio`, `showPortfolio`, `bindEvents` |
+| [`js/mapa.js`](js/mapa.js) | `createLevelMapController`, `renderMap`, `showMap`, `openMission`, `bindEvents` |
 | [`js/app.js`](js/app.js) | `createGame`, `startApp` |
 
 Los módulos y hojas se publican como archivos; las rutas `/js/` y `/styles/` no ofrecen listados de directorio. El servidor `src/index.js` sigue sin publicarse como asset.
@@ -39,7 +41,7 @@ Los módulos y hojas se publican como archivos; las rutas `/js/` y `/styles/` no
 
 La portada abre el primer día en la agencia. Epson_IA da la bienvenida en tres mensajes y después aparecen los clientes, cada uno con su propia voz. El editor permanece oculto durante la portada y la bienvenida. Los tres cuadros de Epson_IA están en `assets/`, optimizados a 480 × 268 px. Los originales se conservan localmente en `../prompt-quest-originales/`, fuera del repositorio y del despliegue. El chaleco dice «Epson_IA». La bienvenida precarga los cuadros: saludo de 800 ms al cambiar de mensaje, reposo y parpadeo de 150 ms cada 3–5 segundos. Con movimiento reducido solo se muestra el reposo.
 
-«Mi portafolio» permite revisar el prompt aprobado y la respuesta de referencia de cada encargo, sin salir de la sesión. Los intentos fallidos no reemplazan trabajos aprobados. Tras el tercer encargo, «Cerrar mi primer día» abre la graduación y el portafolio final. Volver a los encargos conserva el progreso. Recargar reinicia también la bienvenida y vacía el portafolio.
+«Mi portafolio» permite revisar el prompt aprobado y la respuesta de referencia de cada encargo, sin salir de la sesión. Los intentos fallidos no reemplazan trabajos aprobados. La graduación y el portafolio final se habilitan al completar las nueve misiones del mapa. Volver a los encargos conserva el progreso. Recargar reinicia también la bienvenida y vacía el portafolio.
 
 Se usan animaciones de 220 ms que respetan la preferencia de movimiento reducido. No hay cuentas ni sonido automático. Los textos de presentación están en `CONTENT.es`, junto con el contenido de misiones.
 
@@ -53,9 +55,15 @@ Las ventanas se pueden mover por su barra de título con el ratón o las flechas
 
 ## Estado
 
-Tres misiones con progresión secuencial: menú semanal (Claridad), correos de una tienda de ropa (Contexto) y resumen para examen (Formato). Cada una incluye seis criterios, tres pistas y una respuesta de referencia fija. Los criterios obligatorios son, respectivamente: rol/objetivo/formato; rol/contexto/restricciones; contexto/objetivo/formato/ejemplo.
+Mapa de tres niveles con tres espacios cada uno: **Claridad** (1.1, 1.2, 1.3), **Contexto** (2.1, 2.2, 2.3) y **Formato** (3.1, 3.2, 3.3).
 
-Al aprobar aparece «Continuar». La cabecera muestra el nivel, la misión actual y el total completado. Al terminar la tercera se muestra un resumen de habilidades. El progreso y la caché viven solo en memoria. Los textos y patrones por misión están en los objetos de `CONTENT.es.missions`, en `js/contenido.js`. El servidor selecciona su propio encargo de confianza por identificador, sin confiar en el texto enviado por el navegador.
+Claridad está completo: menú semanal, resumen para el gerente y explicación de un error a otro equipo. La 1.2 exige rol, objetivo y formato; la 1.3 exige rol, audiencia, objetivo y formato. Contexto y restricciones son opcionales en ambas. Los criterios visibles y sus contadores se ajustan a cada misión (cinco en 1.2, seis en 1.3). La misión del restaurante conserva sus datos y criterios originales.
+
+Contexto se desbloquea solo al completar las tres misiones de Claridad. Se conserva la tienda de ropa como 2.1 y el resumen de examen como 3.3, sin cambiar su contenido. Las entradas 2.2, 2.3, 3.1 y 3.2 muestran «Próximamente» y no pueden abrirse. El nivel 3 permanece bloqueado hasta completar Contexto.
+
+Abre «Mi portafolio → Mapa de niveles» para ver el progreso y los candados. Al continuar tras completar un nivel, el mapa muestra el siguiente disponible. La graduación se reserva para las nueve misiones; mientras falten contenidos no se anuncia el curso completo. El progreso, el historial y las evaluaciones viven solo en memoria.
+
+Los ID nuevos son estables: `1.2`, `1.3`, `2.1` y `3.3`; la 1.1 conserva el ID técnico `menu-semanal`. El servidor admite también los alias anteriores `correos-tienda` y `resumen-examen` para conservar compatibilidad.
 
 La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `src/index.js`, reemplazando la carpeta prevista `functions/api/`. `index.html` conserva su ubicación en la raíz.
 
@@ -64,10 +72,10 @@ La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `s
 1. Pulsa «Empezar mi primer día», recorre la bienvenida y pulsa «Empezar la prueba». En celular, toca la notificación, el correo y la ficha del cliente. Lee el encargo y pulsa «Iniciar prompt». En laptop, toca la notificación y abre el correo del restaurante. Ejecuta un prompt vacío: debe pedirte que escribas instrucciones.
 2. Ejecuta `Dame un menú de comida`: debe señalar los criterios que faltan y mostrar una respuesta poco útil.
 3. Ejecuta `Actúa como chef del restaurante La Esquina. Crea un menú de 7 días económico y sin gluten. Preséntalo en una tabla. Por ejemplo: Lunes | Arroz con frijoles.`: debe detectar los seis criterios, completar la misión y mostrar el menú de referencia.
-4. Pulsa «Continuar». Prueba `Ayúdame con un correo` y después `Actúa como agente de atención al cliente de una tienda de ropa en línea. Redacta un correo amable sobre envíos y devoluciones de máximo 80 palabras, sin prometer plazos. Por ejemplo: Gracias por escribirnos.`.
-5. Avanza a la misión 3. Prueba `Dime algo de historia` y después `Tengo un examen de historia sobre la Revolución Industrial mañana. Resume mis apuntes en viñetas, máximo 200 palabras. Por ejemplo: Causas → Mejoras agrícolas y nuevas máquinas.`. Debe aprobar sin exigir un rol y mostrar el cierre de las tres misiones.
-6. Edita, reejecuta, prueba las pistas y una ventana estrecha. En móvil se muestra una etapa a la vez, con resultados y scroll dentro de la terminal. En laptop, desde 768 px, las ventanas se abren en orden. Prueba sus accesos en la barra inferior y las X para cerrarlas.
-7. Recarga: el editor y el progreso deben reiniciarse.
+4. Continúa a 1.2. Prueba `Ayúdame.` y después `Actúa como analista. Prepara un resumen para la reunión con el director en tres puntos. No inventes cifras y usa solo con los datos de ventas del trimestre.`. Debe pasar de incompleto a aprobado.
+5. Continúa a 1.3. Prueba `Hola.` y después `Actúa como redactor técnico. Explica para el equipo de ventas qué pasó con los pagos con tarjeta desde ayer, el impacto y el siguiente paso. Usa tres secciones con títulos y lenguaje sencillo, sin jerga.`.
+6. Antes de aprobar 1.3, revisa el mapa: 2.1 sigue bloqueada. Después, pulsa Continuar: Contexto se habilita y puedes abrir 2.1. Las entradas próximas y todo Formato siguen bloqueados. La cabecera usa numeración como «Nivel 1 · Misión 1.2 de 3».
+7. Revisa pistas, reintentos, portafolio y regreso desde el mapa en celular y laptop. Las ventanas de misión conservan el diseño aprobado. Recarga: el progreso vuelve a cero.
 
 La detección por reglas acepta varias expresiones, pero puede dar falsos positivos o no reconocer un prompt válido. Evalúa la estructura, no la calidad creativa ni el significado completo.
 
@@ -103,7 +111,7 @@ npm test
 npm run deploy -- --dry-run
 ```
 
-Comprueba también la interfaz con Gemini deshabilitado, errores del proveedor y edición mientras se está evaluando. El Worker acepta solo JSON, prompts no vacíos de hasta 1500 caracteres y uno de los tres identificadores de misión conocidos. No confía en el encargo o la lista de obligatorios enviados por el cliente.
+Comprueba también la interfaz con Gemini deshabilitado, errores del proveedor y edición mientras se está evaluando. El Worker acepta solo JSON, prompts no vacíos de hasta 1500 caracteres y un identificador de misión implementada conocido. No confía en el encargo o la lista de obligatorios enviados por el cliente.
 
 ## Documentación oficial consultada
 

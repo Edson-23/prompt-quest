@@ -2,20 +2,31 @@ import { CONTENT, format, getMissionCriteria, missionNumber } from './contenido.
 import { evaluatePrompt as evaluateRules, createEvaluator } from './evaluacion.js';
 import { recordWork as saveWork } from './portafolio.js';
 
+export function isLevelUnlocked(game, levelId) {
+  return game.levels.filter(level => level.id < levelId).every(level => level.missionIds.every(id => game.state.completed.has(id)));
+}
+export function isMissionUnlocked(game, mission) {
+  if (!mission || mission.available === false) return false;
+  const level = game.levels.find(level => level.id === mission.level);
+  if (!level || !isLevelUnlocked(game, level.id)) return false;
+  const index = level.missionIds.indexOf(mission.id);
+  return index >= 0 && level.missionIds.slice(0,index).every(id => game.state.completed.has(id));
+}
+export function isLevelComplete(game, levelId) {
+  return game.levels.find(level => level.id === levelId).missionIds.every(id => game.state.completed.has(id));
+}
 export function selectMission(game, index) {
-  const { state, missions, language, mission } = game;
-  if (state.busy || index !== state.missionIndex + 1 || !missions[index]
-    || !state.completed.has(mission.id)) return false;
-  state.missionIndex = index;
-  game.mission = missions[index];
-  game.criteria = getMissionCriteria(game.mission, language);
-  state.hints = 0;
-  state.revision += 1;
+  if (game.state.busy || index === game.state.missionIndex || !isMissionUnlocked(game,game.missions[index])) return false;
+  game.state.missionIndex = index;
+  game.mission = game.missions[index];
+  game.criteria = getMissionCriteria(game.mission,game.language);
+  game.state.hints = 0;
+  game.state.revision += 1;
   return true;
 }
 
 export function createMissionController(game, {
-  document, window, evaluate = createEvaluator(game), onGraduation,
+  document, window, evaluate = createEvaluator(game), onGraduation, onLevelComplete, onProgress,
   schedule = globalThis.setTimeout, cancel = globalThis.clearTimeout
 }) {
   const { state, ui, missions } = game;
@@ -60,6 +71,7 @@ export function createMissionController(game, {
     $('progress').max = missions.length;
     $('progress').value = state.completed.size;
     $('progress-text').textContent = format(ui.progress, { count:state.completed.size, total:missions.length });
+    onProgress?.();
   }
 
   // Flujo de misión: correo, conversación, escritura y resultado en la terminal.
@@ -300,6 +312,7 @@ export function createMissionController(game, {
   }
 
   function advanceMission() {
+    if (game.levels && isLevelComplete(game,game.mission.level) && onLevelComplete) { onLevelComplete(); return; }
     if (!selectMission(game, state.missionIndex + 1)) return;
     renderMission();
     setMissionScreen(missionEntryScreen());
@@ -438,11 +451,12 @@ export function createMissionController(game, {
       if (evaluation.passed) state.completed.add(mission.id);
       recordWork(prompt, evaluation);
       $('view-graduation').hidden = !evaluation.passed || state.completed.size !== missions.length;
-      $('completion-text').textContent = state.completed.size === missions.length ? format(ui.allCompleted, { total:missions.length }) : mission.completion;
+      $('completion-text').textContent = state.completed.size === missions.length ? format(ui.allCompleted, { total:missions.length }) : isLevelComplete(game,mission.level) ? format(ui.levelCompleted, mission) : mission.id === 'menu-semanal' ? mission.completion : format(ui.missionCompleted, {number:missionNumber(mission)});
       $('client-reaction-name').textContent = mission.client;
       $('client-reaction').textContent = mission.thanks;
-      $('next-client-preview').textContent = missions[state.missionIndex + 1] ? format(ui.nextClient, { client:missions[state.missionIndex + 1].client }) : '';
-      $('next-mission').hidden = !evaluation.passed || state.missionIndex === missions.length - 1;
+      const next = missions[state.missionIndex + 1];
+      $('next-client-preview').textContent = isMissionUnlocked(game,next) ? format(ui.nextClient, { client:next.client }) : '';
+      $('next-mission').hidden = !evaluation.passed || (!isMissionUnlocked(game,next) && !isLevelComplete(game,mission.level));
       renderProgress();
       presentResult(count);
     });

@@ -41,6 +41,7 @@ export function createPortfolioController(game, { document, onReturn }) {
   function showPortfolio(graduation = false) {
     if (graduation && state.completed.size !== missions.length) return;
 
+    $('level-map-screen').hidden = true;
     renderPortfolio(graduation);
     document.body.classList.remove('in-game');
     $('portfolio-screen').hidden = false;

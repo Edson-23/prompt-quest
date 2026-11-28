@@ -13,3 +13,17 @@ body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) >
 .portfolio-work { border-top:1px solid var(--border); padding-bottom:1rem; }
 .portfolio-work h3 { margin-top:1rem; }
 .portfolio-work pre { margin-top:.625rem; }
+
+/* El mapa tiene su propia pantalla; no cambia las ventanas de misión. */
+#open-map { margin-bottom:.75rem; }
+.level-map { display:grid; gap:1.25rem; }
+.map-level { min-width:0; border-bottom:1px solid var(--border); padding-bottom:1rem; }
+.map-level-heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:.375rem; margin-bottom:.5rem; }
+.map-level ol { list-style:none; margin:0; padding:0; display:grid; gap:.5rem; }
+.map-mission { width:100%; min-height:45px; text-align:left; display:flex; gap:.75rem; align-items:center; justify-content:space-between; font-size:.875rem; }
+.map-mission > span:first-child { min-width:0; }
+.map-mission .map-status { flex:none; font-size:.75rem; color:var(--success); }
+.map-mission[aria-disabled="true"] { cursor:default; border-color:var(--border); color:var(--muted); }
+.map-mission[aria-disabled="true"] .map-status { color:var(--hint); }
+.map-mission[aria-current="step"] { border-color:var(--title); }
+.map-reason { margin-top:.25rem; font-size:.75rem; color:var(--muted); }

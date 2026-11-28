@@ -4,7 +4,7 @@ import { startApp } from '../js/app.js';
 import { CONTENT } from '../js/contenido.js';
 import { createDocument } from './helpers/dom.mjs';
 import { prompts } from './helpers/prompts.mjs';
-for (const desktop of [false,true]) test(`módulos conectados: bienvenida, cinco misiones, portafolio y graduación (${desktop ? 'laptop' : 'celular'})`,async()=>{
+for (const desktop of [false,true]) test(`módulos conectados: bienvenida, Claridad completo, mapa y portafolio (${desktop ? 'laptop' : 'celular'})`,async()=>{
   const dom = createDocument({ desktop });
   let calls = 0;
   const app = startApp({ ...dom, fetch:async()=>{ calls++; return new Response('',{status:503}); } });
@@ -14,7 +14,7 @@ for (const desktop of [false,true]) test(`módulos conectados: bienvenida, cinco
     assert.equal($('welcome-message').textContent,message); await click('welcome-next');
   }
   assert.equal(dom.document.body.classList.contains('in-game'),true);
-  for (let index=0;index<CONTENT.es.missions.length;index++) {
+  for (let index=0;index<4;index++) {
     if (desktop || index===0) await click('mail-notification');
     await click('new-mail');
     if (!desktop && index===0) await click('read-client');
@@ -32,11 +32,38 @@ for (const desktop of [false,true]) test(`módulos conectados: bienvenida, cinco
     assert.equal(dom.document.body.dataset.missionScreen,'results');
     await click('open-portfolio'); assert.equal($('portfolio-items').children.length,index+1);
     await click('return-game'); assert.equal(dom.document.body.dataset.missionScreen,'results');
-    if (index<CONTENT.es.missions.length-1) await click('next-mission');
+    if (index<3) {
+      await click('next-mission');
+      if (index===2) {
+        assert.equal($('level-map-screen').hidden,false);
+        assert.equal(app.mapa.openMission(3),true);
+      }
+    }
   }
-  await click('view-graduation');
-  assert.equal($('portfolio-screen').hidden,false);
-  assert.equal($('graduation-message').hidden,false);
-  assert.equal($('portfolio-title').textContent,CONTENT.es.ui.graduationTitle);
+  assert.equal($('view-graduation').hidden,true);
+  assert.equal($('next-mission').hidden,true);
+  await click('open-portfolio'); await click('open-map');
+  assert.equal($('level-map-screen').hidden,false);
+  assert.equal(app.mapa.openMission(4),false);
+  assert.equal(app.mapa.openMission(8),false);
+  await click('map-back'); assert.equal($('portfolio-screen').hidden,false);
   assert.equal(calls,5);
+});
+
+test('el mapa anuncia los bloqueos y sus botones no permiten saltar misiones',async()=>{
+ const dom=createDocument(), app=startApp({...dom,fetch:async()=>new Response('',{status:503})});
+ app.mapa.showMap();
+ const list=dom.nodes.get('level-map-list');
+ const buttonAt=(level,index)=>list.children[level].children[1].children[index].children[0];
+ assert.equal(buttonAt(0,1).getAttribute('aria-disabled'),'true');
+ assert.equal(buttonAt(1,0).getAttribute('aria-disabled'),'true');
+ assert.ok(buttonAt(0,1).getAttribute('aria-describedby'));
+ await buttonAt(0,1).emit('click');
+ assert.equal(app.game.state.missionIndex,0);
+ assert.equal(dom.nodes.get('level-map-screen').hidden,false);
+ app.game.state.completed.add('menu-semanal'); app.mapa.renderMap();
+ assert.equal(buttonAt(0,1).getAttribute('aria-disabled'),'false');
+ await buttonAt(0,1).emit('click');
+ assert.equal(app.game.mission.id,'1.2');
+ assert.equal(dom.nodes.get('level-map-screen').hidden,true);
 });

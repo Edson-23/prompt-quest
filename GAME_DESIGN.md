@@ -46,7 +46,7 @@ Paleta sugerida (modo oscuro):
 1. El jugador lee el encargo del cliente.
 2. Escribe su prompt en el editor de texto.
 3. Pulsa "ejecutar". El juego simula la respuesta de la IA según el prompt.
-4. El evaluador revisa el prompt contra seis criterios:
+4. El evaluador revisa los criterios definidos por la misión. El catálogo original tiene seis:
    - **Rol:** ¿le dice a la IA qué papel tiene?
    - **Contexto:** ¿explica quién es el cliente y su situación?
    - **Objetivo:** ¿dice qué debe producir?
@@ -56,6 +56,8 @@ Paleta sugerida (modo oscuro):
 5. El juego muestra qué criterios se cumplieron, cuáles faltan y una explicación breve de cada falta.
 6. El jugador puede editar y volver a ejecutar, o pedir una pista.
 7. La misión se completa cuando se cumplen los criterios obligatorios.
+
+La misión 1.3 añade **Audiencia**: ¿indica para quién se escribe y qué conocimientos tiene ese equipo? La lista concreta y sus obligatorios dependen de la misión; no se exige el criterio Ejemplo en 1.2 ni 1.3.
 
 ## 6. Evaluación simulada (MVP)
 
@@ -76,11 +78,19 @@ Una misión es un encargo de un cliente que el jugador resuelve escribiendo un p
 
 Ejemplo de la primera misión: el restaurante "La Esquina" pide un menú de 7 días sin gluten con platos baratos. Un prompt como "Dame un menú de comida" no pasa, porque no define rol ni formato. Un prompt como "Actúa como chef de un restaurante pequeño. Crea un menú de 7 días con platos económicos y sin gluten. Preséntalo en una tabla" sí pasa.
 
-El MVP incluye tres misiones, en orden de dificultad:
+El mapa tiene tres niveles y tres misiones por nivel:
 
-1. **Menú semanal (Restaurante "La Esquina").** Criterios obligatorios: rol, objetivo, formato. Enseña lo básico.
-2. **Respuesta a correos (Tienda de ropa).** Criterios obligatorios: rol, contexto, restricciones. Enseña a dar tono y límites.
-3. **Resumen para examen (Estudiante).** Criterios obligatorios: contexto, objetivo, formato, ejemplo. Enseña a combinar criterios.
+| Nivel | Misión | Estado del contenido | Obligatorios |
+| --- | --- | --- | --- |
+| 1 · Claridad | 1.1 · Menú semanal | Conservada sin cambios; ID técnico `menu-semanal` | rol, objetivo, formato |
+| 1 · Claridad | 1.2 · Resumen para el gerente | Implementada, cinco criterios | rol, objetivo, formato |
+| 1 · Claridad | 1.3 · Explicar un error a otro equipo | Implementada, seis criterios | rol, audiencia, objetivo, formato |
+| 2 · Contexto | 2.1 · Correos de una tienda de ropa | Contenido anterior conservado; alias `correos-tienda` | rol, contexto, restricciones |
+| 2 · Contexto | 2.2 y 2.3 | Bloqueadas, contenido por preparar | Por definir |
+| 3 · Formato | 3.1 y 3.2 | Bloqueadas, contenido por preparar | Por definir |
+| 3 · Formato | 3.3 · Resumen para examen | Contenido anterior conservado; alias `resumen-examen` | contexto, objetivo, formato, ejemplo |
+
+Los textos, pistas, referencias y expresiones exactos de 1.2 y 1.3 se conservan en [MISIONES_NIVEL_1.txt](docs/specs/MISIONES_NIVEL_1.txt). Contexto y restricciones son opcionales en ambas. Los contadores y el portafolio muestran el total de criterios de cada misión. Todas las palabras de detección del documento se reconocen con la normalización del motor existente.
 
 Cada misión tiene:
 - Encargo del cliente (texto corto).
@@ -103,7 +113,9 @@ Niveles por habilidad, en este orden:
 5. Skills
 6. Flujos de trabajo
 
-Para el MVP solo se incluyen los niveles 1 a 3, con una misión por nivel. Al completar las tres misiones se muestra un resumen con las habilidades logradas.
+Las misiones se desbloquean en orden dentro de cada nivel. La 1.2 requiere completar 1.1 y la 1.3 requiere completar 1.2. Un nivel se desbloquea únicamente cuando se completan las tres misiones del anterior: aprobar solo 1.1 y 1.2 no habilita Contexto. Las entradas sin contenido no se pueden abrir, aunque su nivel ya esté desbloqueado. Por eso 3.3 se conserva, pero no se salta 3.1 ni 3.2.
+
+El mapa se abre desde «Mi portafolio → Mapa de niveles» y al continuar después de completar un nivel. Muestra numeración, nombre, progreso de tres misiones y estados Disponible, Completada o Bloqueado con candado y motivo visible. Las acciones bloqueadas anuncian su estado y no se activan con ratón ni teclado. Se puede retomar la misión actual sin perder el borrador, o volver a una misión completada. La cabecera muestra, por ejemplo, «Nivel 1 · Misión 1.2 de 3». La graduación completa queda reservada para terminar las nueve misiones; no se muestra prematuramente al completar Claridad.
 
 ## 10. Pantallas del MVP
 
@@ -113,7 +125,7 @@ La misión se presenta como herramientas de una computadora. El orden es secuenc
 
 **Laptop (desde 768 px):** escritorio oscuro y barra inferior de 28 px con misión, accesos a las ventanas abiertas y «Mi portafolio». Primero aparece la notificación arriba a la derecha, sin ventanas abiertas. Al tocarla se abre Correo centrado; tocar el restaurante sustituye la lista por el encargo en esa misma ventana. «Iniciar prompt» abre la terminal encima del correo, que permanece detrás con opacidad 0.5. Solo una ventana está activa; los accesos inferiores o el clic en una ventana la traen al frente. La X de la terminal recupera el correo en el mismo punto. Cerrar todas las ventanas devuelve la notificación solo si la misión está pendiente; si ya se completó, permite continuar. Las ventanas tienen ancho máximo de 60 %, alto mínimo de 300 px y cierre de al menos 24 px. Se arrastran por la barra de título sin salir del escritorio; también se pueden mover con flechas del teclado. Aparecen con escala de 0.96 a 1 en 200 ms.
 
-**Terminal y resultados:** textarea real de unas seis líneas, texto de al menos 16 px, contador de 1500 caracteres y botón Ejecutar fuera del scroll. Mientras evalúa se muestra «$ evaluando…» sin bloquear toda la pantalla. El resultado sustituye al editor dentro de la misma terminal: prompt enviado, «$ resultados», resumen amarillo, seis criterios con ✓ verde o ✗ rojo y retroalimentación de los faltantes. «Volver a intentar» recupera el texto; el historial conserva los prompts anteriores solo en memoria. «Pedir pista» está disponible únicamente en los resultados, con tres niveles por misión. Ya no se usa la hoja inferior, un panel separado de resultados ni las columnas simultáneas.
+**Terminal y resultados:** textarea real de unas seis líneas, texto de al menos 16 px, contador de 1500 caracteres y botón Ejecutar fuera del scroll. Mientras evalúa se muestra «$ evaluando…» sin bloquear toda la pantalla. El resultado sustituye al editor dentro de la misma terminal: prompt enviado, «$ resultados», resumen amarillo, los criterios de la misión con ✓ verde o ✗ rojo y retroalimentación de los faltantes. «Volver a intentar» recupera el texto; el historial conserva los prompts anteriores solo en memoria. «Pedir pista» está disponible únicamente en los resultados, con tres niveles por misión. Ya no se usa la hoja inferior, un panel separado de resultados ni las columnas simultáneas.
 
 Los mensajes del cliente y Epson_IA usan burbujas. El segundo mensaje aparece tras 600 ms y se puede revelar inmediatamente tocando la conversación o pulsando Enter/Espacio. El avance nunca espera la animación. Todas las animaciones respetan `prefers-reduced-motion`. Las acciones móviles tienen al menos 44 px y el área de juego usa 100dvh. No hay desbordamiento horizontal.
 
@@ -137,7 +149,7 @@ Estructura de archivos del proyecto:
 prompt-quest/
 ├── index.html              (estructura de pantallas)
 ├── styles/                 (base.css, historia.css, misiones.css, escritorio.css)
-├── js/                     (contenido.js, evaluacion.js, historia.js, misiones.js, portafolio.js, app.js)
+├── js/                     (contenido.js, evaluacion.js, historia.js, misiones.js, mapa.js, portafolio.js, app.js)
 ├── assets/                 (solo los tres PNG optimizados de Epson_IA)
 ├── src/index.js            (Worker: evaluación y acceso a ASSETS)
 ├── tests/                  (node:test, sin claves ni llamadas reales)
@@ -155,11 +167,11 @@ prompt-quest/
 
 ## 12. Alcance del MVP
 
-Estado de la implementación: las tres misiones están disponibles con progresión secuencial en memoria, pistas, evaluación con Gemini y respaldo por reglas. Cada misión se desbloquea al completar la anterior.
+Estado de la implementación: Claridad contiene tres misiones completas con progresión en memoria, pistas, Gemini y respaldo. El mapa contiene nueve espacios; 2.1 y 3.3 conservan los contenidos previos y las otras cuatro entradas permanecen bloqueadas hasta prepararlas.
 
 Incluye:
-- Tres misiones con flujo de correo y terminal.
-- Evaluación simulada con seis criterios.
+- Tres misiones de Claridad y un mapa de tres niveles con tres espacios cada uno.
+- Evaluación simulada con criterios propios de cada misión.
 - Pistas y retroalimentación.
 - Respuestas simuladas de referencia.
 - Evaluación con Gemini (IA real) y respaldo con evaluación simulada.
@@ -168,7 +180,7 @@ No incluye:
 - Módulo de agent skills.
 - Cuentas de usuario o guardado permanente.
 - Otros estilos de interfaz; se conserva la terminal con el personaje en pixel art.
-- Más de tres misiones.
+- Contenido nuevo para 2.2, 2.3, 3.1 y 3.2.
 
 ## 13. Evaluación con IA real y respaldo
 
@@ -178,7 +190,7 @@ Flujo cuando el jugador pulsa "ejecutar":
 
 1. El navegador envía a `/api/evaluar` el prompt del jugador y los datos de la misión (encargo y criterios obligatorios). Nunca envía la clave.
 2. El Worker `src/index.js` valida el prompt (no vacío y máximo 1500 caracteres), reconoce la misión por su identificador y usa su propio encargo y criterios de confianza. Arma las instrucciones para Gemini y llama a la API con `env.GEMINI_API_KEY` y el modelo de `env.GEMINI_MODEL`.
-3. Gemini responde con un JSON: `{"criterios": {"rol": true, "contexto": false, ...}, "retroalimentacion": "texto corto en español", "comentarios": {"rol": "explicación por criterio", ...}}`. El Worker valida los seis booleanos y los textos antes de devolverlos.
+3. Gemini responde con un JSON: `{"criterios": {"rol": true, "contexto": false, ...}, "retroalimentacion": "texto corto en español", "comentarios": {"rol": "explicación por criterio", ...}}`. El Worker valida los booleanos y comentarios declarados por su misión de confianza. 1.1 conserva su contrato original de seis criterios; 1.2 usa cinco y 1.3 incluye Audiencia entre sus seis. Solo se amplían el catálogo y el contrato autorizado; proveedor, llamada, límites y respaldo se conservan.
 4. La función devuelve ese JSON al navegador, que muestra los criterios con ✓ o ✗ y la retroalimentación.
 5. Si la función responde con error, si se agota la cuota de Gemini o si pasan más de unos segundos sin respuesta, el navegador ejecuta la evaluación simulada por reglas y muestra un aviso discreto como "evaluación sin IA por hoy".
 
@@ -221,7 +233,7 @@ Al empezar a construir:
 
 La entrada sigue portada → bienvenida de Epson_IA → encargos. Epson_IA es el personaje de bienvenida y guía de pistas; cada cliente tiene su propia voz y una reacción al completar su encargo. No se reemplaza el encargo aprobado del restaurante.
 
-Una barra representa la reputación mediante misiones completadas. El portafolio conserva en memoria el último prompt aprobado por misión y su respuesta de referencia fija; los intentos fallidos no lo modifican. Al finalizar las tres misiones hay un cierre de historia y acceso al portafolio final. No se añaden cuentas, almacenamiento persistente ni cambios en la evaluación.
+Una barra representa la reputación mediante misiones completadas. El portafolio conserva en memoria el último prompt aprobado por misión y su respuesta de referencia fija; los intentos fallidos no lo modifican. Al finalizar cada nivel se vuelve al mapa con el siguiente nivel desbloqueado; la graduación final requiere las nueve misiones. No se añaden cuentas, almacenamiento persistente ni cambios en la evaluación.
 
 
 ## 17. Bienvenida, personaje y documentación de apoyo

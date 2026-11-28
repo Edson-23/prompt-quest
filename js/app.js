@@ -2,12 +2,13 @@ import { CONTENT, getMissionCriteria } from './contenido.js';
 import { createEvaluator } from './evaluacion.js';
 import { createStoryController } from './historia.js';
 import { createMissionController } from './misiones.js';
+import { createLevelMapController } from './mapa.js';
 import { createPortfolioController } from './portafolio.js';
 
 export function createGame(language = 'es') {
-  const { ui, missions, criteria } = CONTENT[language];
+  const { ui, missions, levels } = CONTENT[language];
   const state = { welcomeIndex:0, missionIndex:0, portfolio:new Map(), history:new Map(), chatTimer:null, chatRevealed:false, notificationTimer:null, notificationClosing:false, hints:0, completed:new Set(), revision:0, busy:false, cache:new Map(), requests:[] };
-  return { language, ui, missions, criteria:getMissionCriteria(missions[0], language), mission:missions[0], state };
+  return { language, ui, missions, levels, criteria:getMissionCriteria(missions[0], language), mission:missions[0], state };
 }
 
 export function startApp({ document = globalThis.document, window = globalThis.window, fetch = globalThis.fetch } = {}) {
@@ -19,13 +20,16 @@ export function startApp({ document = globalThis.document, window = globalThis.w
   $('editor-help').textContent = ui.editorHelp + ' ' + ui.privacy;
   const evaluate = createEvaluator(game, { fetch, location:window.location });
   const portafolio = createPortfolioController(game, { document, onReturn:screen => misiones.setMissionScreen(screen) });
-  const misiones = createMissionController(game, { document, window, evaluate, onGraduation:() => portafolio.showPortfolio(true) });
+  let mapa;
+  const misiones = createMissionController(game, { document, window, evaluate, onGraduation:() => portafolio.showPortfolio(true), onLevelComplete:() => mapa.showMap('mission'), onProgress:() => { if (mapa && !$('level-map-screen').hidden) mapa.renderMap(); } });
   misiones.renderMission();
   const historia = createStoryController(game, { document, window, onStartMission:() => misiones.setMissionScreen(misiones.missionEntryScreen()) });
+  mapa = createLevelMapController(game, { document, misiones });
+  mapa.bindEvents();
   misiones.bindEvents();
   historia.bindEvents();
   portafolio.bindEvents();
-  return { game, historia, misiones, portafolio };
+  return { game, historia, misiones, portafolio, mapa };
 }
 
 if (typeof document !== 'undefined') startApp();
