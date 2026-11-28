@@ -4,8 +4,9 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import worker from '../src/index.js';
 
+const content = (await readFile(new URL('../js/contenido.js',import.meta.url),'utf8')).replace('export const CONTENT','const CONTENT');
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const logic = html.match(/<script>([\s\S]*?)<\/script>/)[1].split('document.querySelectorAll')[0];
+const logic = content + html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/import \{ CONTENT \} from '[^']+';/, '').split('document.querySelectorAll')[0];
 const ids = ['rol','contexto','objetivo','formato','restricciones','ejemplo'];
 const missionIds = ['menu-semanal','correos-tienda','resumen-examen'];
 const good = [

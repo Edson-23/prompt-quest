@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
+const content = (await readFile(new URL('../js/contenido.js',import.meta.url),'utf8')).replace('export const CONTENT','const CONTENT');
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const script = content + html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/import \{ CONTENT \} from '[^']+';/, '');
 const logic = script.split('document.querySelectorAll')[0];
 const prompt = 'Actúa como chef. Crea un menú semanal en una tabla.';
 const ids = ['rol', 'contexto', 'objetivo', 'formato', 'restricciones', 'ejemplo'];

@@ -4,8 +4,9 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { createHash } from 'node:crypto';
 
+const content = (await readFile(new URL('../js/contenido.js',import.meta.url),'utf8')).replace('export const CONTENT','const CONTENT');
 const html = await readFile(new URL('../index.html',import.meta.url),'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const script = content + html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/import \{ CONTENT \} from '[^']+';/, '');
 const logic = script.split('document.querySelectorAll')[0];
 function setup() {
   const context = vm.createContext({location:{protocol:'file:'}});
