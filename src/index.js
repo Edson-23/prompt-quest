@@ -77,7 +77,12 @@ MISSIONS["2.2"] = {
     "rol": "le dice a la IA qué papel tiene, por ejemplo agente de atención al cliente.",
     "formato": "pide una forma concreta, como dos bloques separados."
   },
-  "comentarios_contexto": "Cuando falte contexto, indica qué dato concreto del encargo falta; no basta decir que falta contexto."
+  "comentarios_contexto": "Cuando falte contexto, indica qué dato concreto del encargo falta; no basta decir que falta contexto.",
+  "reglas_contexto": [
+    "Contexto solo se cumple si el prompt del jugador incluye TODOS estos datos: política de 30 días, compra hace 40 días, sistema que muestra 45 días y error de configuración. Si falta cualquiera, contexto debe ser false. Por ejemplo, sin la antigüedad de la compra no se puede decidir si corresponde la devolución.",
+    "Evalúa únicamente los datos incluidos por el jugador; no des por incluidos los datos del encargo que no repita. Esta regla específica prevalece sobre la descripción general de contexto.",
+    "Si contexto es false, indica en comentarios.contexto al menos un dato concreto que falta, por ejemplo la antigüedad de la compra o el acceso al router, según corresponda."
+  ]
 };
 MISSIONS["2.3"] = {
   "id": "2.3",
@@ -102,7 +107,12 @@ MISSIONS["2.3"] = {
     "formato": "pide una lista numerada de pasos.",
     "rol": "le dice a la IA qué papel tiene, por ejemplo técnico de soporte de redes."
   },
-  "comentarios_contexto": "Cuando falte contexto, indica qué dato concreto del encargo falta; no basta decir que falta contexto."
+  "comentarios_contexto": "Cuando falte contexto, indica qué dato concreto del encargo falta; no basta decir que falta contexto.",
+  "reglas_contexto": [
+    "Contexto solo se cumple si el prompt del jugador incluye TODOS estos datos: la impresora no aparece para el usuario, otros equipos sí la ven, enciende y la pantalla no tiene errores, acceso al router Y acceso al servidor de impresión. Si falta cualquiera, contexto debe ser false. Mencionar solo uno de los accesos no basta.",
+    "Evalúa únicamente los datos incluidos por el jugador; no des por incluidos los datos del encargo que no repita. Esta regla específica prevalece sobre la descripción general de contexto.",
+    "Si contexto es false, indica en comentarios.contexto al menos un dato concreto que falta, por ejemplo la antigüedad de la compra o el acceso al router, según corresponda."
+  ]
 };
 
 const MAX_BODY_BYTES = 8192;

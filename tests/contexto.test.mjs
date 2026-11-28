@@ -2,8 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { createGame } from '../js/app.js';
 import { CONTENT, getMissionCriteria } from '../js/contenido.js';
-import { evaluatePrompt } from '../js/evaluacion.js';
+import { evaluatePrompt, createEvaluator } from '../js/evaluacion.js';
 
 const mission = id => CONTENT.es.missions.find(item=>item.id===id);
 const source = (await readFile(new URL('../docs/specs/MISIONES_NIVEL_2.txt',import.meta.url),'utf8')).replace(/\r\n/g,'\n');
@@ -62,4 +63,19 @@ for(const [id,parts] of Object.entries(fragments)) test(`${id}: la retroalimenta
   assert.equal(context.feedback,details[index].missing);
  }
  assert.equal(evaluatePrompt('contexto',item).results.find(c=>c.id==='contexto').passed,false);
+});
+
+
+test('si Gemini omite detalles en su comentario, la interfaz señala los datos sin cambiar su dictamen',async()=>{
+ for(const id of ['2.2','2.3']) {
+  const game=createGame(); game.mission=mission(id); game.criteria=getMissionCriteria(game.mission);
+  const criterios=Object.fromEntries(game.criteria.map(c=>[c.id,c.id!=='contexto']));
+  const comentarios=Object.fromEntries(game.criteria.map(c=>[c.id,'Comentario de Gemini.']));
+  const evaluate=createEvaluator(game,{location:{protocol:'https:'},fetch:async()=>Response.json({criterios,comentarios,retroalimentacion:'Revisa el contexto.'})});
+  const result=await evaluate('Ayúdame.');
+  assert.equal(result.ai,true); assert.equal(result.passed,false);
+  for(const criterion of result.results) assert.equal(criterion.passed,criterios[criterion.id]);
+  const context=result.results.find(c=>c.id==='contexto');
+  for(const detail of game.criteria.find(c=>c.id==='contexto').details) assert.ok(context.feedback.includes(detail.missing));
+ }
 });

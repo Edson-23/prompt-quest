@@ -100,6 +100,13 @@ test('Worker usa el encargo de confianza de cada misión y mantiene el contrato 
       assert.doesNotMatch(instruction,/ENCARGO FALSO/);
       assert.match(instruction,new RegExp(JSON.stringify(required[index]).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
       assert.match(instruction, /objetivo: solicita un resultado concreto/);
+      if (['2.2','2.3'].includes(id)) {
+        const trusted=JSON.parse(instruction.match(/Misión de confianza del servidor: (.*)\.\n/)[1]);
+        assert.equal(trusted.encargo,missionCases[index].brief);
+        assert.deepEqual(trusted.definiciones,missionCases[index].definitions);
+        assert.match(trusted.reglas_contexto[0],/TODOS/);
+        assert.match(trusted.reglas_contexto[0],/contexto debe ser false/);
+      }
       return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({criterios:Object.fromEntries(ids.map(id=>[id,true])),comentarios:Object.fromEntries(ids.map(id=>[id,'Cumplido.'])),retroalimentacion:'Buen prompt.'})}]}}]});
     });
     const response = await worker.fetch(new Request('https://quest.example/api/evaluar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:good[index],mision:{id,encargo:'ENCARGO FALSO',obligatorios:[]}})}),{GEMINI_API_KEY:'test-only-placeholder',GEMINI_MODEL:'test-model',EVALUATION_LIMITER:{limit:async()=>({success:true})}});

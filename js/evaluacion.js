@@ -44,7 +44,13 @@ export function createEvaluator(game, {
           && typeof data.comentarios?.[criterion.id] === 'string'
           && data.comentarios[criterion.id].trim().length > 0
           && data.comentarios[criterion.id].length <= 600)) throw new Error('invalid');
-      const results = criteria.map(criterion => ({ ...criterion, passed:data.criterios[criterion.id], feedback:data.comentarios[criterion.id] }));
+      const results = criteria.map(criterion => {
+        const passed = data.criterios[criterion.id];
+        // Precisa el comentario de las nuevas misiones, sin alterar el dictamen de Gemini.
+        const missing = !passed && criterion.details?.filter(detail => !detail.patterns.some(pattern => pattern.test(normalize(prompt))));
+        const feedback = [data.comentarios[criterion.id], ...(missing || []).map(detail => detail.missing)].join(' ');
+        return { ...criterion, passed, feedback };
+      });
       const evaluation = { results, passed:mission.required.every(id => data.criterios[id]), feedback:data.retroalimentacion, mode:ui.aiMode, ai:true };
       if (state.cache.size >= 50) state.cache.delete(state.cache.keys().next().value);
       state.cache.set(key, evaluation);
