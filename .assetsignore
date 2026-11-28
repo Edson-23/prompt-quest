@@ -8,3 +8,7 @@ assets/*
 !assets/epson_ia_mapache.png
 !assets/epson_ia_mano_abajo.png
 !assets/epson_ia_ojos_cerrados.png
+!styles/
+!styles/*.css
+!js/
+!js/*.js

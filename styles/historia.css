@@ -1,0 +1,15 @@
+body:not(.in-game) > header,body:not(.in-game) > main.shell,body:not(.in-game) > .skip { display:none; }
+.story-screen { width:min(480px,calc(100% - 2rem)); min-height:100vh; min-height:100dvh; margin-inline:auto; padding:max(1.5rem,env(safe-area-inset-top)) 0 max(1rem,env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:1.25rem; }
+.story-screen h1 { font-size:clamp(2.75rem,12vw,4rem); line-height:1; color:var(--success); }
+.agency-label { font-size:.75rem; letter-spacing:.15em; color:var(--title); }
+.cover-content { margin-block:auto; padding-block:2rem; }
+.cover-content > p:last-child { max-width:28ch; margin-top:1.5rem; font-size:1.125rem; }
+.story-action { width:100%; min-height:52px; }
+.story-footer { margin-top:auto; padding-top:1rem; }
+.story-screen h2 { font-size:1.4rem; color:var(--success); }
+.guide-image { display:block; width:min(200px,100%); height:auto; align-self:center; border:1px solid var(--success); border-radius:6px; }
+.welcome-actions { display:flex; justify-content:space-between; gap:.75rem; }
+.welcome-actions .primary { flex:1; max-width:14rem; }
+.portfolio-work { border-top:1px solid var(--border); padding-bottom:1rem; }
+.portfolio-work h3 { margin-top:1rem; }
+.portfolio-work pre { margin-top:.625rem; }

@@ -1,0 +1,47 @@
+/* Laptop: escritorio con ventanas secuenciales. El celular conserva sus estilos. */
+@media (min-width:768px) {
+  body.in-game > header { order:2; height:28px; flex:0 0 28px; padding:0; border-top:1px solid var(--border); border-bottom:0; background:#161b22; z-index:20; }
+  .header-row { width:calc(100% - 1rem); height:100%; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:.5rem; }
+  .header-row h1 { font-size:.6875rem; line-height:1.2; }
+  .header-row .portfolio-link { justify-self:end; grid-column:3; grid-row:1; min-height:24px; height:24px; padding:.125rem .5rem; font-size:.6875rem; }
+  .progress-box { display:none; }
+  .desktop-task-links { display:flex; grid-column:2; grid-row:1; gap:.25rem; }
+  .desktop-task-links button { min-height:24px; height:24px; padding:.125rem .625rem; font-size:.6875rem; }
+  .desktop-task-links button[aria-pressed="true"] { border-color:var(--success); color:var(--success); }
+  body[data-mission-screen] .mission-desktop { order:1; position:relative; width:100%; margin:0; padding:0; display:block; min-height:0; overflow:hidden; }
+  body[data-mission-screen] #inbox-window,body[data-mission-screen] #terminal-window { position:absolute; display:none; left:var(--laptop-x,50%); top:var(--laptop-y,50%); transform:translate(-50%,-50%); width:min(60%,800px); min-height:300px; height:min(70dvh,680px); max-height:calc(100% - 2rem); box-shadow:0 15px 45px #0008; z-index:2; }
+  body[data-mission-screen] #terminal-window { --window-default-offset:24px; left:var(--laptop-x,calc(50% + 24px)); top:var(--laptop-y,calc(50% + 20px)); height:min(74dvh,720px); }
+  body[data-mission-screen] #inbox-window[data-laptop-open="true"],body[data-mission-screen] #terminal-window[data-laptop-open="true"] { display:flex; }
+  .computer-window[data-laptop-active="false"] { opacity:.5; --window-opacity:.5; }
+  .computer-window[data-laptop-active="true"] { opacity:1; z-index:3 !important; --window-opacity:1; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="mail"] .conversation { display:none; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="mail"] .mail-list { display:block; flex:1; max-height:none; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="mail"] .mail-bar { display:flex; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="chat"] .mail-bar,body[data-mission-screen] #inbox-window[data-laptop-view="chat"] .mail-list { display:none; }
+  body[data-mission-screen] #inbox-window[data-laptop-view="chat"] .conversation { display:flex; }
+  .mail-footer,#hint-button,#chat-hints,#back-chat,.laptop-copy { display:none; }
+  #client-guide .mobile-copy { display:block; }
+  #client-guide,#client-guide .speaker { color:var(--hint); }
+  #client-guide { border-left-color:var(--hint); }
+  .window-bar { min-height:34px; padding:.25rem .5rem; cursor:grab; user-select:none; touch-action:none; }
+  .window-bar:active { cursor:grabbing; }
+  .window-bar > button { min-height:24px; min-width:24px; padding:.125rem .375rem; font-size:.75rem; }
+  .window-bar .window-close { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; padding:0; font-size:1.125rem; }
+  #back-mail { display:inline-flex; align-items:center; gap:.25rem; }
+  #back-mail .laptop-only { display:inline; }
+  body.in-game #mobile-notification { display:none; position:absolute; inset:1rem 1rem auto auto; width:360px; max-width:calc(100% - 2rem); height:auto; min-height:0; padding:0; border:0; background:transparent; z-index:5; }
+  body.in-game[data-laptop-notification="true"] #mobile-notification { display:flex; }
+  .mail-notification { display:flex; flex-direction:column; gap:.5rem; width:100%; padding:1rem; text-align:left; background:#161b22; border-color:var(--title); }
+  .notification-label { color:var(--title); font-size:.75rem; }
+  .mail-notification strong { font-size:.875rem; }
+  .notification-help { color:var(--muted); font-size:.75rem; }
+  #client-profile { display:none !important; }
+  #desktop-finished { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(28rem,70%); text-align:center; }
+  #desktop-finished[data-visible="true"] { display:block; }
+  #desktop-finished button { margin-top:1rem; }
+  .guide-image { width:min(240px,100%); }
+}
+@media (min-width:768px) and (prefers-reduced-motion:no-preference) {
+  .window-enter { animation:laptop-window-in 200ms ease-out; }
+  @keyframes laptop-window-in { from { opacity:0; transform:translate(-50%,-50%) scale(.96); } to { opacity:var(--window-opacity,1); transform:translate(-50%,-50%) scale(1); } }
+}
