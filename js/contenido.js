@@ -109,3 +109,5 @@ export const CONTENT = {
     }]
   }
 };
+
+export const format = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key]);

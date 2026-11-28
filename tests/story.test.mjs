@@ -1,18 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import vm from 'node:vm';
 import { createHash } from 'node:crypto';
 
-const content = (await readFile(new URL('../js/contenido.js',import.meta.url),'utf8')).replace('export const CONTENT','const CONTENT');
-const html = await readFile(new URL('../index.html',import.meta.url),'utf8');
-const script = content + html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/import \{ CONTENT \} from '[^']+';/, '');
-const logic = script.split('document.querySelectorAll')[0];
-function setup() {
-  const context = vm.createContext({location:{protocol:'file:'}});
-  vm.runInContext(logic,context);
-  return code=>vm.runInContext(code,context);
-}
+import { createTestSession } from './helpers/session.mjs';
+const script = await readFile(new URL('../js/portafolio.js',import.meta.url),'utf8');
+function setup() { return createTestSession({ protocol:'file:' }).run; }
 
 test('el portafolio conserva solo trabajos aprobados, sin duplicar ni reemplazar con fallos',()=>{
   const run=setup();

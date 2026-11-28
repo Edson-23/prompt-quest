@@ -1,10 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
-const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
-const flow=html.split('// Flujo de misión:')[1].split('// Fin del flujo de misión.')[0];
-const controller=flow.slice(flow.indexOf('function usesLaptopMissionFlow'));
+import { createMissionController } from '../js/misiones.js';
 function setup({desktop=false,reduced=false}={}){
  const document={activeElement:null,body:{dataset:{},classList:{contains:()=>true}}};
  class Element{
@@ -17,12 +14,13 @@ function setup({desktop=false,reduced=false}={}){
  }
  const ids=['prompt-form','results-panel','execute','result-actions','new-mail','client-name','terminal-scroll','prompt','terminal-history','history-items','hint-button','result-hint','hint','chat-hints','chat-scroll','client-guide','submitted-prompt','sheet-score','result-announcement','mail-notification','read-client','inbox-window','terminal-window','task-mail','task-terminal','desktop-finished','desktop-continue'];
  const nodes=Object.fromEntries(ids.map(id=>[id,new Element(id)]));
+ document.getElementById=id=>nodes[id];
  document.createElement=()=>new Element('');
  const state={completed:new Set(),history:new Map(),hints:0,chatTimer:null,chatRevealed:false};
  const mission={id:'menu-semanal',hints:['Primera pista','Segunda pista','Tercera pista']};
  const timers=[];
  const context=vm.createContext({document,state,mission,window:{matchMedia:query=>({matches:query.includes('min-width')?desktop:reduced})},setTimeout:(fn,delay)=>{timers.push({fn,delay});return timers.length},clearTimeout:()=>{},$:id=>nodes[id],ui:{score:'{count} / 6 criterios',hint:'Pedir pista',hintsDone:'Pistas: 3',hintNumber:'Pista {current} de 3',resultReady:'{count} criterios'},format:(text,values)=>text.replace(/\{(\w+)\}/g,(_,key)=>values[key])});
- vm.runInContext(controller,context);
+ Object.assign(context,createMissionController({state,mission,criteria:[],missions:[],language:'es',ui:context.ui},{document,window:context.window,evaluate:async()=>{},onGraduation:()=>{},schedule:context.setTimeout,cancel:context.clearTimeout}));
  return {nodes,state,mission,document,timers,run:code=>vm.runInContext(code,context)};
 }
 test('la terminal alterna editor y resultados, con foco en el control correspondiente',()=>{

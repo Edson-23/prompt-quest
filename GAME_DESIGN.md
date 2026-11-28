@@ -59,7 +59,7 @@ Paleta sugerida (modo oscuro):
 
 ## 6. Evaluación simulada (MVP)
 
-El respaldo simulado no usa IA. Se utiliza al abrir el HTML como archivo o si Gemini falla (sección 13). Funciona con reglas sencillas:
+El respaldo simulado no usa IA. Se utiliza sin configuración de Gemini o si Gemini falla (sección 13). Funciona con reglas sencillas:
 
 - **Detección por palabras clave y patrones.** Por ejemplo, el criterio "Rol" se cumple si el texto contiene frases como "actúa como", "eres un" o "eres una".
 - **Cada misión define sus criterios obligatorios.** La misión del restaurante exige rol, objetivo y formato; contexto, restricciones y ejemplo también se evalúan como mejoras opcionales.
@@ -123,9 +123,9 @@ Detalles consolidados: [flujo de misión](docs/specs/MISION_FLUJO.txt) y [ventan
 
 ## 11. Tecnología
 
-- **Frontend:** un solo archivo `index.html` con HTML, CSS y JavaScript. Sin frameworks ni pasos de compilación.
+- **Frontend:** `index.html` contiene la estructura de pantallas; `styles/` separa base, historia, misiones y escritorio; `js/` separa contenido, evaluación, historia, misiones, portafolio y arranque mediante módulos ES. Sin frameworks ni pasos de compilación. El desarrollo requiere servir por HTTP con `npx wrangler dev`, no abrir `file://`.
 - **Backend:** un Worker de módulo ES en `src/index.js`. Su manejador `fetch(request, env)` atiende `POST /api/evaluar` y delega las demás rutas a `env.ASSETS.fetch(request)`.
-- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar solo `index.html` y los tres cuadros optimizados del personaje. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npm run deploy` (Wrangler 4 como dependencia de desarrollo), sin compilación.
+- **Hosting:** Cloudflare Workers con assets estáticos, conectado al repositorio de GitHub. `wrangler.jsonc` declara el servidor y sirve la raíz como assets; `.assetsignore` permite publicar `index.html`, las hojas CSS de `styles/`, los módulos de `js/` y los tres cuadros optimizados del personaje. Las rutas `/api/*` invocan primero el Worker. El despliegue usa `npm run deploy` (Wrangler 4 como dependencia de desarrollo), sin compilación.
 - **Proveedor de IA:** Google Gemini (Google AI Studio). El nombre exacto de un modelo compatible con `generateContent` y salida JSON debe copiarse desde AI Studio a la variable `GEMINI_MODEL`, porque cambia con el tiempo. Revisar su disponibilidad y cuota gratuita en la cuenta.
 - **Respaldo:** la evaluación simulada por reglas, que corre en el navegador cuando Gemini falla o se agota la cuota.
 - **Secretos:** la clave de Gemini se guarda como variable de entorno en el panel de Cloudflare, con el nombre `GEMINI_API_KEY`. Nunca se escribe en el código ni se sube a GitHub.
@@ -135,7 +135,9 @@ Estructura de archivos del proyecto:
 
 ```
 prompt-quest/
-├── index.html              (juego completo, sin compilación)
+├── index.html              (estructura de pantallas)
+├── styles/                 (base.css, historia.css, misiones.css, escritorio.css)
+├── js/                     (contenido.js, evaluacion.js, historia.js, misiones.js, portafolio.js, app.js)
 ├── assets/                 (solo los tres PNG optimizados de Epson_IA)
 ├── src/index.js            (Worker: evaluación y acceso a ASSETS)
 ├── tests/                  (node:test, sin claves ni llamadas reales)
@@ -145,7 +147,7 @@ prompt-quest/
 ├── package.json            (npm test, npm run dev, npm run deploy)
 ├── package-lock.json       (instalación reproducible con npm ci)
 ├── wrangler.jsonc
-├── .assetsignore           (solo juego y tres PNG públicos)
+├── .assetsignore           (solo HTML, CSS, módulos del cliente y tres PNG públicos)
 ├── .gitignore
 ├── README.md
 └── GAME_DESIGN.md          (única fuente de verdad)
@@ -201,7 +203,7 @@ Al empezar a construir:
 4. Agrega las otras dos misiones solo después de que la primera funcione.
 5. Mantén los textos del juego en español, con oraciones en mayúscula inicial y sin signos de admiración.
 6. No uses `localStorage` ni `sessionStorage`.
-7. Construye primero la evaluación simulada completa en `index.html`. Debe funcionar sin internet ni clave.
+7. Mantén la evaluación simulada independiente del DOM en `js/evaluacion.js`. Debe funcionar sin conexión al proveedor ni clave; sirve el juego por HTTP para cargar sus módulos.
 8. Después crea `src/index.js` como Worker con `export default { fetch(request, env) }`, que llama a Gemini usando `env.GEMINI_API_KEY` para `POST /api/evaluar`. Mantén `index.html` en la raíz y configura el binding `ASSETS` en `wrangler.jsonc`.
 9. Nunca pongas la clave de Gemini en `index.html` ni en ningún archivo del repositorio.
 10. En el navegador, llama a `/api/evaluar`. Si falla, usa la evaluación simulada sin mostrar errores técnicos al jugador.
@@ -226,7 +228,7 @@ Una barra representa la reputación mediante misiones completadas. El portafolio
 
 Epson_IA es quien da la bienvenida; los clientes son personajes distintos y conservan su voz. Portada y bienvenida preceden al editor. La portada tiene una sola acción y la bienvenida avanza por tres mensajes con Atrás/Siguiente; el último inicia la prueba. No hay cuentas ni sonido automático.
 
-Los tres cuadros de Epson_IA mantienen estilo, encuadre, fondo y chaleco con «Epson_IA»: saludo, mano abajo (reposo) y ojos cerrados (parpadeo). Los PNG web miden 480 × 268 px. Se precargan desde la portada; cada mensaje inicia un saludo de 800 ms, seguido de reposo. El parpadeo dura 150 ms cada 3–5 segundos. Los mensajes avanzan sin esperar la animación. Con movimiento reducido se mantiene el reposo; una imagen fallida también usa reposo, con copia de emergencia incluida en el HTML. Al ocultar la pestaña o terminar la bienvenida se detienen los cambios automáticos. Los originales se conservan solo en la carpeta local `../prompt-quest-originales/`, fuera de Git y del despliegue.
+Los tres cuadros de Epson_IA mantienen estilo, encuadre, fondo y chaleco con «Epson_IA»: saludo, mano abajo (reposo) y ojos cerrados (parpadeo). Los PNG web miden 480 × 268 px. Se precargan desde la portada; cada mensaje inicia un saludo de 800 ms, seguido de reposo. El parpadeo dura 150 ms cada 3–5 segundos. Los mensajes avanzan sin esperar la animación. Con movimiento reducido se mantiene el reposo; una imagen fallida también usa reposo, con copia de emergencia incluida en el módulo de historia. Al ocultar la pestaña o terminar la bienvenida se detienen los cambios automáticos. Los originales se conservan solo en la carpeta local `../prompt-quest-originales/`, fuera de Git y del despliegue.
 
 Documentación subordinada, una versión por tema:
 
@@ -235,4 +237,4 @@ Documentación subordinada, una versión por tema:
 - [LAPTOP_FLUJO.txt](docs/specs/LAPTOP_FLUJO.txt): detalle de ventanas secuenciales desde 768 px.
 - [Revisión de misiones](docs/review/MISSIONS_REVIEW.md), [revisión móvil](docs/review/MOBILE_REVIEW.md) y [revisión de presentación](docs/review/ONBOARDING_REVIEW.md): evidencia histórica. Sus cantidades de pruebas, hojas de resultados o composiciones anteriores no definen el estado actual.
 
-Los textos exactos actualmente visibles permanecen en `CONTENT.es` dentro de index.html. Esta reorganización no modifica el juego, la evaluación ni el servidor.
+Los textos exactos actualmente visibles permanecen en `CONTENT.es` dentro de `js/contenido.js`. Esta reorganización no modifica el juego, la evaluación ni el servidor.

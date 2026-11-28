@@ -5,6 +5,7 @@ const root = new URL('../', import.meta.url);
 const html = await readFile(new URL('index.html', root), 'utf8');
 test('las hojas externas conservan el orden y separan los estilos laptop', async () => {
   assert.doesNotMatch(html, /<style\b|\sstyle=/);
+  assert.deepEqual([...html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script>/g)].map(match=>match[0]), ['<script type="module" src="js/app.js"></script>']);
   const sheets = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)">/g)].map(match => match[1]);
   assert.deepEqual(sheets, ['styles/base.css','styles/historia.css','styles/misiones.css','styles/escritorio.css']);
   const css = await Promise.all(sheets.map(file => readFile(new URL(file, root), 'utf8')));

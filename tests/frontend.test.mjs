@@ -3,10 +3,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const content = (await readFile(new URL('../js/contenido.js',import.meta.url),'utf8')).replace('export const CONTENT','const CONTENT');
-const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const script = content + html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/import \{ CONTENT \} from '[^']+';/, '');
-const logic = script.split('document.querySelectorAll')[0];
+import { createTestSession } from './helpers/session.mjs';
+const html = await readFile(new URL('../index.html',import.meta.url),'utf8');
+const sources = await Promise.all(['app','contenido','evaluacion','historia','misiones','portafolio'].map(name => readFile(new URL('../js/'+name+'.js',import.meta.url),'utf8')));
 const prompt = 'Actúa como chef. Crea un menú semanal en una tabla.';
 const ids = ['rol', 'contexto', 'objetivo', 'formato', 'restricciones', 'ejemplo'];
 const data = {
@@ -15,14 +14,13 @@ const data = {
   retroalimentacion: 'Instrucciones completas.',
 };
 function setup(fetch, protocol = 'https:', overrides = {}) {
-  const context = vm.createContext({ fetch, location: { protocol }, AbortController, setTimeout, clearTimeout, ...overrides });
-  vm.runInContext(logic, context);
-  return { run: () => vm.runInContext(`evaluateWithFallback(${JSON.stringify(prompt)})`, context), context };
+  const session = createTestSession({ fetch, protocol, ...overrides });
+  return { run: () => session.evaluate(prompt), context:session.context };
 }
 
 test('la sintaxis del juego es válida y no usa almacenamiento persistente', () => {
-  new vm.Script(script);
-  assert.doesNotMatch(script, /localStorage|sessionStorage/);
+  assert.match(html, /<script type="module" src="js\/app.js"><\/script>/);
+  for (const source of sources) assert.doesNotMatch(source, /localStorage|sessionStorage/);
 });
 
 test('archivo local usa reglas sin ninguna llamada de red', async () => {

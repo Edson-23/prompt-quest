@@ -14,9 +14,26 @@ Juego web en español para aprender a escribir prompts mediante encargos de clie
 
 ## Cómo probarlo
 
-Abre `index.html` en el navegador para jugar con evaluación simulada. No requiere instalación, servidor, conexión a internet ni claves. La evaluación real con Gemini funciona al servir el juego mediante el Worker.
+Instala las dependencias con `npm ci` y ejecuta `npx wrangler dev` (o `npm run dev`). Abre la dirección local que indique Wrangler. Los módulos requieren HTTP: no abras `index.html` con doble clic ni desde `file://`. Sin claves, el juego continúa con evaluación simulada; Gemini funciona al configurar el Worker.
 
 El progreso dura únicamente mientras la página está abierta.
+
+## Mapa del frontend
+
+`index.html` contiene solo las pantallas y referencias a archivos externos. Carga las hojas en este orden: `base.css`, `historia.css`, `misiones.css`, `escritorio.css`; esta última contiene únicamente reglas desde 768 px. El único script es `js/app.js`, de tipo módulo. No hay compilación ni dependencias de interfaz.
+
+Cada controlador recibe la sesión y las dependencias que necesita; no comparte variables mediante `window`. `app.js` crea y conecta una sesión en memoria. El evaluador no accede al DOM. Los tests importan los módulos reales, con dependencias controladas para red, reloj y DOM.
+
+| Archivo | Funciones y responsabilidades |
+| --- | --- |
+| [`js/contenido.js`](js/contenido.js) | `CONTENT (textos y misiones)`, `format` |
+| [`js/evaluacion.js`](js/evaluacion.js) | `normalize`, `evaluatePrompt`, `createEvaluator`, `evaluateWithFallback` |
+| [`js/historia.js`](js/historia.js) | `createGuideAnimation`, `clearTimers`, `later`, `show`, `rest`, `canMove`, `queueBlink`, `message`, `stop`, `degrade`, `createStoryController`, `renderWelcome`, `bindEvents` |
+| [`js/misiones.js`](js/misiones.js) | `selectMission`, `createMissionController`, `renderCriteria`, `updateEditor`, `renderProgress`, `usesLaptopMissionFlow`, `laptopWindows`, `renderLaptopWindows`, `setLaptopMissionScreen`, `activateLaptopWindow`, `closeLaptopWindow`, `boundedWindowPosition`, `positionLaptopWindow`, `usesMobileClientFlow`, `missionEntryScreen`, `openClientMail`, `openNotification`, `setMissionScreen`, `revealConversation`, `prepareConversation`, `renderHistory`, `updateHintButtons`, `requestHint`, `presentResult`, `renderMission`, `advanceMission`, `bindEvents`, `updateLaptopTitlebars` |
+| [`js/portafolio.js`](js/portafolio.js) | `recordWork`, `createPortfolioController`, `renderPortfolio`, `showPortfolio`, `bindEvents` |
+| [`js/app.js`](js/app.js) | `createGame`, `startApp` |
+
+Los módulos y hojas se publican como archivos; las rutas `/js/` y `/styles/` no ofrecen listados de directorio. El servidor `src/index.js` sigue sin publicarse como asset.
 
 ## Presentación y portafolio
 
@@ -38,7 +55,7 @@ Las ventanas se pueden mover por su barra de título con el ratón o las flechas
 
 Tres misiones con progresión secuencial: menú semanal (Claridad), correos de una tienda de ropa (Contexto) y resumen para examen (Formato). Cada una incluye seis criterios, tres pistas y una respuesta de referencia fija. Los criterios obligatorios son, respectivamente: rol/objetivo/formato; rol/contexto/restricciones; contexto/objetivo/formato/ejemplo.
 
-Al aprobar aparece «Continuar». La cabecera muestra el nivel, la misión actual y el total completado. Al terminar la tercera se muestra un resumen de habilidades. El progreso y la caché viven solo en memoria. Los textos y patrones por misión están en los objetos de `CONTENT.es.missions`, al inicio del script de `index.html`. El servidor selecciona su propio encargo de confianza por identificador, sin confiar en el texto enviado por el navegador.
+Al aprobar aparece «Continuar». La cabecera muestra el nivel, la misión actual y el total completado. Al terminar la tercera se muestra un resumen de habilidades. El progreso y la caché viven solo en memoria. Los textos y patrones por misión están en los objetos de `CONTENT.es.missions`, en `js/contenido.js`. El servidor selecciona su propio encargo de confianza por identificador, sin confiar en el texto enviado por el navegador.
 
 La arquitectura usa Cloudflare Workers con static assets. El servidor vive en `src/index.js`, reemplazando la carpeta prevista `functions/api/`. `index.html` conserva su ubicación en la raíz.
 
@@ -64,13 +81,13 @@ Requiere Node.js 22 o posterior. Instala las dependencias de desarrollo con `npm
 4. Alternativa por CLI para la clave: `npx wrangler@4 secret put GEMINI_API_KEY`. El comando pide la clave de forma interactiva; nunca la escribas como argumento ni en archivos del repositorio. La clave no va en `vars` de Wrangler.
 5. Visita la URL del Worker y ejecuta un prompt. Debe indicar «Evaluación con Gemini» si la configuración es válida. Sin clave, modelo, cuota o conexión, debe mostrar «Evaluación sin IA por ahora» y continuar por reglas.
 
-`.assetsignore` publica únicamente `index.html` y los tres cuadros PNG optimizados, excluyendo `assets/originales/`, aunque el directorio de assets sea la raíz. Así no se sirven `.git`, `.dev.vars`, `.env`, código del servidor, pruebas ni documentación. Las rutas ajenas al endpoint se delegan a `env.ASSETS.fetch(request)`; un archivo inexistente devuelve 404. `keep_vars: true` conserva las variables configuradas en el panel, como `GEMINI_MODEL`, durante los siguientes despliegues.
+`.assetsignore` publica únicamente `index.html`, los archivos CSS de `styles/`, los módulos de `js/` y los tres cuadros PNG optimizados, excluyendo `assets/originales/`, aunque el directorio de assets sea la raíz. Así no se sirven `.git`, `.dev.vars`, `.env`, código del servidor, pruebas ni documentación. Las rutas ajenas al endpoint se delegan a `env.ASSETS.fetch(request)`; un archivo inexistente devuelve 404. `keep_vars: true` conserva las variables configuradas en el panel, como `GEMINI_MODEL`, durante los siguientes despliegues.
 
 El binding de límite usa `namespace_id: "1001"`; si la cuenta ya utiliza ese identificador para otro límite, asigna uno libre. Limita aproximadamente a 5 solicitudes por IP cada 60 segundos en cada ubicación de Cloudflare. Los usuarios de una misma red comparten el límite. La página también limita a 5 intentos por minuto y reutiliza hasta 50 evaluaciones exitosas en memoria; recargar borra esta caché. No constituye una cuota global estricta.
 
 ## Desarrollo local y pruebas
 
-Para probar solo las reglas, abre `index.html`. Para probar el servidor, crea manualmente un archivo **ignorado** `.dev.vars` junto a `wrangler.jsonc` con tus valores de `GEMINI_API_KEY` y `GEMINI_MODEL`, y ejecuta:
+Para probar el juego con módulos, ejecuta un servidor local. Gemini es opcional: si quieres habilitarlo localmente, crea manualmente un archivo **ignorado** `.dev.vars` junto a `wrangler.jsonc` con tus valores de `GEMINI_API_KEY` y `GEMINI_MODEL`. Después ejecuta:
 
 ```sh
 npm ci

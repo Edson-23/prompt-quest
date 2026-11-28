@@ -1,9 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import vm from 'node:vm';
-const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
-const factory=html.slice(html.indexOf('const GUIDE_FRAMES'),html.indexOf('const guideAnimation ='));
+import { createGuideAnimation } from '../js/historia.js';
 function setup({reduced=false}={}){
  let now=0, next=0;
  const jobs=new Map(), assets=[], listeners={};
@@ -11,11 +9,8 @@ function setup({reduced=false}={}){
  const motion={matches:reduced,addEventListener(_,callback){this.change=callback}};
  const page={hidden:false,addEventListener(_,callback){this.change=callback}};
  class Asset{constructor(){assets.push(this)}}
- const context=vm.createContext({});
- vm.runInContext(factory,context);
- context.image=image;
- context.options={ImageType:Asset,motion,page,random:()=>0.5,schedule:(fn,ms)=>{const id=++next;jobs.set(id,{fn,at:now+ms});return id},cancel:id=>jobs.delete(id)};
- const controller=vm.runInContext('createGuideAnimation(image,options)',context);
+ const options={ImageType:Asset,motion,page,random:()=>0.5,schedule:(fn,ms)=>{const id=++next;jobs.set(id,{fn,at:now+ms});return id},cancel:id=>jobs.delete(id)};
+ const controller=createGuideAnimation(image,options);
  const advance=ms=>{const end=now+ms;while(true){const job=[...jobs].sort((a,b)=>a[1].at-b[1].at)[0];if(!job||job[1].at>end)break;now=job[1].at;jobs.delete(job[0]);job[1].fn()}now=end};
  return {image,motion,page,assets,jobs,listeners,controller,advance,load:()=>assets.forEach(asset=>asset.onload())};
 }

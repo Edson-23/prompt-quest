@@ -1,12 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import vm from 'node:vm';
 import worker from '../src/index.js';
 
-const content = (await readFile(new URL('../js/contenido.js',import.meta.url),'utf8')).replace('export const CONTENT','const CONTENT');
-const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const logic = content + html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/import \{ CONTENT \} from '[^']+';/, '').split('document.querySelectorAll')[0];
+import { createTestSession } from './helpers/session.mjs';
 const ids = ['rol','contexto','objetivo','formato','restricciones','ejemplo'];
 const missionIds = ['menu-semanal','correos-tienda','resumen-examen'];
 const good = [
@@ -17,9 +13,7 @@ const good = [
 const weak = ['Dame comida.', 'Ayúdame.', 'Dime algo.'];
 const required = [['rol','objetivo','formato'], ['rol','contexto','restricciones'], ['contexto','objetivo','formato','ejemplo']];
 function setup(index = 0, { protocol = 'file:', fetch = () => { throw Error('Sin conexión'); } } = {}) {
-  const context = vm.createContext({ location:{ protocol }, fetch, AbortController, setTimeout, clearTimeout });
-  vm.runInContext(logic, context);
-  const run = code => vm.runInContext(code, context);
+  const { run } = createTestSession({ protocol, fetch });
   for (let i = 1; i <= index; i++) {
     run('state.completed.add(mission.id)');
     assert.equal(run(`selectMission(${i})`), true);
